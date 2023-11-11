@@ -1,0 +1,41 @@
+.home-nav {
+    height: 50px;
+    display: grid;
+    grid-template-columns: 30% 20% 30% 20%;
+    grid-template-areas: ' a b c d';
+    list-style: none;
+    background-color: rgb(52, 133, 255);
+}
+
+.link-holder {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: auto;
+    left: 0px;
+    grid-area: d;
+}
+
+.link {
+    margin: 30px;
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: white;
+}
+.home-button {
+    margin: auto 0;
+    display: flex;
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: white;
+    grid-area: b;
+    align-content: center;
+    justify-content: end;
+}
+
+.link-home {
+    display: flex;
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: white;
+}
