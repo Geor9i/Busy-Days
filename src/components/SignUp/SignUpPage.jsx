@@ -1,4 +1,4 @@
-const LoginPage = () => {
+const SignUpPage = () => {
     return (
         <>
             <form action="">
@@ -15,4 +15,4 @@ const LoginPage = () => {
     )
 }
 
-export default LoginPage;
+export default SignUpPage;
