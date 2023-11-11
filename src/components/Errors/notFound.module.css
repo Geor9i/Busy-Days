@@ -1,0 +1,14 @@
+.container {
+    margin: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.not-found-title {
+    margin: auto;
+    color: red;
+    font-size: 5rem;
+}

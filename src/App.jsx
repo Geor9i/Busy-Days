@@ -8,16 +8,18 @@ import { Routes, Route, Link } from "react-router-dom";
 import Members from "./components/Members/Members.jsx";
 import LoginPage from "./components/Login/loginPage.jsx";
 import SignUpPage from "./components/SignUp/SignUpPage.jsx";
+import NotFound from "./components/Errors/NotFound.jsx";
 
 function App() {
   return (
     <div className="app-container">
       <HomeNav />
       <Routes>
-        <Route path="/" element={<GuestContent />}></Route>
-        <Route path="/members" element={<Members />}></Route>
-        <Route path="/login" element={<LoginPage />}></Route>
-        <Route path="/sign-up" element={<SignUpPage />}></Route>
+        <Route path="/" element={<GuestContent />} />
+        <Route path="/members" element={<Members />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/sign-up" element={<SignUpPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <Footer />
