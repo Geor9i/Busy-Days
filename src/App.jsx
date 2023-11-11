@@ -26,8 +26,10 @@ const app = initializeApp(firebaseConfig);
 
 function App() {
   return (
-    <div className="app-container">
+    <div className={styles['app-container']}>
       <HomeNav />
+
+      <div className={styles['content']}>
       <Routes>
         <Route path="/" element={<GuestContent />} />
         <Route path="/members" element={<Members />} />
@@ -35,6 +37,7 @@ function App() {
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </div>
 
       <Footer />
     </div>

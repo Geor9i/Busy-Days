@@ -1,6 +1,15 @@
 .app-container {
-    position: relative;
-    align-items: center;
-    justify-content: center;
+    width: 100vw;
+    min-height: 100%;
+}
+
+.content {
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-wrap: wrap;
+    height: 86vh;
+    overflow: auto;
 }

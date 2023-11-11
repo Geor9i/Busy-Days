@@ -1,0 +1,39 @@
+.form {
+    margin: auto;
+    padding: 100px;
+    width: auto;
+    height: auto;
+    background-color: rgb(230, 230, 230);
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    border-radius: 7px;
+    border: 1px solid black;
+}
+
+.input-div {
+    position: relative;;
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.for div {
+    width: 100%;
+}
+
+.form input {
+    width: 100%;
+    height: 2rem;
+}
+
+.submit {
+    position: relative;
+    width: 20px;
+}

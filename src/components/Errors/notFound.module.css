@@ -1,6 +1,8 @@
 .container {
-    margin: 300px;
     display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -8,7 +10,6 @@
 }
 
 .not-found-title {
-    margin: auto;
     color: red;
     font-size: 5rem;
 }
