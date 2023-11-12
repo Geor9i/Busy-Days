@@ -1,6 +1,7 @@
-.app-container {
-    width: 100vw;
-    min-height: 100%;
+main {
+    width: 100%;
+    min-height: 84vh;
+    padding: 2rem;
 }
 
 .content {
@@ -10,6 +11,4 @@
     align-items: center;
     position: relative;
     flex-wrap: wrap;
-    height: 86vh;
-    overflow: auto;
 }

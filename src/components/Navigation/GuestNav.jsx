@@ -1,7 +1,7 @@
 import styles from './homeNav.module.css'
 import { Routes, Route, Link } from "react-router-dom";
 
-const HomeNav = () => {
+const GuestNav = () => {
     return (
         <>
         <nav>
@@ -19,4 +19,4 @@ const HomeNav = () => {
     )
 }
 
-export default HomeNav;
+export default GuestNav;

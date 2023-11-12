@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "./app.module.css";
-import HomeNav from "./components/Navigation/HomeNav.jsx";
+import GuestNav from "./components/Navigation/GuestNav.jsx";
 import UserNav from "./components/Navigation/UserNav.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import "./styles.css";
@@ -38,9 +38,10 @@ function App() {
   }
 
   return (
-    <div className={styles['app-container']}>
-      {user ? <UserNav /> : <HomeNav />}
+    <>
+    {user ? <UserNav /> : <GuestNav />}
 
+   <main>
       <div className={styles['content']}>
         <Routes>
           <Route path="/" element={<GuestContent />} />
@@ -50,9 +51,9 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-
+      </main>
       <Footer />
-    </div>
+      </>
   );
 }
 
