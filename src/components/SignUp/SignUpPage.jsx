@@ -21,7 +21,6 @@ const SignUpPage = () => {
     e.preventDefault();
     const { name, value } = e.currentTarget;
     setFormData((state) => ({ ...state, [name]: value }));
-    console.log(value);
   }
   function submitHandler(e) {
     e.preventDefault();

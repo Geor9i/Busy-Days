@@ -4,13 +4,7 @@ import { useState } from "react";
 import { useNavigate  } from "react-router-dom";
 import {
   getAuth,
-  createUserWithEmailAndPassword,
-  signOut,
   signInWithEmailAndPassword,
-  deleteUser,
-  updateProfile,
-  updateEmail,
-  updatePassword,
 } from "firebase/auth";
 
 const formUtil = new FormUtil();
@@ -25,7 +19,6 @@ const LoginPage = () => {
     e.preventDefault();
     const { name, value } = e.currentTarget;
     setFormData((state) => ({ ...state, [name]: value }));
-    console.log(value);
   }
   function submitHandler(e) {
     e.preventDefault();
@@ -39,7 +32,6 @@ const LoginPage = () => {
             navigate("/");
           })
           .catch((error) => {
-            const errorCode = error.code;
             const errorMessage = error.message;
             alert(errorMessage);
           });
