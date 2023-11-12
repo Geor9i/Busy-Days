@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./app.module.css";
 import HomeNav from "./components/Navigation/homeNav.jsx";
+import UserNav from "./components/Navigation/UserNav.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import "./styles.css";
 import GuestContent from "./components/GuestHome/GuestContent.jsx";
@@ -10,24 +11,29 @@ import LoginPage from "./components/Login/loginPage.jsx";
 import SignUpPage from "./components/SignUp/SignUpPage.jsx";
 import NotFound from "./components/Errors/NotFound.jsx";
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { firebaseConfig } from "../config/firebaseConfig.js";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyB8wCR98lowGhbXrN_bPuUw4D-WaenIbDQ",
-  authDomain: "busy-dayz.firebaseapp.com",
-  projectId: "busy-dayz",
-  storageBucket: "busy-dayz.appspot.com",
-  messagingSenderId: "668014678034",
-  appId: "1:668014678034:web:040b52eec494c72c15c8cb"
-};
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
+initializeApp(firebaseConfig);
 function App() {
+  let [user, setUser] = useState(null);
+  const auth = getAuth();
+console.log(user);
+
+useEffect(() => {
+  auth.onAuthStateChanged((user) => {
+    setUser(user);
+  });
+
+  // Cleanup the subscription when the component unmounts
+}, [auth]);
+
+
   return (
     <div className={styles['app-container']}>
-      <HomeNav />
+      {user ? <UserNav /> : <HomeNav />}
 
       <div className={styles['content']}>
       <Routes>

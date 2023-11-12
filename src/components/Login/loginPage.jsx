@@ -36,7 +36,7 @@ const LoginPage = () => {
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            navigate.push("/");
+            navigate("/");
           })
           .catch((error) => {
             const errorCode = error.code;
