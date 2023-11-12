@@ -10,7 +10,7 @@ const HomeNav = () => {
                 <div className={styles['link-holder']}>
                     <li><Link  className={styles['link']} to="/members">Members</Link></li>
                     <li><Link  className={styles['link']} to="/login">Login</Link></li>
-                    <li><Link  className={styles['link']} to="/register">Sign Up</Link></li>
+                    <li><Link  className={styles['link']} to="/sign-up">Sign Up</Link></li>
                 </div>
             </ul>
 

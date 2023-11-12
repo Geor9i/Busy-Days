@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "./app.module.css";
-import HomeNav from "./components/Navigation/homeNav.jsx";
+import HomeNav from "./components/Navigation/HomeNav.jsx";
 import UserNav from "./components/Navigation/UserNav.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import "./styles.css";
