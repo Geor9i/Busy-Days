@@ -49,7 +49,6 @@
   /* transition: width 0.4s ease; */
   width: 0%;
   height: 100vh;
-  z-index: 10;
 }
 .user-menu-backdrop-active {
   width: 100%;
@@ -101,6 +100,9 @@
 
 .link {
   margin: 5px;
+}
+.link:hover {
+  color: var(--link-color);
 }
 
 .user-menu-account-container div {
