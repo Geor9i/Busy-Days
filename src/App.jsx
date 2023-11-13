@@ -39,10 +39,9 @@ function App() {
 
   return (
     <>
-    {user ? <UserNav /> : <GuestNav />}
+    {user ? <UserNav user={user} /> : <GuestNav />}
 
-   <main>
-      <div className={styles['content']}>
+   <main className={styles['main']}>
         <Routes>
           <Route path="/" element={<GuestContent />} />
           <Route path="/members" element={<Members />} />
@@ -50,7 +49,6 @@ function App() {
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </div>
       </main>
       <Footer />
       </>

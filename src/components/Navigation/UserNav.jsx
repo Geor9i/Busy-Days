@@ -1,21 +1,20 @@
 import styles from "./UserNav.module.css";
-import { Routes, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { useState } from "react";
 
 
-const UserNav = () => {
+const UserNav = ({user, back}) => {
   const navigate = useNavigate();
 
   const [menuState, setMenuState] = useState({
     user: false,
     app: false
   })
-
+console.log(user);
   const menuHandler = (menuName) => {
     setMenuState(state => ({...state, [menuName]: !state[menuName]}))
-    console.log(menuState);
   }
 
   const logoutHandler = (e) => {
@@ -59,22 +58,22 @@ const UserNav = () => {
       <div className={`${styles["user-menu-backdrop"]} ${menuState.user ? styles['user-menu-backdrop-active'] : ''}`}  onClick={() => setMenuState('user')} ></div>
       <div className={styles["user-menu-container"]}>
         <div className={styles["user-menu-nav"]} onClick={() => menuHandler('user')}>
-          <h4></h4>
+          <h4>{user.displayName.slice(0,1)}</h4>
         </div>
         <div className={`${styles['user-menu']} ${menuState.user ? '' : styles['inactive']}`}  onClick={() => setMenuState('user')}>
           <div className={styles["user-menu-email-container"]}>
-            <h4></h4>
+            <h4>{user.email}</h4>
           </div>
-          <div className={styles["user-menu-account-container"]}>
+          <div className={styles["user-menu-link-container"]}>
+            <Link className={styles["link"]} onClick={logoutHandler}>
+              Logout
+            </Link>
           
             <Link className={styles["link"]} to="/account">
               Account
             </Link>
             <Link className={styles["link"]} to="/business">
               Business
-            </Link>
-            <Link className={styles["link"]} onClick={logoutHandler}>
-              Logout
             </Link>
           </div>
         </div>

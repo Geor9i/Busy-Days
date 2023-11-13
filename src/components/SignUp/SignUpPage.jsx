@@ -5,6 +5,7 @@ import { useNavigate  } from "react-router-dom";
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  updateProfile 
 } from "firebase/auth";
 
 const formUtil = new FormUtil();
@@ -12,6 +13,8 @@ const formUtil = new FormUtil();
 const SignUpPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     repeatPassword: "",
@@ -24,13 +27,15 @@ const SignUpPage = () => {
   }
   function submitHandler(e) {
     e.preventDefault();
-    let { email, password } = formData;
+    let { email, password, firstName, lastName } = formData;
     try {
       if (formUtil.formValidator(formData, 6, 'repeatPassword')) {
         const auth = getAuth();
        createUserWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            const user = userCredential.user;
+          .then(() => {
+            updateProfile(auth.currentUser, {
+              displayName: `${firstName} ${lastName}`
+            });
             navigate("/");
           })
           .catch((error) => {
@@ -47,6 +52,24 @@ const SignUpPage = () => {
   return (
     <>
       <form onSubmit={submitHandler} className={styles["form"]} method="POST">
+        <div className={styles["input-div"]}>
+          <label htmlFor="firstName">First Name</label>
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={changeHandler}
+          />
+        </div>
+        <div className={styles["input-div"]}>
+          <label htmlFor="lastName">Last Name</label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={changeHandler}
+          />
+        </div>
         <div className={styles["input-div"]}>
           <label htmlFor="email">Email</label>
           <input

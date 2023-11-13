@@ -1,7 +1,7 @@
 .form {
     margin: auto;
-    padding: 100px;
-    width: auto;
+    padding: 53px;
+    width: 30%;
     height: auto;
     background-color: rgb(230, 230, 230);
     display: flex;
@@ -14,14 +14,13 @@
 }
 
 .input-div {
+    margin-top: 10px;
     position: relative;;
-    margin: 10px;
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: start;
     justify-content: center;
     flex-wrap: wrap;
-    width: 100%;
 }
 
 .for div {
@@ -29,8 +28,8 @@
 }
 
 .form input {
-    width: 100%;
-    height: 2rem;
+    width: 20rem;
+    height: 1.5rem;
 }
 
 .submit {
