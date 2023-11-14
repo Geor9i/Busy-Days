@@ -13,6 +13,7 @@ import NotFound from "./components/Errors/NotFound.jsx";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { firebaseConfig } from "../config/firebaseConfig.js";
+import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 
 // Initialize Firebase
 initializeApp(firebaseConfig);
@@ -47,6 +48,8 @@ function App() {
           <Route path="/members" element={<Members />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/account" element={<Members />} />
+          <Route path="/business" element={<BusinessPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

@@ -1,0 +1,155 @@
+.business-page-container {
+    width: 80%;
+    height: 80vh;
+    background-color: rgb(209, 209, 209);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+}
+
+.name-container {
+    width: 100%;
+    height: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+}
+.opening-times-container {
+    margin: 50px;
+    width: 100%;
+    height: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    font-size: 1.5rem;
+}
+.name-container label {
+    margin: 5px;
+    font-size: 1.5rem;
+}
+.name-container input {
+    margin: 5px;
+    font-size: 1.5rem;
+    text-align: center;
+    border: none;
+    outline: none;
+    font-weight: bold;
+}
+
+.opening-times-table {
+    border-collapse: collapse;
+}
+
+.opening-times-th {
+    min-width: 10rem;
+    max-width: 10rem;
+    border: 1px solid black;
+}
+
+.opening-times-td {
+    border: 1px solid black;
+}
+
+.opening-times-td-div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.opening-times-window-container {
+    margin: 10px 0px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    font-size: 1.2rem;
+}
+
+.opening-times-window-sub-container {
+    width: 100%;
+    display: flex;
+}
+
+.time-window {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.time-window input {
+    width: 90%;
+    text-align: center;
+}
+
+.time-window p {
+    margin: 0;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.role-hierarchy-container {
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    font-size: 1.2rem;
+}
+.role-hierarchy-container p {
+ margin: 5px;
+}
+
+.add-position {
+    width: 20%;
+    margin: 10px 0;
+}
+
+.role-hierarchy-position {
+    width: 80%;
+    height: 2rem;
+    background-color: rgb(152, 101, 235)
+}
+
+.role-hierarchy-table {
+    border-collapse: collapse;
+}
+.role-hierarchy-table {
+    border: 1px solid black;
+}
+
+.role-hierarchy-th {
+    min-width: 15rem;
+    max-width: 15rem;
+    border: 1px solid black;
+}
+.role-hierarchy-td {
+    border: 1px solid black;
+    text-align: center;
+}
+
+.role-hierarchy-td-select select {
+    width: 100%;
+    text-align: center;
+}
+.role-hierarchy-td-role input {
+    width: 100%;
+    text-align: center;
+}
+
+.submit {
+    cursor: pointer;
+    margin: 3rem;
+    width: 40%;
+    font-size: 1.5rem;
+}
