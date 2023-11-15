@@ -153,3 +153,10 @@
     width: 40%;
     font-size: 1.5rem;
 }
+
+.modal-container {
+    width: 70%;
+    height: 80vh;
+    background-color: blue;
+    border: 1px solid black;
+}

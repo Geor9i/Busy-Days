@@ -12,7 +12,6 @@ const UserNav = ({user, back}) => {
     user: false,
     app: false
   })
-console.log(user);
   const menuHandler = (menuName) => {
     setMenuState(state => ({...state, [menuName]: !state[menuName]}))
   }
