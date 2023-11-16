@@ -1,15 +1,19 @@
-import styles from './openingTimesTd.module.css'
+import styles from "./openingTimesTd.module.css";
 
-export default function OpeningTimesTd ({weekday, handler, data, setLastKey, onBlur}) {
+export default function OpeningTimesTd({
+  weekday,
+  handler,
+  data,
+  setLastKey,
+  onBlur,
+  isWorkday,
+}) {
+  if (isWorkday) {
     return (
-        <td className={styles["opening-times-td"]}>
+      <td className={styles["opening-times-td"]}>
         <div className={styles["opening-times-td-div"]}>
           <div className={styles["opening-times-window-container"]}>
-            <div
-              className={
-                styles["opening-times-window-sub-container"]
-              }
-            >
+            <div className={styles["opening-times-window-sub-container"]}>
               <div className={styles["time-window"]}>
                 <label htmlFor={`startTime-${weekday}`}>open</label>
                 <input
@@ -38,6 +42,19 @@ export default function OpeningTimesTd ({weekday, handler, data, setLastKey, onB
           </div>
         </div>
       </td>
-    )
+    );
+  } else {
+    return (
+      <td className={styles["opening-times-td"]}>
+        <div className={styles["opening-times-td-div"]}>
+          <div className={styles["opening-times-window-container"]}>
+            <div className={styles["opening-times-window-sub-container"]}>
+              <div className={styles["time-window"]}></div>
+              <div className={styles["time-window"]}></div>
+            </div>
+          </div>
+        </div>
+      </td>
+    );
+  }
 }
-

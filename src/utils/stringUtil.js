@@ -20,7 +20,16 @@ export default class StringUtil {
         throw new Error ('Param is not a string!')
     }
 
-    to
+     filterString(string, { letters = '', regexSymbols = '', keep = false } = {}) {
+        if (typeof string !== 'string') {
+          throw new Error(`${string} is not of type String!`);
+        }
+        regexSymbols = regexSymbols.split('').map(s => `\\${s}`).join('');
+        const pattern = new RegExp(`[${keep ? '^' : ''}${letters}${regexSymbols}]`, 'g');
+        string = string.replace(pattern, '');
+        return string;
+      }
+      
 
     format(data) {
         if (typeof data === "string") {

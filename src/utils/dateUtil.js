@@ -1,8 +1,8 @@
-import Util from "./util";
+import ObjectUtil from "./util";
 
 export default class DateUtil {
   constructor() {
-    this.util = new Util();
+    this.util = new ObjectUtil();
   }
 
   getWeekdays(data, options = {}) {

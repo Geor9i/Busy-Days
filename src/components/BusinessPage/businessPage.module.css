@@ -51,6 +51,14 @@
     min-width: 10rem;
     max-width: 10rem;
     border: 1px solid black;
+    cursor: pointer;
+}
+.opening-times-th-inactive {
+   text-decoration: line-through;
+   text-decoration-thickness: 5px;
+}
+.opening-times-th:hover {
+    background-color: white;
 }
 
 .role-hierarchy-container {

@@ -7,58 +7,86 @@ import DateUtil from "../../utils/dateUtil.js";
 import OpeningTimesTd from "./OpeningTimesTd/OpeningTimesTd.jsx";
 import StringUtil from "../../utils/stringUtil.js";
 import TimeUtil from '../../utils/timeUtil.js/'
+import ObjectUtil from "../../utils/util.js";
+import { doc, getFirestore, setDoc, addDoc, collection, updateDoc, getDoc, getDocs, deleteDoc, query, where  } from "firebase/firestore"; 
+
 
 const BusinessPage = () => {
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
   const stringUtil = new StringUtil();
   const timeUtil = new TimeUtil();
-  
+  const objUtil = new ObjectUtil();
+
   const weekdays = dateUtil.getWeekdays([]);
 
   const [formData, setFormData] = useState({
     name: "",
-    openTimes: {
-      monday: {
-        startTime: "",
-        endTime: "",
-      },
-      tuesday: {
-        startTime: "",
-        endTime: "",
-      },
-      wednesday: {
-        startTime: "",
-        endTime: "",
-      },
-      thursday: {
-        startTime: "",
-        endTime: "",
-      },
-      friday: {
-        startTime: "",
-        endTime: "",
-      },
-      saturday: {
-        startTime: "",
-        endTime: "",
-      },
-      sunday: {
-        startTime: "",
-        endTime: "",
-      },
-    },
+    openTimes: objUtil.reduceToObj(weekdays, {
+      startTime: '',
+      endTime: '',
+      isWorkday: true,
+    }),
     positionHierarchy: [],
   });
 
   const submitHandler = (e) => {
     e.preventDefault();
-    validateForm(formData)
+    try {
+      validateForm(formData)
+    } catch(err) {
+      console.log(err);
+    }
 
     function validateForm(formData) {
       const {name, openTimes, positionHierarchy} = formData;
-      console.log(name);
+      if (typeof name !== 'string') {
+        throw new Error('Name is not of type String')
+      }
+      if (name.length < 2) {
+        throw new Error('Business name must be at least 2 characters long!')
+      }
+      let closedDays = 0;
+      for (let day in openTimes) {
+        let weekday = openTimes[day];
+        if (((weekday.startTime && !weekday.endTime) || (!weekday.startTime && weekday.endTime)) && weekday.isWorkday) {
+          throw new Error(`Please provide the ${weekday.startTime ? `opening time` : 'closing time'} for ${stringUtil.toPascalCase(day)}!`)
+        }
+        if (!weekday.isWorkday || (!weekday.startTime && !weekday.endTime)) {
+          closedDays++;
+        }
+      }
+      if (closedDays === 7) {
+        throw new Error('Business must be open at least one day!')
+      }
+
+      for (let position of positionHierarchy) {
+        if (!position.title) {
+          throw new Error('Please specify a title for all job roles!')
+        }
+      }
+      if (positionHierarchy.length < 1) {
+        throw new Error('Business must have at least 1 job role!')
+      }
     }
+  }
+
+  console.log(formData);
+  
+  const setWeekdayHandler = (e) => {
+
+    const weekday = e.target.getAttribute('data-weekday');
+    console.log(weekday);
+    setFormData(state =>({
+      ...state,
+      openTimes: {
+        ...state.openTimes,
+        [weekday] : {
+          ...state.openTimes[weekday],
+          isWorkday: !state.openTimes[weekday].isWorkday
+        }
+      }
+    }))
   }
 
   const [lastKey, setLastKey] = useState('')
@@ -75,7 +103,7 @@ const BusinessPage = () => {
       positionHierarchy: [
         ...state.positionHierarchy,
         {
-          position: "",
+          title: "",
           responsibility: "management",
           canSubstitute: false,
           substitutes: [],
@@ -99,11 +127,13 @@ const BusinessPage = () => {
     }));
   };
 
+
   const openTimesHandler = (e) => {
     const element = e.target;
     const name =  element.name
     let value = element.value
     try {
+      value = stringUtil.filterString(value, {regexSymbols:'d:', keep: true});
       value = timeUtil.time().toTimeFormat(value);
       if (lastKey === 'Backspace') {
         value = value.replace(':', '');
@@ -211,12 +241,26 @@ const BusinessPage = () => {
             <table className={styles["opening-times-table"]}>
               <thead>
                 <tr>
-                {weekdays.map(day =>  <th key={day} className={styles["opening-times-th"]}>{stringUtil.toPascalCase(day)}</th>)}
+                {weekdays.map(day =>  <th
+                  key={day}
+                  onClick={setWeekdayHandler}
+                  data-weekday={day}
+                  className={`${styles["opening-times-th"]} ${styles[formData.openTimes[day].isWorkday ? '' : 'opening-times-th-inactive']}`}>
+                  {stringUtil.toPascalCase(day)}</th>
+                      )}
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  {weekdays.map(day => <OpeningTimesTd key={day} weekday={day} handler={openTimesHandler} data={formData.openTimes[day]} setLastKey={setLastKey} onBlur={openTimesOnBlurHandler}/>)}
+                  {weekdays.map(day =><OpeningTimesTd
+                                      key={day}
+                                      weekday={day}
+                                      handler={openTimesHandler}
+                                      data={formData.openTimes[day]}
+                                      setLastKey={setLastKey}
+                                      onBlur={openTimesOnBlurHandler}
+                                      isWorkday={formData.openTimes[day].isWorkday} />
+                                      )}
                 </tr>
               </tbody>
             </table>
@@ -226,10 +270,7 @@ const BusinessPage = () => {
             <p>Add job roles from highest to lowest position</p>
             <button
               onClick={addPositionHandler}
-              className={styles["add-position"]}
-            >
-              New position
-            </button>
+              className={styles["add-position"]}>New position</button>
             <table className={styles["role-hierarchy-table"]}>
               <thead>
                 <tr>

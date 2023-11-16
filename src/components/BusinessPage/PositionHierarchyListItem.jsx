@@ -10,12 +10,12 @@ const PositionHierarchyListItem = ({
 }) => {
   const substitutionsHandler = (e) => {
     e.preventDefault();
-    const startPosition = position.position;
+    const startPosition = position.title;
     let positionIndex;
     const positionArr = positions
       .reverse()
       .map((pos, i) => {
-        let currentPosition = pos.position;
+        let currentPosition = pos.title;
         if (startPosition === currentPosition) {
           positionIndex = i;
         } else if (i > positionIndex) {
@@ -33,8 +33,8 @@ const PositionHierarchyListItem = ({
         <td className={styles["role-hierarchy-td-role"]}>
           <input
             type="text"
-            name="position"
-            value={position.position}
+            name="title"
+            value={position.title}
             onChange={(e) => changeHandler(e, index)}
           />
         </td>

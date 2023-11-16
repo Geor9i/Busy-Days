@@ -169,9 +169,6 @@ export default class TimeUtil {
           return Number(time.replace(":", ""));
         },
         toTimeFormat(string){
-          if (typeof string !== 'string') {
-            throw new Error(`${string} is not of type String!`)
-          }
           let timeNumber = Number(string.split(':').join(''))
           if (isNaN(timeNumber)) {
             throw new Error(`${string} is not in a valid time format`)
@@ -186,9 +183,6 @@ export default class TimeUtil {
           return string
         },
         fillTime(string) {
-          if (typeof string !== 'string') {
-            throw new Error(`${string} is not of type String!`)
-          }
           if (string === '') {
             return string
           }

@@ -1,6 +1,6 @@
 import StringUtil from "./stringUtil.js";
 
-export default class Util {
+export default class ObjectUtil {
   constructor() {
     this.string = new StringUtil();
   }
