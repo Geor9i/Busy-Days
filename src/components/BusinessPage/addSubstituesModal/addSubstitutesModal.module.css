@@ -1,0 +1,61 @@
+
+.modal-container {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 25%;
+    height: 40%;
+    background-color: rgb(202, 202, 202);
+    border: 1px solid black;
+    border-radius: 13px;
+    z-index: 101;
+}
+
+.list-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    height: 60%;
+    overflow: auto;
+    background-color: white;
+}
+
+.list-item-container p, .list-item-container input  {
+    display: inline;
+    margin: 3px;
+}
+.list-center {
+    font-size: 1.5rem;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 80%;
+    height: 60%;
+    overflow: auto;
+    background-color: white;
+}
+.list-center p {
+    margin: 0;
+    text-align: center;
+}
+
+.confirm-btn {
+    position: relative;
+    top: 50px;
+    width: 30%;
+    height: 6%;
+    cursor: pointer;
+}
+
+.backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    backdrop-filter: blur(3px);
+}

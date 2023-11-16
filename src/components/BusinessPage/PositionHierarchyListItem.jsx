@@ -10,7 +10,7 @@ const PositionHierarchyListItem = ({
 }) => {
  
 
-  const workAsHandler = (e) => {
+  const substitutionsHandler = (e) => {
     e.preventDefault();
     const startPosition = position.position;
     let positionIndex;
@@ -24,10 +24,7 @@ const PositionHierarchyListItem = ({
         return ''
     })
     .filter(el => el !== '');
-    showModal({
-        on: true,
-        positionsList: [...positionArr]
-    })
+    showModal(positionArr)
   };
 
   return (
@@ -53,20 +50,20 @@ const PositionHierarchyListItem = ({
         </td>
         <td className={styles["role-hierarchy-td-select"]}>
           <select
-            value={position.isFlexible}
-            name="isFlexible"
+            value={position.canSubstitute}
+            name="canSubstitute"
             onChange={(e) => changeHandler(e, index)}
           >
-            <option value="true">Yes</option>
-            <option value="false">No</option>
+            <option value={true}>Yes</option>
+            <option value={false}>No</option>
           </select>
         </td>
         <td className={styles["role-hierarchy-td"]}>
           <input type="text" disabled />
           <button
             className={styles["add-additional-role"]}
-            disabled={position.isFlexible ? false : true}
-            onClick={workAsHandler}
+            disabled={position.canSubstitute ? false : true}
+            onClick={substitutionsHandler}
           >
             Edit
           </button>

@@ -1,4 +1,4 @@
-import { FormUtil } from "../../../utils/formUtil.js";
+import FormUtil from "../../utils/formUtil.js";
 import styles from "./login.module.css";
 import { useState } from "react";
 import { useNavigate  } from "react-router-dom";

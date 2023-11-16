@@ -14,6 +14,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { firebaseConfig } from "../config/firebaseConfig.js";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
+import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
 
 // Initialize Firebase
 initializeApp(firebaseConfig);
@@ -34,15 +35,17 @@ function App() {
   }, [auth]);
 
   if (isLoading) {
-    // Show a loading indicator or a splash screen while checking authentication
-    return <div>Loading...</div>;
+    return (
+      <main className={styles["main"]}>
+        <ScreenLoader />
+      </main>
+    );
   }
-
   return (
     <>
-    {user ? <UserNav user={user} /> : <GuestNav />}
+      {user ? <UserNav user={user} /> : <GuestNav />}
 
-   <main className={styles['main']}>
+      <main className={styles["main"]}>
         <Routes>
           <Route path="/" element={<GuestContent />} />
           <Route path="/members" element={<Members />} />
@@ -54,7 +57,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
-      </>
+    </>
   );
 }
 

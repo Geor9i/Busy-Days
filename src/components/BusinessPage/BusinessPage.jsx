@@ -1,8 +1,14 @@
 import { useState } from "react";
 import styles from "./businessPage.module.css";
 import PositionHierarchyListItem from "./PositionHierarchyListItem.jsx";
-import AddSubstitutesModal from './AddSubstitutesModal.jsx'
+import AddSubstitutesModal from './addSubstituesModal/AddSubstitutesModal.jsx'
+import formUtil from '../../utils/formUtil.js'
+import FormUtil from "../../utils/formUtil.js";
+
 const BusinessPage = () => {
+
+  const formUtil = new FormUtil();
+
   const [formData, setFormData] = useState({
     name: "",
     openTimes: {
@@ -52,7 +58,7 @@ const BusinessPage = () => {
         {
           position: "",
           responsibility: "management",
-          isFlexible: "yes",
+          canSubstitute: false,
           substitutes: [],
         },
       ],
@@ -62,14 +68,17 @@ const BusinessPage = () => {
   const positionsHandler = (e, index) => {
     const item = e.target;
     const name = item.name;
-    const value = item.value;
+    let value = item.value;
+    if (name === 'canSubstitute') {
+      value = formUtil.valueConverter(value)
+      console.log({name, value});
+    }
     setFormData((state) => ({
       ...state,
       positionHierarchy: state.positionHierarchy.map((pos, i) =>
         i === index ? { ...pos, [name]: value } : pos
       ),
     }));
-    console.log(formData);
   };
 
   const [modalData, setModalData] = useState({
@@ -78,16 +87,24 @@ const BusinessPage = () => {
   });
 
   const modalHandler = (data) => {
-    setModalData({
-      on:true,
-      positionsList: data
-    });
+    if (data) {
+      setModalData({
+        on:true,
+        positionsList: data
+      });
+    } else {
+      setModalData( state => ({
+        ...state,
+        on: !state.on,
+      }));
+    }
   }
  
+  console.log(formData.positionHierarchy);
 
   return (
     <>
-      {modalData.on ? <AddSubstitutesModal styles={styles} positions={modalData.positionsList} /> : null}
+      {modalData.on ? <AddSubstitutesModal positions={modalData.positionsList} handler={modalHandler} /> : null}
       <section className={styles["business-page-container"]}>
         <form method="POST" className={styles["form"]}>
           <div className={styles["name-container"]}>
