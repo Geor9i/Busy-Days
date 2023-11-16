@@ -1,11 +1,20 @@
 import { useState } from "react";
 import styles from "./businessPage.module.css";
 import PositionHierarchyListItem from "./PositionHierarchyListItem.jsx";
-import AddSubstitutesModal from "./addSubstituesModal/AddSubstitutesModal.jsx";
+import AddSubstitutesModal from "./addSubstitutesModal/AddSubstitutesModal.jsx";
 import FormUtil from "../../utils/formUtil.js";
+import DateUtil from "../../utils/dateUtil.js";
+import OpeningTimesTd from "./OpeningTimesTd/OpeningTimesTd.jsx";
+import StringUtil from "../../utils/stringUtil.js";
+import TimeUtil from '../../utils/timeUtil.js/'
 
 const BusinessPage = () => {
   const formUtil = new FormUtil();
+  const dateUtil = new DateUtil();
+  const stringUtil = new StringUtil();
+  const timeUtil = new TimeUtil();
+  
+  const weekdays = dateUtil.getWeekdays([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -42,7 +51,19 @@ const BusinessPage = () => {
     positionHierarchy: [],
   });
 
-  const setName = (e) => {
+  const submitHandler = (e) => {
+    e.preventDefault();
+    validateForm(formData)
+
+    function validateForm(formData) {
+      const {name, openTimes, positionHierarchy} = formData;
+      console.log(name);
+    }
+  }
+
+  const [lastKey, setLastKey] = useState('')
+
+  const onChangeNameHandler = (e) => {
     const value = e.target.value;
     setFormData((state) => ({ ...state, name: value }));
   };
@@ -76,8 +97,61 @@ const BusinessPage = () => {
         i === index ? { ...pos, [name]: value } : pos
       ),
     }));
-    console.log(formData.positionHierarchy);
   };
+
+  const openTimesHandler = (e) => {
+    const element = e.target;
+    const name =  element.name
+    let value = element.value
+    try {
+      value = timeUtil.time().toTimeFormat(value);
+      if (lastKey === 'Backspace') {
+        value = value.replace(':', '');
+      }
+    }catch(err) {
+      console.log(err);
+    }
+    const [timeKey, weekday] = name.split('-');
+    if (value.length < 6) {
+      setFormData(state =>({
+        ...state,
+        openTimes: {
+          ...state.openTimes,
+          [weekday] : {
+            ...state.openTimes[weekday],
+            [timeKey]: value
+          }
+        }
+      }))
+    }
+  }
+  const openTimesOnBlurHandler = (e) => {
+    const element = e.target;
+    const name =  element.name
+    let value = element.value
+    try {
+      value = timeUtil.time().fillTime(value);
+      value = timeUtil.time().toTimeFormat(value);
+      if (lastKey === 'Backspace') {
+        value = value.replace(':', '');
+      }
+    }catch(err) {
+      console.log(err);
+    }
+    const [timeKey, weekday] = name.split('-');
+    if (value.length < 6) {
+      setFormData(state =>({
+        ...state,
+        openTimes: {
+          ...state.openTimes,
+          [weekday] : {
+            ...state.openTimes[weekday],
+            [timeKey]: value
+          }
+        }
+      }))
+    }
+  }
 
   const [modalData, setModalData] = useState({
     on: false,
@@ -116,8 +190,6 @@ const BusinessPage = () => {
     }
   };
 
-  console.log(formData.positionHierarchy);
-
   return (
     <>
       {modalData.on ? (
@@ -129,223 +201,22 @@ const BusinessPage = () => {
         />
       ) : null}
       <section className={styles["business-page-container"]}>
-        <form method="POST" className={styles["form"]}>
+        <form onSubmit={submitHandler} method="POST" className={styles["form"]}>
           <div className={styles["name-container"]}>
             <h1>Business Name</h1>
-            <input type="text" value={formData.name} onChange={setName} />
+            <input type="text" value={formData.name} onChange={onChangeNameHandler} />
           </div>
           <div className={styles["opening-times-container"]}>
             <h2>Opening Times</h2>
             <table className={styles["opening-times-table"]}>
               <thead>
                 <tr>
-                  <th className={styles["opening-times-th"]}>Monday</th>
-                  <th className={styles["opening-times-th"]}>Tuesday</th>
-                  <th className={styles["opening-times-th"]}>Wednesday</th>
-                  <th className={styles["opening-times-th"]}>Thursday</th>
-                  <th className={styles["opening-times-th"]}>Friday</th>
-                  <th className={styles["opening-times-th"]}>Saturday</th>
-                  <th className={styles["opening-times-th"]}>Sunday</th>
+                {weekdays.map(day =>  <th key={day} className={styles["opening-times-th"]}>{stringUtil.toPascalCase(day)}</th>)}
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className={styles["opening-times-td"]}>
-                    <div className={styles["opening-times-td-div"]}>
-                      <div className={styles["opening-times-window-container"]}>
-                        <div
-                          className={
-                            styles["opening-times-window-sub-container"]
-                          }
-                        >
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="open-monday">open</label>
-                            <input
-                              type="text"
-                              id="open-monday"
-                              name="open-monday"
-                            />
-                          </div>
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="close-monday">close</label>
-                            <input
-                              type="text"
-                              id="close-monday"
-                              name="close-monday"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={styles["opening-times-td"]}>
-                    <div className={styles["opening-times-td-div"]}>
-                      <div className={styles["opening-times-window-container"]}>
-                        <div
-                          className={
-                            styles["opening-times-window-sub-container"]
-                          }
-                        >
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="open-tuesday">open</label>
-                            <input
-                              type="text"
-                              id="open-tuesday"
-                              name="open-tuesday"
-                            />
-                          </div>
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="close-tuesday">close</label>
-                            <input
-                              type="text"
-                              id="close-tuesday"
-                              name="close-tuesday"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={styles["opening-times-td"]}>
-                    <div className={styles["opening-times-td-div"]}>
-                      <div className={styles["opening-times-window-container"]}>
-                        <div
-                          className={
-                            styles["opening-times-window-sub-container"]
-                          }
-                        >
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="open-wednesday">open</label>
-                            <input
-                              type="text"
-                              id="open-wednesday"
-                              name="open-wednesday"
-                            />
-                          </div>
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="close-wednesday">close</label>
-                            <input
-                              type="text"
-                              id="close-wednesday"
-                              name="close-wednesday"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={styles["opening-times-td"]}>
-                    <div className={styles["opening-times-td-div"]}>
-                      <div className={styles["opening-times-window-container"]}>
-                        <div
-                          className={
-                            styles["opening-times-window-sub-container"]
-                          }
-                        >
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="open-thursday">open</label>
-                            <input
-                              type="text"
-                              id="open-thursday"
-                              name="open-thursday"
-                            />
-                          </div>
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="close-thursday">close</label>
-                            <input
-                              type="text"
-                              id="close-thursday"
-                              name="close-thursday"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={styles["opening-times-td"]}>
-                    <div className={styles["opening-times-td-div"]}>
-                      <div className={styles["opening-times-window-container"]}>
-                        <div
-                          className={
-                            styles["opening-times-window-sub-container"]
-                          }
-                        >
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="open-friday">open</label>
-                            <input
-                              type="text"
-                              id="open-friday"
-                              name="open-friday"
-                            />
-                          </div>
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="close-friday">close</label>
-                            <input
-                              type="text"
-                              id="close-friday"
-                              name="close-friday"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={styles["opening-times-td"]}>
-                    <div className={styles["opening-times-td-div"]}>
-                      <div className={styles["opening-times-window-container"]}>
-                        <div
-                          className={
-                            styles["opening-times-window-sub-container"]
-                          }
-                        >
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="open-saturday">open</label>
-                            <input
-                              type="text"
-                              id="open-saturday"
-                              name="open-saturday"
-                            />
-                          </div>
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="close-saturday">close</label>
-                            <input
-                              type="text"
-                              id="close-saturday"
-                              name="close-saturday"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={styles["opening-times-td"]}>
-                    <div className={styles["opening-times-td-div"]}>
-                      <div className={styles["opening-times-window-container"]}>
-                        <div
-                          className={
-                            styles["opening-times-window-sub-container"]
-                          }
-                        >
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="open-sunday">open</label>
-                            <input
-                              type="text"
-                              id="open-sunday"
-                              name="open-sunday"
-                            />
-                          </div>
-                          <div className={styles["time-window"]}>
-                            <label htmlFor="close-sunday">close</label>
-                            <input
-                              type="text"
-                              id="close-sunday"
-                              name="close-sunday"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
+                  {weekdays.map(day => <OpeningTimesTd key={day} weekday={day} handler={openTimesHandler} data={formData.openTimes[day]} setLastKey={setLastKey} onBlur={openTimesOnBlurHandler}/>)}
                 </tr>
               </tbody>
             </table>

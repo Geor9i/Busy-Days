@@ -13,6 +13,14 @@ export default class StringUtil {
         }
         throw new Error ('Param is not a string!')
     }
+    toPascalCase(string) {
+        if(typeof string === 'string') {
+            return string.slice(0, 1).toUpperCase() + string.toLowerCase().slice(1);
+        }
+        throw new Error ('Param is not a string!')
+    }
+
+    to
 
     format(data) {
         if (typeof data === "string") {
