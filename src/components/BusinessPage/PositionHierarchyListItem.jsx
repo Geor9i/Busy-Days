@@ -6,25 +6,25 @@ const PositionHierarchyListItem = ({
   changeHandler,
   index,
   positions,
-  showModal
+  showModal,
 }) => {
- 
-
   const substitutionsHandler = (e) => {
     e.preventDefault();
     const startPosition = position.position;
     let positionIndex;
-    const positionArr = positions.reverse().map((pos, i) => {
+    const positionArr = positions
+      .reverse()
+      .map((pos, i) => {
         let currentPosition = pos.position;
         if (startPosition === currentPosition) {
-            positionIndex = i;
+          positionIndex = i;
         } else if (i > positionIndex) {
-            return currentPosition
+          return currentPosition;
         }
-        return ''
-    })
-    .filter(el => el !== '');
-    showModal(positionArr)
+        return "";
+      })
+      .filter((el) => el !== "");
+    showModal(e, { data: positionArr, index });
   };
 
   return (

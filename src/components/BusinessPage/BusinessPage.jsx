@@ -1,12 +1,10 @@
 import { useState } from "react";
 import styles from "./businessPage.module.css";
 import PositionHierarchyListItem from "./PositionHierarchyListItem.jsx";
-import AddSubstitutesModal from './addSubstituesModal/AddSubstitutesModal.jsx'
-import formUtil from '../../utils/formUtil.js'
+import AddSubstitutesModal from "./addSubstituesModal/AddSubstitutesModal.jsx";
 import FormUtil from "../../utils/formUtil.js";
 
 const BusinessPage = () => {
-
   const formUtil = new FormUtil();
 
   const [formData, setFormData] = useState({
@@ -69,9 +67,8 @@ const BusinessPage = () => {
     const item = e.target;
     const name = item.name;
     let value = item.value;
-    if (name === 'canSubstitute') {
-      value = formUtil.valueConverter(value)
-      console.log({name, value});
+    if (name === "canSubstitute") {
+      value = formUtil.valueConverter(value);
     }
     setFormData((state) => ({
       ...state,
@@ -79,32 +76,58 @@ const BusinessPage = () => {
         i === index ? { ...pos, [name]: value } : pos
       ),
     }));
+    console.log(formData.positionHierarchy);
   };
 
   const [modalData, setModalData] = useState({
     on: false,
     positionsList: [],
+    roleIndex: "",
   });
 
-  const modalHandler = (data) => {
-    if (data) {
+  const displayModal = (e, config = {}) => {
+    e.preventDefault();
+
+    if (config.data) {
       setModalData({
-        on:true,
-        positionsList: data
+        on: true,
+        positionsList: config.data,
+        roleIndex: config.index,
       });
     } else {
-      setModalData( state => ({
+      setModalData((state) => ({
         ...state,
         on: !state.on,
       }));
     }
-  }
- 
+  };
+
+  const modalSubmitHandler = (config) => {
+    if (modalData.on) {
+      setModalData((state) => ({ ...state, on: false }));
+    }
+    if (config.data && config.index) {
+      setFormData((state) => ({
+        ...state,
+        positionHierarchy: state.positionHierarchy.map((pos, i) =>
+          i === config.index ? { ...pos, substitutes: config.data } : pos
+        ),
+      }));
+    }
+  };
+
   console.log(formData.positionHierarchy);
 
   return (
     <>
-      {modalData.on ? <AddSubstitutesModal positions={modalData.positionsList} handler={modalHandler} /> : null}
+      {modalData.on ? (
+        <AddSubstitutesModal
+          positions={modalData.positionsList}
+          displayModal={displayModal}
+          handler={modalSubmitHandler}
+          index={modalData.roleIndex}
+        />
+      ) : null}
       <section className={styles["business-page-container"]}>
         <form method="POST" className={styles["form"]}>
           <div className={styles["name-container"]}>
@@ -355,12 +378,12 @@ const BusinessPage = () => {
                 {formData.positionHierarchy.map((position, i) => (
                   <PositionHierarchyListItem
                     key={i}
-                    positions={formData.positionHierarchy}
+                    positions={[...formData.positionHierarchy]}
                     styles={styles}
                     changeHandler={positionsHandler}
                     position={position}
                     index={i}
-                    showModal={modalHandler}
+                    showModal={displayModal}
                   />
                 ))}
               </tbody>

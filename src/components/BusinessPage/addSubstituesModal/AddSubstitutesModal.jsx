@@ -1,17 +1,27 @@
 import styles from "./addSubstitutesModal.module.css";
-const AddSubstitutesModal = ({ positions, handler }) => {
+
+const AddSubstitutesModal = ({ positions, displayModal, handler, index }) => {
+
+  const getFormData = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const formDataObject = Object.fromEntries(formData);
+    const positionsArray = Object.keys(formDataObject);
+      handler({data: positionsArray, index})
+  }
+
   console.log("positions: ", positions);
   return (
     <>
-      <div className={styles["modal-container"]}>
+      <form onSubmit={getFormData} className={styles["modal-container"]}>
         <div className={styles["list-container"]}>
           {positions && positions.length > 0 ? (
             <ul>
               {positions.map((pos) => (
-                <li>
+                <li key={pos}>
                   <div className={styles["list-item-container"]}>
                     <p>{pos}</p>
-                    <input type="checkbox" />
+                    <input type="checkbox" name={pos} />
                   </div>
                 </li>
               ))}
@@ -22,9 +32,23 @@ const AddSubstitutesModal = ({ positions, handler }) => {
             </div>
           )}
         </div>
-        <button className={styles["confirm-btn"]}>Confirm</button>
-      </div>
-      <div className={styles["backdrop"]} onClick={() => handler()}></div>
+        {positions && positions.length > 0 ? (
+          <button className={styles["confirm-btn"]}>
+            Confirm
+          </button>
+        ) : (
+          <button
+            className={styles["confirm-btn"]}
+            onClick={(e) => displayModal(e)}
+          >
+            Exit
+          </button>
+        )}
+      </form>
+      <div
+        className={styles["backdrop"]}
+        onClick={(e) => displayModal(e)}
+      ></div>
     </>
   );
 };
