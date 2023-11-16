@@ -59,7 +59,7 @@ const PositionHierarchyListItem = ({
           </select>
         </td>
         <td className={styles["role-hierarchy-td"]}>
-          <input type="text" disabled />
+          <input type="text" disabled value={position.substitutes} />
           <button
             className={styles["add-additional-role"]}
             disabled={position.canSubstitute ? false : true}
