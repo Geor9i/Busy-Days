@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./BusinessPage.module.css";
+import styles from "./businessPage.module.css";
 import PositionHierarchyListItem from "./PositionHierarchyListItem.jsx";
 import AddSubstitutesModal from './AddSubstitutesModal.jsx'
 const BusinessPage = () => {
