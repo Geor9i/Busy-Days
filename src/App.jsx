@@ -16,20 +16,20 @@ import { firebaseConfig } from "../config/firebaseConfig.js";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
 import { getFirestore } from "firebase/firestore";
-// Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth();
+import { GlobalCtx } from "./contexts/GlobalCtx.js";
 
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const [displayNameSet, setDisplayNameSet] = useState(false);
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-        setUser(user);
-        setLoading(false); // Set loading to false once the authentication check is complete
+      setUser(user);
+      setLoading(false); // Set loading to false once the authentication check is complete
     });
 
     return () => unsubscribe();
@@ -43,7 +43,7 @@ function App() {
     );
   }
   return (
-    <>
+    <GlobalCtx.Provider value={{ app, db, auth, setLoading }}>
       {user ? <UserNav user={user} /> : <GuestNav />}
 
       <main className={styles["main"]}>
@@ -58,7 +58,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
-    </>
+    </GlobalCtx.Provider>
   );
 }
 

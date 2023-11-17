@@ -1,27 +1,38 @@
+import { useState } from "react";
 import styles from "./addSubstitutesModal.module.css";
 
 const AddSubstitutesModal = ({ positions, displayModal, handler, index }) => {
+  const [substitutes, setSubstitutes] = useState(positions);
 
   const getFormData = (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const formDataObject = Object.fromEntries(formData);
-    const positionsArray = Object.keys(formDataObject);
-      handler({data: positionsArray, index})
-  }
+    const data = Object.keys(substitutes)
+      .map((role) => (substitutes[role] ? role : false))
+      .filter((el) => el);
+    handler({ data, index });
+  };
 
-  console.log("positions: ", positions);
+  const onChangeHandler = (e) => {
+    const element = e.target;
+    setSubstitutes((state) => ({ ...state, [element.name]: element.checked }));
+  };
+
   return (
     <>
       <form onSubmit={getFormData} className={styles["modal-container"]}>
         <div className={styles["list-container"]}>
-          {positions && positions.length > 0 ? (
+          {positions && Object.keys(positions).length > 0 ? (
             <ul>
-              {positions.map((pos) => (
+              {Object.keys(positions).map((pos) => (
                 <li key={pos}>
                   <div className={styles["list-item-container"]}>
                     <p>{pos}</p>
-                    <input type="checkbox" name={pos} />
+                    <input
+                      type="checkbox"
+                      checked={substitutes[pos]}
+                      onChange={onChangeHandler}
+                      name={pos}
+                    />
                   </div>
                 </li>
               ))}
@@ -32,10 +43,8 @@ const AddSubstitutesModal = ({ positions, displayModal, handler, index }) => {
             </div>
           )}
         </div>
-        {positions && positions.length > 0 ? (
-          <button className={styles["confirm-btn"]}>
-            Confirm
-          </button>
+        {positions && Object.keys(positions).length > 0 ? (
+          <button className={styles["confirm-btn"]}>Confirm</button>
         ) : (
           <button
             className={styles["confirm-btn"]}

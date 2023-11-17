@@ -1,15 +1,9 @@
 import FormUtil from "../../utils/formUtil.js";
 import styles from "./signUp.module.css";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
-import { app } from "../../App.jsx";
-
-const formUtil = new FormUtil();
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -21,6 +15,10 @@ const SignUpPage = () => {
     repeatPassword: "",
   });
 
+  const formUtil = new FormUtil();
+
+  const { auth, setLoading } = useContext(GlobalCtx);
+
   function changeHandler(e) {
     e.preventDefault();
     const { name, value } = e.currentTarget;
@@ -28,15 +26,16 @@ const SignUpPage = () => {
   }
   async function submitHandler(e) {
     e.preventDefault();
+    setLoading(true);
     let { email, password, firstName, lastName } = formData;
     try {
       if (formUtil.formValidator(formData, 6, "repeatPassword")) {
-          const auth = getAuth(app);
-          await createUserWithEmailAndPassword(auth, email, password);
-          await updateProfile(auth.currentUser, {
-            displayName: `${firstName} ${lastName}`,
-          });
-            navigate("/");
+        await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(auth.currentUser, {
+          displayName: `${firstName} ${lastName}`,
+        });
+        navigate("/");
+        setLoading(false);
       }
     } catch (err) {
       alert(err);
@@ -87,7 +86,7 @@ const SignUpPage = () => {
           <input
             type="password"
             name="repeatPassword"
-            value={formData.reapeatPassword}
+            value={formData.repeatPassword}
             onChange={changeHandler}
           />
         </div>

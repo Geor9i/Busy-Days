@@ -1,11 +1,12 @@
 import FormUtil from "../../utils/formUtil.js";
 import styles from "./login.module.css";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate  } from "react-router-dom";
 import {
   getAuth,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 
 const formUtil = new FormUtil();
 const LoginPage = () => {
@@ -15,6 +16,7 @@ const LoginPage = () => {
     password: "",
   });
 
+  const { auth, setLoading } = useContext(GlobalCtx);
   function changeHandler(e) {
     e.preventDefault();
     const { name, value } = e.currentTarget;
@@ -22,14 +24,15 @@ const LoginPage = () => {
   }
   function submitHandler(e) {
     e.preventDefault();
+    setLoading(true);
     let { email, password } = formData;
     try {
       if (formUtil.formValidator(formData)) {
-        const auth = getAuth();
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             const user = userCredential.user;
             navigate("/");
+            setLoading(false);
           })
           .catch((error) => {
             const errorMessage = error.message;

@@ -77,6 +77,14 @@
 .add-position {
     width: 20%;
     margin: 10px 0;
+    background-color: rgb(6, 89, 243);
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+.add-position:hover {
+    background-color: rgb(101, 155, 255);
 }
 
 .role-hierarchy-position {

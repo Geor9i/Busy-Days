@@ -1,3 +1,4 @@
+import ObjectUtil from "../../../utils/util.js";
 import styles from "./positionHierarchy.module.css";
 
 const PositionHierarchyListItem = ({
@@ -5,13 +6,14 @@ const PositionHierarchyListItem = ({
   changeHandler,
   index,
   positions,
-  showModal,
+  displayModal,
 }) => {
+  const objUtil = new ObjectUtil();
   const substitutionsHandler = (e) => {
     e.preventDefault();
     const startPosition = position.title;
     let positionIndex;
-    const positionArr = positions
+    let positionsList = positions
       .reverse()
       .map((pos, i) => {
         let currentPosition = pos.title;
@@ -22,8 +24,11 @@ const PositionHierarchyListItem = ({
         }
         return "";
       })
-      .filter((el) => el !== "");
-    showModal(e, { data: positionArr, index });
+      .filter((el) => el !== "")
+      positionsList = objUtil.reduceToObj(positionsList, false);
+      const substitutesObj = objUtil.reduceToObj(position.substitutes, true);
+      const synchedData = {...positionsList, ...substitutesObj}
+    displayModal(e, { data: synchedData, index });
   };
 
   return (
@@ -60,7 +65,11 @@ const PositionHierarchyListItem = ({
         <td className={styles["role-hierarchy-td"]}>
           <input type="text" disabled value={position.substitutes} />
           <button
-            className={styles["add-additional-role"]}
+            className={`${
+              position.canSubstitute
+                ? styles["add-additional-role"]
+                : styles["add-additional-role-disabled"]
+            }`}
             disabled={position.canSubstitute ? false : true}
             onClick={substitutionsHandler}
           >
@@ -72,7 +81,7 @@ const PositionHierarchyListItem = ({
             className={styles["insert-btn"]}
             onClick={(e) => changeHandler(e, index, { add: true })}
           >
-            +
+            &#129145;
           </button>
           <button
             className={styles["delete-btn"]}

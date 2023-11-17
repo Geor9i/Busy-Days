@@ -13,14 +13,40 @@
 }
 
 .delete-btn {
-    width: 20px;
+    width: 40px;
     background-color: rgb(255, 8, 8);
     color: rgb(14, 14, 14);
     font-weight: bold;
+    cursor: pointer;
 }
 .insert-btn {
-    width: 20px;
+    width: 40px;
     background-color: rgb(165, 255, 138);
     color: rgb(14, 14, 14);
     font-weight: bold;
+    cursor: pointer;
+}
+
+.add-additional-role {
+    font-weight: bold;
+    background-color: yellow;
+    width: 40px;
+    cursor: pointer;
+}
+
+.add-additional-role-disabled {
+    font-weight: bold;
+    background-color: rgb(150, 150, 150);
+    width: 40px;
+    cursor:not-allowed;
+}
+
+.add-additional-role:hover {
+    background-color: rgb(255, 255, 218);
+}
+.insert-btn:hover {
+    background-color: rgb(223, 255, 214);
+}
+.delete-btn:hover {
+    background-color: rgb(252, 171, 171);
 }

@@ -8,30 +8,19 @@ import OpeningTimesTd from "./OpeningTimesTd/OpeningTimesTd.jsx";
 import StringUtil from "../../utils/stringUtil.js";
 import TimeUtil from "../../utils/timeUtil.js/";
 import ObjectUtil from "../../utils/util.js";
-import { getAuth } from "firebase/auth";
-import { app } from "../../App.jsx";
 import { useNavigate } from "react-router-dom";
-import {
-  doc,
-  getFirestore,
-  setDoc,
-  getDoc
-} from "firebase/firestore";
+import { useContext } from "react";
+import { doc, getFirestore, setDoc, getDoc } from "firebase/firestore";
+import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 
 const BusinessPage = () => {
-
-  const db = getFirestore(app)
-  const auth = getAuth(app)
-  const uid = auth.currentUser.uid;
-
+  const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
   const stringUtil = new StringUtil();
   const timeUtil = new TimeUtil();
-  const objUtil = new ObjectUtil();
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
-
   const [formData, setFormData] = useState({
     name: "",
     openTimes: objUtil.reduceToObj(weekdays, {
@@ -42,26 +31,36 @@ const BusinessPage = () => {
     positionHierarchy: [],
   });
 
+  const [modalData, setModalData] = useState({
+    on: false,
+    positionsList: {},
+    roleIndex: "",
+  });
+
+  const [lastKey, setLastKey] = useState("");
+
+  const { auth, db, setLoading } = useContext(GlobalCtx);
+  const uid = auth.currentUser.uid;
+
   useEffect(() => {
     const documentRef = doc(db, "business", uid);
     getDoc(documentRef)
-    .then(snapShot => {
-      if (snapShot.exists()) {
-        setFormData(snapShot.data())
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching document:", error);
-    });
-  }, [])
+      .then((snapShot) => {
+        if (snapShot.exists()) {
+          setFormData(snapShot.data());
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching document:", error);
+      });
+  }, []);
 
-
-  const submitHandler = async(e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true)
     try {
       if (validateForm(formData)) {
         const uid = auth.currentUser.uid
-        console.log(uid);
         const data = finalizeFormData(formData);
         const documentRef = doc(db, "business", uid);
         await setDoc(documentRef, data)
@@ -71,6 +70,7 @@ const BusinessPage = () => {
     } catch (err) {
       console.log(err);
     }
+    setLoading(false)
 
     function validateForm(formData) {
       const { name, openTimes, positionHierarchy } = formData;
@@ -79,6 +79,9 @@ const BusinessPage = () => {
       }
       if (name.length < 2) {
         throw new Error("Business name must be at least 2 characters long!");
+      }
+      if (name.length > 30) {
+        throw new Error("Business name cannot exceed 30 characters!");
       }
       let closedDays = 0;
       for (let day in openTimes) {
@@ -97,10 +100,13 @@ const BusinessPage = () => {
         if (!weekday.isWorkday || (!weekday.startTime && !weekday.endTime)) {
           closedDays++;
         }
-        //!TODO fix relativeTime
-        // if (timeUtil.relativeTime(weekday.startTime).isBiggerThan(weekday.endTime)) {
-        //   throw new Error("Open time must always be before closing time!");
-        // }
+        if (
+          timeUtil.time(weekday.startTime).isBiggerEqThan(weekday.endTime) &&
+          weekday.startTime !== "00:00" &&
+          weekday.endTime !== "00:00"
+        ) {
+          throw new Error("Open time must always be before closing time!");
+        }
       }
       if (closedDays === 7) {
         throw new Error("Business must be open at least one day!");
@@ -140,6 +146,13 @@ const BusinessPage = () => {
           openTimes[weekday].startTime = "";
           openTimes[weekday].endTime = "";
         }
+        if (
+          openTimes[weekday].isWorkday &&
+          !openTimes[weekday].startTime &&
+          !openTimes[weekday].endTime
+        ) {
+          openTimes[weekday].isWorkday = false;
+        }
       }
       for (let role of positionHierarchy) {
         if (!role.canSubstitute) {
@@ -164,8 +177,6 @@ const BusinessPage = () => {
     }));
   };
 
-  const [lastKey, setLastKey] = useState("");
-
   const onChangeNameHandler = (e) => {
     const value = e.target.value;
     setFormData((state) => ({ ...state, name: value }));
@@ -187,31 +198,28 @@ const BusinessPage = () => {
     }));
   };
 
-  const positionsHandler = (e, index, {del = false, add = false} = {}) => {
+  const positionsHandler = (e, index, { del = false, add = false } = {}) => {
     e.preventDefault();
     if (del) {
       setFormData((state) => {
-      state.positionHierarchy.splice(index, 1);
-        return {
-          ...state,
-        }
+        let newState = { ...state };
+        newState.positionHierarchy.splice(index, 1);
+        return newState;
       });
-      return
+      return;
     } else if (add) {
       const newRole = {
-        title: '',
-        responsibility: 'management',
+        title: "",
+        responsibility: "management",
         canSubstitute: false,
-        substitutes: []
-      }
+        substitutes: [],
+      };
       setFormData((state) => {
-        state.positionHierarchy.splice(index, 0, newRole);
-        console.log(state);
-          return {
-            ...state,
-          }
-        });
-      return
+        let newState = { ...state };
+        newState.positionHierarchy.splice(index, 0, newRole);
+        return newState;
+      });
+      return;
     }
     const item = e.target;
     const name = item.name;
@@ -232,6 +240,9 @@ const BusinessPage = () => {
     const element = e.target;
     const name = element.name;
     let value = element.value;
+    if (value.length > 4) {
+      return;
+    }
     try {
       value = stringUtil.filterString(value, {
         regexSymbols: "d:",
@@ -286,12 +297,6 @@ const BusinessPage = () => {
     }
   };
 
-  const [modalData, setModalData] = useState({
-    on: false,
-    positionsList: [],
-    roleIndex: "",
-  });
-
   const displayModal = (e, config = {}) => {
     e.preventDefault();
 
@@ -339,6 +344,7 @@ const BusinessPage = () => {
             <h1>Business Name</h1>
             <input
               type="text"
+              maxLength="30"
               value={formData.name}
               onChange={onChangeNameHandler}
             />
@@ -384,7 +390,7 @@ const BusinessPage = () => {
             </table>
           </div>
           <div className={styles["role-hierarchy-container"]}>
-            <p>Role Hierarchy</p>
+            <h1>Role Hierarchy</h1>
             <p>Add job roles from highest to lowest position</p>
             <button
               onClick={addPositionHandler}
@@ -405,9 +411,7 @@ const BusinessPage = () => {
                   <th className={styles["role-hierarchy-th"]}>
                     Can substitute
                   </th>
-                  <th >
-                    Manage
-                  </th>
+                  <th>Insert/Delete</th>
                 </tr>
               </thead>
               <tbody>
@@ -418,7 +422,7 @@ const BusinessPage = () => {
                     changeHandler={positionsHandler}
                     position={position}
                     index={i}
-                    showModal={displayModal}
+                    displayModal={displayModal}
                   />
                 ))}
               </tbody>
