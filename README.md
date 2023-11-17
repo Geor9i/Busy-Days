@@ -17,4 +17,6 @@ A web app for creating and managing custom business work schedules!
   Automatic scheduling is also a potential future function! 
       
 This application is created using react.
-The integrated DB is firebase
+The integrated DB is firebase's firestore
+Authentication is done through firebase's authentication
+App is also hosted on firebase: https://busy-dayz.web.app/
