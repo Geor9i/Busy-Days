@@ -24,14 +24,14 @@ export const auth = getAuth();
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setLoading] = useState(true);
+  const [displayNameSet, setDisplayNameSet] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-      setLoading(false); // Set loading to false once the authentication check is complete
+        setUser(user);
+        setLoading(false); // Set loading to false once the authentication check is complete
     });
 
-    // Cleanup the subscription when the component unmounts
     return () => unsubscribe();
   }, [auth]);
 
@@ -42,7 +42,6 @@ function App() {
       </main>
     );
   }
-  console.log(user);
   return (
     <>
       {user ? <UserNav user={user} /> : <GuestNav />}

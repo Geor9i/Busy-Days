@@ -31,13 +31,12 @@ const SignUpPage = () => {
     let { email, password, firstName, lastName } = formData;
     try {
       if (formUtil.formValidator(formData, 6, "repeatPassword")) {
-        const auth = getAuth(app);
+          const auth = getAuth(app);
           await createUserWithEmailAndPassword(auth, email, password);
-          const profile = await updateProfile(auth.currentUser, {
+          await updateProfile(auth.currentUser, {
             displayName: `${firstName} ${lastName}`,
           });
-          console.log(profile);
-          navigate("/");
+            navigate("/");
       }
     } catch (err) {
       alert(err);

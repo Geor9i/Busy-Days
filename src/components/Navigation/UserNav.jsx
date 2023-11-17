@@ -57,7 +57,7 @@ const UserNav = ({user, back}) => {
       <div className={`${styles["user-menu-backdrop"]} ${menuState.user ? styles['user-menu-backdrop-active'] : ''}`}  onClick={() => setMenuState('user')} ></div>
       <div className={styles["user-menu-container"]}>
         <div className={styles["user-menu-nav"]} onClick={() => menuHandler('user')}>
-          <h4>{user.displayName.slice(0,1)}</h4>
+          <h4>{ user?.displayName ? user.displayName.slice(0,1).toUpperCase() : user.email.slice(0,1).toUpperCase()}</h4>
         </div>
         <div className={`${styles['user-menu']} ${menuState.user ? '' : styles['inactive']}`}  onClick={() => setMenuState('user')}>
           <div className={styles["user-menu-email-container"]}>

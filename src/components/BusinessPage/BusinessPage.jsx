@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./businessPage.module.css";
 import PositionHierarchyListItem from "./PositionHierarchyListItem.jsx";
 import AddSubstitutesModal from "./addSubstitutesModal/AddSubstitutesModal.jsx";
@@ -15,9 +15,15 @@ import {
   doc,
   getFirestore,
   setDoc,
+  getDoc
 } from "firebase/firestore";
 
 const BusinessPage = () => {
+
+  const db = getFirestore(app)
+  const auth = getAuth(app)
+  const uid = auth.currentUser.uid;
+
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
   const stringUtil = new StringUtil();
@@ -36,12 +42,28 @@ const BusinessPage = () => {
     positionHierarchy: [],
   });
 
+  useEffect(() => {
+    const documentRef = doc(db, "business", uid);
+    getDoc(documentRef)
+    .then(snapShot => {
+      if (snapShot.exists()) {
+        setFormData(snapShot.data())
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching document:", error);
+    });
+  }, [])
+
+
+  
+
+  
+
   const submitHandler = async(e) => {
     e.preventDefault();
     try {
       if (validateForm(formData)) {
-        const db = getFirestore(app)
-        const auth = getAuth(app)
         const uid = auth.currentUser.uid
         console.log(uid);
         const data = finalizeFormData(formData);
