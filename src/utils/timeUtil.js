@@ -34,13 +34,13 @@ export default class TimeUtil {
           sign = sign === "-" || sign === -1 ? -1 : 1;
           let clockHours = this.time().toObj(time);
           let modHours = this.time().toObj(modTime);
-          let dayCount = Math.floor(modHours.h / 24);
+          let dayCount = Math.floor(Math.abs(modHours.h / 24));
           let minToHour = Math.floor(modHours.m / 60);
           modHours.m = modHours.m - minToHour * 60;
           clockHours.h += (modHours.h + minToHour) * sign;
           clockHours.h =
             clockHours.h < 0 || clockHours.h > 24
-              ? clockHours.h + 24 * Math.max(dayCount, 1) * -1
+              ? clockHours.h + 24 * Math.max(dayCount, 1)
               : clockHours.h;
           clockHours.m = clockHours.m + modHours.m * sign;
           if (clockHours.m < 0) {
@@ -257,30 +257,36 @@ export default class TimeUtil {
       }
     }
   
-    relativeTime(originTime) {
-      let timeSpread = Array(12).fill(0);
+    relativeTime(originTime, { hourLength = 12 } = {}) {
+      hourLength = hourLength > 24 ? 24 : hourLength;
+      let timeSpread = Array(hourLength * 2).fill(0);
       let orgTime = this.time().toObj(originTime);
-      let orgIndex = 6;
+      let orgIndex = Math.round(timeSpread.length / 2);
       let forwardTime = { ...orgTime };
       let backwardTime = { ...orgTime };
       for (let i = orgIndex; i >= 0; i--) {
+        if (i === 2) {
+          console.log(i);
+        }
         timeSpread.splice(i, 1, { ...backwardTime });
         backwardTime = this.math().calcClockTime(backwardTime, "-01:00");
       }
-      for (let i = orgIndex; i <= 12; i++) {
+      for (let i = orgIndex; i < timeSpread.length; i++) {
         timeSpread.splice(i, 1, { ...forwardTime });
         forwardTime = this.math().calcClockTime(forwardTime, "01:00");
       }
       return {
         isBiggerThan: (compareTime) => {
+          if (!originTime || !compareTime) return null;
           let compare = this.time().toObj(compareTime);
-          let compareIndex = timeSpread.findIndex((obj) => obj.h === compare.h);
+          let compareIndex = timeSpread.findLastIndex((obj) => obj.h === compare.h);
           if (compareIndex !== -1) {
             return orgIndex > compareIndex;
           }
           return false;
         },
         isLessThan: (compareTime) => {
+          if (!originTime || !compareTime) return null;
           let compare = this.time().toObj(compareTime);
           let compareIndex = timeSpread.findIndex((obj) => obj.h === compare.h);
           if (compareIndex !== -1) {

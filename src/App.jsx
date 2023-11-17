@@ -15,14 +15,15 @@ import { getAuth } from "firebase/auth";
 import { firebaseConfig } from "../config/firebaseConfig.js";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
-
+import { getFirestore } from "firebase/firestore";
 // Initialize Firebase
-initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const auth = getAuth();
 
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -41,6 +42,7 @@ function App() {
       </main>
     );
   }
+  console.log(user);
   return (
     <>
       {user ? <UserNav user={user} /> : <GuestNav />}

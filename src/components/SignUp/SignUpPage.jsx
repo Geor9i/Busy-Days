@@ -1,12 +1,13 @@
 import FormUtil from "../../utils/formUtil.js";
 import styles from "./signUp.module.css";
 import { useState } from "react";
-import { useNavigate  } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  updateProfile 
+  updateProfile,
 } from "firebase/auth";
+import { app } from "../../App.jsx";
 
 const formUtil = new FormUtil();
 
@@ -25,24 +26,18 @@ const SignUpPage = () => {
     const { name, value } = e.currentTarget;
     setFormData((state) => ({ ...state, [name]: value }));
   }
-  function submitHandler(e) {
+  async function submitHandler(e) {
     e.preventDefault();
     let { email, password, firstName, lastName } = formData;
     try {
-      if (formUtil.formValidator(formData, 6, 'repeatPassword')) {
-        const auth = getAuth();
-       createUserWithEmailAndPassword(auth, email, password)
-          .then(() => {
-            updateProfile(auth.currentUser, {
-              displayName: `${firstName} ${lastName}`
-            });
-            navigate("/");
-          })
-          .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            alert(errorMessage);
+      if (formUtil.formValidator(formData, 6, "repeatPassword")) {
+        const auth = getAuth(app);
+          await createUserWithEmailAndPassword(auth, email, password);
+          const profile = await updateProfile(auth.currentUser, {
+            displayName: `${firstName} ${lastName}`,
           });
+          console.log(profile);
+          navigate("/");
       }
     } catch (err) {
       alert(err);
@@ -85,7 +80,8 @@ const SignUpPage = () => {
             type="password"
             name="password"
             value={formData.password}
-            onChange={changeHandler}/>
+            onChange={changeHandler}
+          />
         </div>
         <div className={styles["input-div"]}>
           <label htmlFor="repeatPassword">Repeat Password</label>
@@ -93,7 +89,8 @@ const SignUpPage = () => {
             type="password"
             name="repeatPassword"
             value={formData.reapeatPassword}
-            onChange={changeHandler}/>
+            onChange={changeHandler}
+          />
         </div>
         <div className={styles["input-div"]}>
           <input className={styles["submit"]} type="submit" value="Login" />
