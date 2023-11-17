@@ -97,20 +97,6 @@
     max-width: 15rem;
     border: 1px solid black;
 }
-.role-hierarchy-td {
-    border: 1px solid black;
-    text-align: center;
-}
-
-.role-hierarchy-td-select select {
-    width: 100%;
-    text-align: center;
-}
-.role-hierarchy-td-role input {
-    width: 100%;
-    text-align: center;
-}
-
 .submit {
     cursor: pointer;
     margin: 3rem;

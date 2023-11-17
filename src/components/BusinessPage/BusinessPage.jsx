@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "./businessPage.module.css";
-import PositionHierarchyListItem from "./PositionHierarchyListItem.jsx";
+import PositionHierarchyListItem from "./PositionHierarchyListItem/PositionHierarchyListItem.jsx";
 import AddSubstitutesModal from "./addSubstitutesModal/AddSubstitutesModal.jsx";
 import FormUtil from "../../utils/formUtil.js";
 import DateUtil from "../../utils/dateUtil.js";
@@ -55,10 +55,6 @@ const BusinessPage = () => {
     });
   }, [])
 
-
-  
-
-  
 
   const submitHandler = async(e) => {
     e.preventDefault();
@@ -191,13 +187,39 @@ const BusinessPage = () => {
     }));
   };
 
-  const positionsHandler = (e, index) => {
+  const positionsHandler = (e, index, {del = false, add = false} = {}) => {
+    e.preventDefault();
+    if (del) {
+      setFormData((state) => {
+      state.positionHierarchy.splice(index, 1);
+        return {
+          ...state,
+        }
+      });
+      return
+    } else if (add) {
+      const newRole = {
+        title: '',
+        responsibility: 'management',
+        canSubstitute: false,
+        substitutes: []
+      }
+      setFormData((state) => {
+        state.positionHierarchy.splice(index, 0, newRole);
+        console.log(state);
+          return {
+            ...state,
+          }
+        });
+      return
+    }
     const item = e.target;
     const name = item.name;
     let value = item.value;
     if (name === "canSubstitute") {
       value = formUtil.valueConverter(value);
     }
+
     setFormData((state) => ({
       ...state,
       positionHierarchy: state.positionHierarchy.map((pos, i) =>
@@ -383,6 +405,9 @@ const BusinessPage = () => {
                   <th className={styles["role-hierarchy-th"]}>
                     Can substitute
                   </th>
+                  <th >
+                    Manage
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -390,7 +415,6 @@ const BusinessPage = () => {
                   <PositionHierarchyListItem
                     key={i}
                     positions={[...formData.positionHierarchy]}
-                    styles={styles}
                     changeHandler={positionsHandler}
                     position={position}
                     index={i}

@@ -1,7 +1,6 @@
-import { useState } from "react";
+import styles from "./positionHierarchy.module.css";
 
 const PositionHierarchyListItem = ({
-  styles,
   position,
   changeHandler,
   index,
@@ -66,6 +65,20 @@ const PositionHierarchyListItem = ({
             onClick={substitutionsHandler}
           >
             Edit
+          </button>
+        </td>
+        <td className={styles["role-hierarchy-td"]}>
+          <button
+            className={styles["insert-btn"]}
+            onClick={(e) => changeHandler(e, index, { add: true })}
+          >
+            +
+          </button>
+          <button
+            className={styles["delete-btn"]}
+            onClick={(e) => changeHandler(e, index, { del: true })}
+          >
+            X
           </button>
         </td>
       </tr>

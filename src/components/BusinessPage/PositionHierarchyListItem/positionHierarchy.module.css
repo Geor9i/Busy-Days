@@ -1,0 +1,26 @@
+.role-hierarchy-td {
+    border: 1px solid black;
+    text-align: center;
+}
+
+.role-hierarchy-td-select select {
+    width: 100%;
+    text-align: center;
+}
+.role-hierarchy-td-role input {
+    width: 100%;
+    text-align: center;
+}
+
+.delete-btn {
+    width: 20px;
+    background-color: rgb(255, 8, 8);
+    color: rgb(14, 14, 14);
+    font-weight: bold;
+}
+.insert-btn {
+    width: 20px;
+    background-color: rgb(165, 255, 138);
+    color: rgb(14, 14, 14);
+    font-weight: bold;
+}
