@@ -17,6 +17,7 @@ import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
 import { getFirestore } from "firebase/firestore";
 import { GlobalCtx } from "./contexts/GlobalCtx.js";
+import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -54,6 +55,7 @@ function App() {
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/account" element={<Members />} />
           <Route path="/business" element={<BusinessPage />} />
+          <Route path="/employee-view" element={<EmployeeView />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

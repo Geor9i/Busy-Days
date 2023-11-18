@@ -49,6 +49,7 @@
   /* transition: width 0.4s ease; */
   width: 0%;
   height: 100vh;
+  z-index: 1;
 }
 .user-menu-backdrop-active {
   width: 100%;

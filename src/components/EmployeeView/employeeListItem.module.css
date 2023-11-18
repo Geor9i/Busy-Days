@@ -1,0 +1,14 @@
+.employee-list-item {
+    text-align: center;
+    border-bottom: none;
+    background-color: rgb(202, 202, 202);
+    cursor: pointer;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+  }
+  
+  .employee-list-item:hover {
+      background-image: none;
+      background-color: rgb(223, 223, 223);
+      border-bottom: 2px solid white;
+  }

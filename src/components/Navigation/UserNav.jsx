@@ -45,8 +45,8 @@ const UserNav = ({user, back}) => {
           <Link className={styles["link"]} to="/scheduler">
           Scheduler
             </Link>
-          <Link className={styles["link"]} to="/roster">
-          Roster
+          <Link className={styles["link"]} to="/employee-view">
+          Employee View
             </Link>
           <Link className={styles["link"]} to="/members">
               Members
