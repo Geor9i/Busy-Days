@@ -110,15 +110,15 @@
   .employee-list-content {
     width: 100%;
     overflow: auto;
-    background-color: rgb(216, 248, 250);
+    background-color: rgb(83, 83, 83);
     border-collapse: collapse;
   }
   
   .employee-list-content th {
     text-align: center;
     border: 1px solid black;
+    background-color: rgb(165, 165, 165);
   }
-  
   
   .roster-footer {
     width: 100%;
