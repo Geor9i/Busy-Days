@@ -72,8 +72,10 @@
     background-color: rgb(83, 83, 83);
   }
   .user-icon {
-    width: 70%;
+    max-width: 100px;
+    width: auto;
     height: auto;
+    max-height: 100px;
     background-color: #f5f5f5;
     filter:saturate()
 }

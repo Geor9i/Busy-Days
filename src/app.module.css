@@ -5,6 +5,6 @@
     flex-wrap: wrap;
     width: 100%;
     min-height: 84vh;
-    height: 84vh;
+    height: 100%;
     overflow: auto;
 }
