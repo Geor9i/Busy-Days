@@ -15,21 +15,50 @@ import { getAuth } from "firebase/auth";
 import { firebaseConfig } from "../config/firebaseConfig.js";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
-import { getFirestore } from "firebase/firestore";
 import { GlobalCtx } from "./contexts/GlobalCtx.js";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
+import { doc, getFirestore, setDoc, getDoc } from "firebase/firestore";
 
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    business: {},
+    roster: {},
+    events: {},
+  });
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+
+  //Handle authentication changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
+
+      //load all user data
+      if (user) {
+        const uid = user.uid;
+        for (let dbCollection in userData) {
+          const documentRef = doc(db, dbCollection, uid);
+          getDoc(documentRef)
+            .then((snapShot) => {
+              if (snapShot.exists()) {
+                setUserData((state) => ({
+                  ...state,
+                  [dbCollection]: snapShot.data(),
+                }));
+              } else {
+                setUserData((state) => ({ ...state, [dbCollection]: null }));
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching document:", error);
+            });
+        }
+      }
       setLoading(false); // Set loading to false once the authentication check is complete
     });
 
@@ -44,7 +73,7 @@ function App() {
     );
   }
   return (
-    <GlobalCtx.Provider value={{ app, db, auth, setLoading }}>
+    <GlobalCtx.Provider value={{ app, db, auth, setLoading, userData }}>
       {user ? <UserNav user={user} /> : <GuestNav />}
 
       <main className={styles["main"]}>

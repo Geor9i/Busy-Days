@@ -1,0 +1,109 @@
+:root {
+    --form-element-margin: 10px;
+}
+
+.modal-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+form {
+    margin-top: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+    height: 90%;
+}
+
+.form-container {
+    width: 80%;
+    display: grid;
+    align-items:flex-start;
+    justify-items: center;
+    grid-template-columns: 1fr 1fr;
+    height: auto;
+    row-gap: 10px;
+}
+
+.input-div {
+    width: 100%;
+    height: 100%;
+}
+
+.input-div input {
+    width: 90%;
+    margin: var(--form-element-margin);
+    height: 100%;
+}
+
+.input-holder {
+    padding: 5px;
+}
+
+.select-container {
+    margin: calc(var(--form-element-margin) * 3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 50%;
+}
+
+.select-container label {
+    font-size: 1.5rem;
+}
+.select-container select {
+    text-align: center;
+    width: 70%;
+}
+
+.role-selector-container {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    margin: var(--form-element-margin);
+    width: 60%;
+    height: 30%;
+    overflow: auto;
+    background-color: rgb(247, 247, 247);
+    border: 1px solid rgb(219, 250, 255);
+}
+
+.role-list {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+}
+
+.role-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 90%;
+    height: 30px;
+}
+
+
+.role-list-item input[type="checkbox"] {
+    margin: 20px;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.submit-btn {
+    width: 40%;
+    height: 10%;
+    cursor: pointer;
+}

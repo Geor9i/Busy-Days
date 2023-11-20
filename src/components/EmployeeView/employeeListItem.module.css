@@ -11,7 +11,7 @@
 .employee-list-item {
     text-align: center;
     border-bottom: none;
-    background-color: rgb(202, 202, 202);
+    background-color: rgb(233, 233, 233);
     cursor: pointer;
     color: rgb(0, 0, 0);
     font-weight: bold;
@@ -28,7 +28,7 @@
   }
 
   .employee-details-content-container {
-    height: 400px;
+    height: 60vh;
     overflow: auto;
     transition: height 0.3s ease;
   }
@@ -166,6 +166,7 @@
     padding: 0 20px;
     border: 1px solid black;
     min-width: 100px;
+    color: black;
   }
   .availability-table td {
     text-align: center;

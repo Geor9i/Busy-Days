@@ -10,7 +10,7 @@ import TimeUtil from "../../utils/timeUtil.js/";
 import ObjectUtil from "../../utils/util.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { doc, getFirestore, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 
 const BusinessPage = () => {
@@ -21,7 +21,7 @@ const BusinessPage = () => {
   const timeUtil = new TimeUtil();
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
-  const [formData, setFormData] = useState({
+  const [businessData, setBusinessData] = useState({
     name: "",
     openTimes: objUtil.reduceToObj(weekdays, {
       startTime: "",
@@ -39,38 +39,44 @@ const BusinessPage = () => {
 
   const [lastKey, setLastKey] = useState("");
 
-  const { auth, db, setLoading } = useContext(GlobalCtx);
+  const { auth, db, setLoading, userData } = useContext(GlobalCtx);
   const uid = auth.currentUser.uid;
 
   useEffect(() => {
-    const documentRef = doc(db, "business", uid);
-    getDoc(documentRef)
-      .then((snapShot) => {
-        if (snapShot.exists()) {
-          setFormData(snapShot.data());
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching document:", error);
-      });
+    setLoading(true);
+    if (!userData.business) {
+      const documentRef = doc(db, "business", uid);
+      getDoc(documentRef)
+        .then((snapShot) => {
+          if (snapShot.exists()) {
+            setBusinessData(snapShot.data());
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching document:", error);
+        });
+    } else {
+      setBusinessData(userData.business)
+    }
+    setLoading(false);
   }, []);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     try {
-      if (validateForm(formData)) {
-        const uid = auth.currentUser.uid
-        const data = finalizeFormData(formData);
+      if (validateForm(businessData)) {
+        const uid = auth.currentUser.uid;
+        const data = finalizeFormData(businessData);
         const documentRef = doc(db, "business", uid);
-        await setDoc(documentRef, data)
+        await setDoc(documentRef, data);
         console.log("Data written to Firestore successfully!");
-        navigate('/');
+        navigate("/");
       }
     } catch (err) {
       console.log(err);
     }
-    setLoading(false)
+    setLoading(false);
 
     function validateForm(formData) {
       const { name, openTimes, positionHierarchy } = formData;
@@ -165,7 +171,7 @@ const BusinessPage = () => {
 
   const setWeekdayHandler = (e) => {
     const weekday = e.target.getAttribute("data-weekday");
-    setFormData((state) => ({
+    setBusinessData((state) => ({
       ...state,
       openTimes: {
         ...state.openTimes,
@@ -179,12 +185,12 @@ const BusinessPage = () => {
 
   const onChangeNameHandler = (e) => {
     const value = e.target.value;
-    setFormData((state) => ({ ...state, name: value }));
+    setBusinessData((state) => ({ ...state, name: value }));
   };
 
   const addPositionHandler = (e) => {
     e.preventDefault();
-    setFormData((state) => ({
+    setBusinessData((state) => ({
       ...state,
       positionHierarchy: [
         ...state.positionHierarchy,
@@ -201,7 +207,7 @@ const BusinessPage = () => {
   const positionsHandler = (e, index, { del = false, add = false } = {}) => {
     e.preventDefault();
     if (del) {
-      setFormData((state) => {
+      setBusinessData((state) => {
         let newState = { ...state };
         newState.positionHierarchy.splice(index, 1);
         return newState;
@@ -214,7 +220,7 @@ const BusinessPage = () => {
         canSubstitute: false,
         substitutes: [],
       };
-      setFormData((state) => {
+      setBusinessData((state) => {
         let newState = { ...state };
         newState.positionHierarchy.splice(index, 0, newRole);
         return newState;
@@ -228,7 +234,7 @@ const BusinessPage = () => {
       value = formUtil.valueConverter(value);
     }
 
-    setFormData((state) => ({
+    setBusinessData((state) => ({
       ...state,
       positionHierarchy: state.positionHierarchy.map((pos, i) =>
         i === index ? { ...pos, [name]: value } : pos
@@ -257,7 +263,7 @@ const BusinessPage = () => {
     }
     const [timeKey, weekday] = name.split("-");
     if (value.length < 6) {
-      setFormData((state) => ({
+      setBusinessData((state) => ({
         ...state,
         openTimes: {
           ...state.openTimes,
@@ -284,7 +290,7 @@ const BusinessPage = () => {
     }
     const [timeKey, weekday] = name.split("-");
     if (value.length < 6) {
-      setFormData((state) => ({
+      setBusinessData((state) => ({
         ...state,
         openTimes: {
           ...state.openTimes,
@@ -319,7 +325,7 @@ const BusinessPage = () => {
       setModalData((state) => ({ ...state, on: false }));
     }
     if (config.data && config.index) {
-      setFormData((state) => ({
+      setBusinessData((state) => ({
         ...state,
         positionHierarchy: state.positionHierarchy.map((pos, i) =>
           i === config.index ? { ...pos, substitutes: config.data } : pos
@@ -345,7 +351,7 @@ const BusinessPage = () => {
             <input
               type="text"
               maxLength="30"
-              value={formData.name}
+              value={businessData.name}
               onChange={onChangeNameHandler}
             />
           </div>
@@ -361,7 +367,7 @@ const BusinessPage = () => {
                       data-weekday={day}
                       className={`${styles["opening-times-th"]} ${
                         styles[
-                          formData.openTimes[day].isWorkday
+                          businessData.openTimes[day].isWorkday
                             ? ""
                             : "opening-times-th-inactive"
                         ]
@@ -379,10 +385,10 @@ const BusinessPage = () => {
                       key={day}
                       weekday={day}
                       handler={openTimesHandler}
-                      data={formData.openTimes[day]}
+                      data={businessData.openTimes[day]}
                       setLastKey={setLastKey}
                       onBlur={openTimesOnBlurHandler}
-                      isWorkday={formData.openTimes[day].isWorkday}
+                      isWorkday={businessData.openTimes[day].isWorkday}
                     />
                   ))}
                 </tr>
@@ -415,10 +421,10 @@ const BusinessPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {formData.positionHierarchy.map((position, i) => (
+                {businessData.positionHierarchy.map((position, i) => (
                   <PositionHierarchyListItem
                     key={i}
-                    positions={[...formData.positionHierarchy]}
+                    positions={[...businessData.positionHierarchy]}
                     changeHandler={positionsHandler}
                     position={position}
                     index={i}

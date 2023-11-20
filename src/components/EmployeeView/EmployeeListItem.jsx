@@ -21,6 +21,7 @@ export default function EmployeeListItem() {
     minHours: { strict: "53:00" },
   },
      */
+
   return (
     <>
      <tr onClick={showEmployeeDetails} className={styles["employee-list-item"]}>
@@ -58,7 +59,7 @@ export default function EmployeeListItem() {
               <p>Full Time</p>
             </div>
             <div className={styles['text-container']}>
-              <strong>Job role :</strong>
+              <strong>Job roles :</strong>
               <p>MOH, FOH</p>
             </div>
           </div>

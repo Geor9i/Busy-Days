@@ -1,0 +1,16 @@
+.modal-container {
+    position: absolute;
+    width: 50vw;
+    height: 70vh;
+    background-color: rgb(235, 235, 235);
+    border: 2px solid black;
+    z-index: 1001;
+}
+
+.modal-backdrop {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+}
