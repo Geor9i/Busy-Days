@@ -21,56 +21,41 @@ const BusinessPage = () => {
   const timeUtil = new TimeUtil();
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
-  const [businessData, setBusinessData] = useState({
-    name: "",
-    openTimes: objUtil.reduceToObj(weekdays, {
-      startTime: "",
-      endTime: "",
-      isWorkday: true,
-    }),
-    positionHierarchy: [],
-  });
 
+  const { fireService, setLoading, userData, setUserData } =
+    useContext(GlobalCtx);
+  const [businessData, setBusinessData] = useState(
+    userData.business
+      ? userData.business
+      : {
+          name: "",
+          openTimes: objUtil.reduceToObj(weekdays, {
+            startTime: "",
+            endTime: "",
+            isWorkday: true,
+          }),
+          positionHierarchy: [],
+        }
+  );
+  const [lastKey, setLastKey] = useState("");
   const [modalData, setModalData] = useState({
     on: false,
     positionsList: {},
     roleIndex: "",
   });
 
-  const [lastKey, setLastKey] = useState("");
-
-  const { fireService, setLoading, userData } = useContext(GlobalCtx);
-  const uid = fireService.uid;
-
-  useEffect(() => {
-    setLoading(true);
-    if (!userData.business) {
-      const documentRef = doc(db, "business", uid);
-      getDoc(documentRef)
-        .then((snapShot) => {
-          if (snapShot.exists()) {
-            setBusinessData(snapShot.data());
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching document:", error);
-        });
-    } else {
-      setBusinessData(userData.business)
-    }
-    setLoading(false);
-  }, []);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       if (validateForm(businessData)) {
-        const uid = auth.currentUser.uid;
+        const uid = fireService.uid;
         const data = finalizeFormData(businessData);
         const documentRef = doc(fireService.db, "business", uid);
         await setDoc(documentRef, data);
         console.log("Data written to Firestore successfully!");
+        setUserData((state) => ({ ...state, business: { ...data } }));
         navigate("/");
       }
     } catch (err) {
@@ -227,9 +212,7 @@ const BusinessPage = () => {
       });
       return;
     }
-    const item = e.target;
-    const name = item.name;
-    let value = item.value;
+    let { value, name } = e.target;
     if (name === "canSubstitute") {
       value = formUtil.valueConverter(value);
     }

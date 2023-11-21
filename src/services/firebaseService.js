@@ -5,11 +5,9 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, up
 export default class FirebaseService {
     constructor (app) {
         this.app = app;
+        this.db = getFirestore(app)
     }
 
-    get db() {
-      return getFirestore(this.app)
-    }
     get auth() {
       return getAuth(this.app)
     }
@@ -27,24 +25,27 @@ export default class FirebaseService {
     }
 
     updateProfile(newData) {
-      updateProfile(this.auth.currentUser, newData)
+      return updateProfile(this.auth.currentUser, newData)
     }
     
-    async fetchData (dataKeyObject) {
-        const uid = this.auth.currentUser.uid;
+    async fetchData (collectionKeys, readyData = {}) {
+        const uid = this.uid;
         const result = {};
-        for (let collection in dataKeyObject) {
-          const documentRef = doc(this.db, collection, uid);
-          getDoc(documentRef)
-            .then((snapShot) => {
-              result[collection] = snapShot.exists()
-                ? snapShot.data()
-                : null;
-            })
-            .catch((error) => {
-              console.error("Error fetching document:", error);
-            });
+        for (let collection in collectionKeys) {
+          if (readyData[collection] && Object.keys(readyData[collection]) > 0) {
+              result[collection] = readyData[collection];
+              continue;
+          }
+          try {
+            const documentRef = doc(this.db, collection, uid);
+            const snapShot = await getDoc(documentRef);
+            result[collection] = snapShot.exists() ? snapShot.data() : null;
+          }catch(err) {
+            throw new Error(err)
+          }
         }
         return result;
       }
+
+
 }

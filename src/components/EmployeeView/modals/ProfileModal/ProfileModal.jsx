@@ -1,25 +1,20 @@
 import styles from "./profileModal.module.css";
 import useForm from "../../../../hooks/useForm.js";
+import FormUtil from "../../../../utils/formUtil.js";
 
-export default function ProfileModal({ onSubmitHandler }) {
-  const valueKeys = {
-    FirstName: "firstName",
-    LastName: "lastName",
-    PhoneNumber: "phoneNumber",
-    Email: "email",
-    ContractType: "contractType",
-  };
+export default function ProfileModal({ onSubmitHandler , roles}) {
+  const formUtil = new FormUtil();
+  const formKeys = formUtil.formKeys({
+    formKeys: ["firstName", "lastName", "phoneNumber", "email", "contractType"],
+  });
 
-  const initialValues = {
-    [valueKeys.FirstName]: "",
-    [valueKeys.LastName]: "",
-    [valueKeys.PhoneNumber]: "",
-    [valueKeys.Email]: "",
-    [valueKeys.ContractType]: "fullTime",
-  };
+  const initialValues = {...formUtil.formKeys({formKeys, empty:true}), contractType: 'fullTime'}
 
-  const { values, onChange, onSubmit } = useForm(initialValues, onSubmitHandler);
-
+  const { formData, onChange, onSubmit } = useForm(
+    initialValues,
+    onSubmitHandler
+  );
+  console.log(roles);
   return (
     <div className={styles["modal-content"]}>
       <h2> Create Employee </h2>
@@ -31,7 +26,7 @@ export default function ProfileModal({ onSubmitHandler }) {
               onChange={onChange}
               type="text"
               placeholder="First Name"
-              value={values[valueKeys.FirstName]}
+              value={formData[formKeys.firstName]}
               name="firstName"
               required
             />
@@ -41,7 +36,7 @@ export default function ProfileModal({ onSubmitHandler }) {
             <label htmlFor="lastName">Last Name</label>
             <input
               onChange={onChange}
-              value={values[valueKeys.LastName]}
+              value={formData[formKeys.lastName]}
               type="text"
               placeholder="Last Name"
               name="lastName"
@@ -53,7 +48,7 @@ export default function ProfileModal({ onSubmitHandler }) {
 
             <input
               onChange={onChange}
-              value={values[valueKeys.PhoneNumber]}
+              value={formData[formKeys.phoneNumber]}
               type="tel"
               placeholder="Phone Number"
               name="phoneNumber"
@@ -64,7 +59,7 @@ export default function ProfileModal({ onSubmitHandler }) {
 
             <input
               onChange={onChange}
-              value={values[valueKeys.Email]}
+              value={formData[formKeys.email]}
               type="text"
               placeholder="Email"
               name="email"
@@ -79,7 +74,7 @@ export default function ProfileModal({ onSubmitHandler }) {
             name="contractType"
             id="contractType"
             onChange={onChange}
-            value={values[valueKeys.ContractType]}
+            value={formData[formKeys.contractType]}
           >
             <option value="fullTime">Full-Time</option>
             <option value="partTime">Part-Time</option>
@@ -91,15 +86,16 @@ export default function ProfileModal({ onSubmitHandler }) {
         <h2>Select Job roles</h2>
         <div className={styles["role-selector-container"]}>
           <div className={styles["role-list"]}>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
+            {roles.map(role =>  <div key={role} className={styles["role-list-item"]}>
+              <label htmlFor={role}>{role}</label>
               <input
                 onChange={onChange}
                 type="checkbox"
-                value="ARGM"
-                name="ARGM"
+                value={role}
+                name={role}
               />
-            </div>
+            </div>)}
+           
           </div>
         </div>
         <button className={styles["submit-btn"]}>Create Employee</button>

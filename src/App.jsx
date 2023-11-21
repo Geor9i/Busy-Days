@@ -39,19 +39,22 @@ function App() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
 
-      //load all user data
-      if (user) {
-        fireService.fetchData(userData)
-        .then(response => setUserData(response))
-        .catch(err => console.log('DB error: ', err))
-        .finally(() => setLoading(false))
-      } else {
-        setLoading(false)
+      // load all user data
+      if (user && !userData.business && !userData.roster && !userData.events) {
+        fireService
+          .fetchData(userData)
+          .then((response) => setUserData(response))
+          .catch((err) => console.log('DB error: ', err))
+          .finally(() => setLoading(false));
       }
+      setLoading(false)
     });
 
     return () => unsubscribe();
   }, [auth]);
+
+
+  console.log(userData);
 
   if (isLoading) {
     return (
@@ -61,7 +64,7 @@ function App() {
     );
   }
   return (
-    <GlobalCtx.Provider value={{ fireService, setLoading, userData }}>
+    <GlobalCtx.Provider value={{ fireService, setLoading, setUserData, userData }}>
       {user ? <UserNav user={user} /> : <GuestNav />}
 
       <main className={styles["main"]}>

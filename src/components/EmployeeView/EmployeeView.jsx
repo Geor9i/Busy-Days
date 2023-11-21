@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import styles from "./employeeView.module.css";
 import FormUtil from "../../utils/formUtil.js";
 import DateUtil from "../../utils/dateUtil.js";
@@ -7,13 +8,21 @@ import TimeUtil from "../../utils/timeUtil.js/";
 import ObjectUtil from "../../utils/util.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { doc, getDoc } from "firebase/firestore";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import EmployeeListItem from "./employeeListItem.jsx";
 import Modal from "../misc/modal/modal.jsx";
 import ProfileModal from "./modals/ProfileModal/Profilemodal.jsx";
 
 export default function EmployeeView() {
+  const [userProfileModalState, setUserProfileModalState] = useState(false);
+  const { fireService, setLoading, userData, setUserData } =
+    useContext(GlobalCtx);
+  const [businessData, setBusinessData] = useState({
+    roster: userData.roster,
+    business: userData.business,
+  });
+  const isMounted = useRef(true);
+
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
@@ -21,53 +30,17 @@ export default function EmployeeView() {
   const timeUtil = new TimeUtil();
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
-  const [businessData, setBusinessData] = useState({
-    roster: null,
-    business: null,
-  });
-  const [userProfileModalState, setUserProfileModalState] = useState(false);
-  const { fireService, setLoading, userData } = useContext(GlobalCtx);
   const uid = fireService.uid;
-  //Load roster data if it exists
-  useEffect(() => {
-    setLoading(true);
-    const preSetStateData = { ...businessData };
-    async function fetchData() {
-      for (let dbCollection in businessData) {
-        if (userData.hasOwnProperty(dbCollection) && !userData[dbCollection]) {
-          const documentRef = doc(fireService.db, dbCollection, uid);
-          getDoc(documentRef)
-            .then((snapShot) => {
-              if (snapShot.exists()) {
-                preSetStateData[dbCollection] = snapShot.data();
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching document:", error);
-            });
-        } else {
-          if (userData.hasOwnProperty(dbCollection)) {
-            preSetStateData[dbCollection] = userData[dbCollection];
-          }
-        }
-      }
-      setBusinessData(preSetStateData);
-    }
 
-    fetchData().then(() => setLoading(false));
-  }, []);
+  // Load roster data if it exists
 
-  // const roles = roster.positionHierarchy.map(pos => pos.title);
-  console.log(businessData);
-
-  const createNewEmployeeModalHandler = ({ e = null, values = null } = {}) => {
-    e && e.preventDefault();
+const roles = businessData.business.positionHierarchy.map(pos => pos.title)
+  const createNewEmployeeModalHandler = ({ e, values = null } = {}) => {
     if (!values) {
       setUserProfileModalState((state) => !state);
     } else {
     }
   };
-
   const modalStyle = {
     width: "30vw",
     height: "55vh",
@@ -83,7 +56,7 @@ export default function EmployeeView() {
           children={
             <ProfileModal
               onSubmitHandler={createNewEmployeeModalHandler}
-              roles={businessData.roles}
+              roles={roles}
             />
           }
         />
