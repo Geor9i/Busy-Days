@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import styles from "./employeeView.module.css";
 import FormUtil from "../../utils/formUtil.js";
 import DateUtil from "../../utils/dateUtil.js";
 import StringUtil from "../../utils/stringUtil.js";
 import TimeUtil from "../../utils/timeUtil.js/";
-import ObjectUtil from "../../utils/util.js";
+import ObjectUtil from "../../utils/objectUtil.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
@@ -21,7 +21,6 @@ export default function EmployeeView() {
     roster: userData.roster,
     business: userData.business,
   });
-  const isMounted = useRef(true);
 
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
@@ -34,7 +33,7 @@ export default function EmployeeView() {
 
   // Load roster data if it exists
 
-const roles = businessData.business.positionHierarchy.map(pos => pos.title)
+  const roles = businessData.business.positionHierarchy.map((pos) => pos.title);
   const createNewEmployeeModalHandler = ({ e, values = null } = {}) => {
     if (!values) {
       setUserProfileModalState((state) => !state);

@@ -1,4 +1,4 @@
-import ObjectUtil from "../../../utils/util.js";
+import ObjectUtil from "../../../utils/objectUtil.js";
 import styles from "./positionHierarchy.module.css";
 
 const PositionHierarchyListItem = ({

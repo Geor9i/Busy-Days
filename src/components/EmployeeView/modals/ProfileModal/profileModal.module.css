@@ -89,9 +89,10 @@ form {
 .role-list-item {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     width: 90%;
     height: 30px;
+    border-bottom: 1px solid rgb(71, 71, 71);
 }
 
 

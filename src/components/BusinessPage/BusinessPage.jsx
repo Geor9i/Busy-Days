@@ -7,7 +7,7 @@ import DateUtil from "../../utils/dateUtil.js";
 import OpeningTimesTd from "./OpeningTimesTd/OpeningTimesTd.jsx";
 import StringUtil from "../../utils/stringUtil.js";
 import TimeUtil from "../../utils/timeUtil.js/";
-import ObjectUtil from "../../utils/util.js";
+import ObjectUtil from "../../utils/objectUtil.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { doc, setDoc, getDoc } from "firebase/firestore";

@@ -1,20 +1,34 @@
 import styles from "./profileModal.module.css";
 import useForm from "../../../../hooks/useForm.js";
 import FormUtil from "../../../../utils/formUtil.js";
+import ObjectUtil from "../../../../utils/objectUtil.js";
 
-export default function ProfileModal({ onSubmitHandler , roles}) {
+export default function ProfileModal({ onSubmitHandler, roles }) {
   const formUtil = new FormUtil();
+  const objectUtil = new ObjectUtil();
+
   const formKeys = formUtil.formKeys({
-    formKeys: ["firstName", "lastName", "phoneNumber", "email", "contractType"],
+    formKeys: [
+      "firstName",
+      "lastName",
+      "phoneNumber",
+      "email",
+      "contractType",
+      "positions",
+    ],
   });
 
-  const initialValues = {...formUtil.formKeys({formKeys, empty:true}), contractType: 'fullTime'}
+  const initialValues = {
+    ...formUtil.formKeys({ formKeys, empty: true }),
+    contractType: "fullTime",
+    positions: { ...objectUtil.reduceToObj(roles, false) },
+  };
 
   const { formData, onChange, onSubmit } = useForm(
     initialValues,
     onSubmitHandler
   );
-  console.log(roles);
+  console.log(formData);
   return (
     <div className={styles["modal-content"]}>
       <h2> Create Employee </h2>
@@ -86,16 +100,17 @@ export default function ProfileModal({ onSubmitHandler , roles}) {
         <h2>Select Job roles</h2>
         <div className={styles["role-selector-container"]}>
           <div className={styles["role-list"]}>
-            {roles.map(role =>  <div key={role} className={styles["role-list-item"]}>
-              <label htmlFor={role}>{role}</label>
-              <input
-                onChange={onChange}
-                type="checkbox"
-                value={role}
-                name={role}
-              />
-            </div>)}
-           
+            {roles.map((role) => (
+              <div key={role} className={styles["role-list-item"]}>
+                <label htmlFor={role}>{role}</label>
+                <input
+                  onChange={(e) => onChange(e, {key: 'positions', useValue: 'checked'})}
+                  type="checkbox"
+                  checked={formData[formKeys.positions[role]]}
+                  name={role}
+                />
+              </div>
+            ))}
           </div>
         </div>
         <button className={styles["submit-btn"]}>Create Employee</button>
