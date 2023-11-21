@@ -1,57 +1,52 @@
 import FormUtil from "../../utils/formUtil.js";
 import styles from "./signUp.module.css";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
+import useForm from "../../hooks/useForm.js";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    repeatPassword: "",
-  });
-
   const formUtil = new FormUtil();
 
-  const { auth, setLoading } = useContext(GlobalCtx);
+  const formKeys = formUtil.formKeys({
+    formKeys: ["firstName", "lastName", "email", "password", "repeatPassword"],
+  });
+  const initialValues = formUtil.formKeys({ formKeys, empty: true });
+  const { fireService, setLoading } = useContext(GlobalCtx);
+  const { formData, onChange, onSubmit } = useForm(
+    initialValues,
+    submitHandler
+  );
 
-  function changeHandler(e) {
-    e.preventDefault();
-    const { name, value } = e.currentTarget;
-    setFormData((state) => ({ ...state, [name]: value }));
-  }
-  async function submitHandler(e) {
-    e.preventDefault();
+  async function submitHandler({ formData }) {
     setLoading(true);
     let { email, password, firstName, lastName } = formData;
     try {
-      if (formUtil.formValidator(formData, 6, "repeatPassword")) {
-        await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(auth.currentUser, {
-          displayName: `${firstName} ${lastName}`,
-        });
-        navigate("/");
-        setLoading(false);
-      }
+      formUtil.formValidator(formData, 6, "repeatPassword");
     } catch (err) {
-      alert(err);
+      console.log("Sign up err :", err);
     }
+    fireService
+      .register(email, password)
+      .then(() =>
+        fireService.updateProfile({ displayName: `${firstName} ${lastName}` })
+      )
+      .then(() => navigate("/"))
+      .catch((err) => console.log("SignUp Error: ", err))
+      .finally(setLoading(false));
   }
 
   return (
     <>
-      <form onSubmit={submitHandler} className={styles["form"]} method="POST">
+      <form onSubmit={onSubmit} className={styles["form"]} method="POST">
         <div className={styles["input-div"]}>
           <label htmlFor="firstName">First Name</label>
           <input
             type="text"
             name="firstName"
-            value={formData.firstName}
-            onChange={changeHandler}
+            value={formData[formKeys.firstName]}
+            onChange={onChange}
           />
         </div>
         <div className={styles["input-div"]}>
@@ -59,8 +54,8 @@ const SignUpPage = () => {
           <input
             type="text"
             name="lastName"
-            value={formData.lastName}
-            onChange={changeHandler}
+            value={formData[formKeys.lastName]}
+            onChange={onChange}
           />
         </div>
         <div className={styles["input-div"]}>
@@ -68,8 +63,8 @@ const SignUpPage = () => {
           <input
             type="text"
             name="email"
-            value={formData.email}
-            onChange={changeHandler}
+            value={formData[formKeys.email]}
+            onChange={onChange}
           />
         </div>
         <div className={styles["input-div"]}>
@@ -77,8 +72,8 @@ const SignUpPage = () => {
           <input
             type="password"
             name="password"
-            value={formData.password}
-            onChange={changeHandler}
+            value={formData[formKeys.password]}
+            onChange={onChange}
           />
         </div>
         <div className={styles["input-div"]}>
@@ -86,8 +81,8 @@ const SignUpPage = () => {
           <input
             type="password"
             name="repeatPassword"
-            value={formData.repeatPassword}
-            onChange={changeHandler}
+            value={formData[formKeys.repeatPassword]}
+            onChange={onChange}
           />
         </div>
         <div className={styles["input-div"]}>

@@ -1,59 +1,49 @@
 import FormUtil from "../../utils/formUtil.js";
 import styles from "./login.module.css";
-import { useContext, useState } from "react";
-import { useNavigate  } from "react-router-dom";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
+import useForm from "../../hooks/useForm.js";
 
-const formUtil = new FormUtil();
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const formUtil = new FormUtil();
+  const formKeys = formUtil.formKeys({ formKeys: ["email", "password"] });
+  const initialValues = formUtil.formKeys({ formKeys, empty: true });
+  const { formData, onChange, onSubmit } = useForm(
+    initialValues,
+    submitHandler
+  );
+  const { fireService, setLoading } = useContext(GlobalCtx);
 
-  const { auth, setLoading } = useContext(GlobalCtx);
-  function changeHandler(e) {
-    e.preventDefault();
-    const { name, value } = e.currentTarget;
-    setFormData((state) => ({ ...state, [name]: value }));
-  }
-  function submitHandler(e) {
-    e.preventDefault();
+  function submitHandler({ formData }) {
     setLoading(true);
     let { email, password } = formData;
     try {
-      if (formUtil.formValidator(formData)) {
-        signInWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            const user = userCredential.user;
-            navigate("/");
-            setLoading(false);
-          })
-          .catch((error) => {
-            const errorMessage = error.message;
-            alert(errorMessage);
-          });
-      }
+      formUtil.formValidator(formData);
     } catch (err) {
-      alert(err);
+      console.log("Login err :", err);
     }
+    fireService
+      .login(email, password)
+      .then(() => navigate("/"))
+      .catch((error) => {
+        const errorMessage = error.message;
+        alert(errorMessage);
+      })
+      .finally(() => setLoading(false));
   }
 
   return (
     <>
-      <form onSubmit={submitHandler} className={styles["form"]} method="POST">
+      <form onSubmit={onSubmit} className={styles["form"]} method="POST">
         <div className={styles["input-div"]}>
           <label htmlFor="email">Email</label>
           <input
             type="text"
             name="email"
-            value={formData.email}
-            onChange={changeHandler}
+            value={formData[formKeys.email]}
+            onChange={onChange}
           />
         </div>
         <div className={styles["input-div"]}>
@@ -61,8 +51,8 @@ const LoginPage = () => {
           <input
             type="password"
             name="password"
-            value={formData.password}
-            onChange={changeHandler}
+            value={formData[formKeys.password]}
+            onChange={onChange}
           />
         </div>
         <div className={styles["input-div"]}>

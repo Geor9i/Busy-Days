@@ -39,8 +39,8 @@ const BusinessPage = () => {
 
   const [lastKey, setLastKey] = useState("");
 
-  const { auth, db, setLoading, userData } = useContext(GlobalCtx);
-  const uid = auth.currentUser.uid;
+  const { fireService, setLoading, userData } = useContext(GlobalCtx);
+  const uid = fireService.uid;
 
   useEffect(() => {
     setLoading(true);
@@ -68,7 +68,7 @@ const BusinessPage = () => {
       if (validateForm(businessData)) {
         const uid = auth.currentUser.uid;
         const data = finalizeFormData(businessData);
-        const documentRef = doc(db, "business", uid);
+        const documentRef = doc(fireService.db, "business", uid);
         await setDoc(documentRef, data);
         console.log("Data written to Firestore successfully!");
         navigate("/");

@@ -21,43 +21,57 @@ export default function EmployeeView() {
   const timeUtil = new TimeUtil();
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
-  const [roster, setRoster] = useState({});
+  const [businessData, setBusinessData] = useState({
+    roster: null,
+    business: null,
+  });
   const [userProfileModalState, setUserProfileModalState] = useState(false);
-  const { auth, db, setLoading, userData } = useContext(GlobalCtx);
-  const uid = auth.currentUser.uid;
+  const { fireService, setLoading, userData } = useContext(GlobalCtx);
+  const uid = fireService.uid;
   //Load roster data if it exists
   useEffect(() => {
     setLoading(true);
-    if (!userData.roster) {
-      const documentRef = doc(db, "roster", uid);
-      getDoc(documentRef)
-        .then((snapShot) => {
-          if (snapShot.exists()) {
-            setRoster(snapShot.data());
+    const preSetStateData = { ...businessData };
+    async function fetchData() {
+      for (let dbCollection in businessData) {
+        if (userData.hasOwnProperty(dbCollection) && !userData[dbCollection]) {
+          const documentRef = doc(fireService.db, dbCollection, uid);
+          getDoc(documentRef)
+            .then((snapShot) => {
+              if (snapShot.exists()) {
+                preSetStateData[dbCollection] = snapShot.data();
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching document:", error);
+            });
+        } else {
+          if (userData.hasOwnProperty(dbCollection)) {
+            preSetStateData[dbCollection] = userData[dbCollection];
           }
-        })
-        .catch((error) => {
-          console.error("Error fetching document:", error);
-        });
-    } else {
-      setRoster(userData.business);
+        }
+      }
+      setBusinessData(preSetStateData);
     }
-    setLoading(false);
+
+    fetchData().then(() => setLoading(false));
   }, []);
 
-  const createNewEmployeeModalHandler = (e, data) => {
-    e.preventDefault();
-    if (!data) {
+  // const roles = roster.positionHierarchy.map(pos => pos.title);
+  console.log(businessData);
+
+  const createNewEmployeeModalHandler = ({ e = null, values = null } = {}) => {
+    e && e.preventDefault();
+    if (!values) {
       setUserProfileModalState((state) => !state);
     } else {
-
     }
   };
 
   const modalStyle = {
     width: "30vw",
     height: "55vh",
-    borderRadius: '13px'
+    borderRadius: "13px",
   };
 
   return (
@@ -66,7 +80,12 @@ export default function EmployeeView() {
         <Modal
           customStyles={modalStyle}
           changeState={createNewEmployeeModalHandler}
-          children={<ProfileModal onSubmit={createNewEmployeeModalHandler} />}
+          children={
+            <ProfileModal
+              onSubmitHandler={createNewEmployeeModalHandler}
+              roles={businessData.roles}
+            />
+          }
         />
       ) : null}
       <div className={styles["roster-container"]}>

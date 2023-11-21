@@ -1,37 +1,38 @@
 import { useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+
 import styles from "./app.module.css";
+import "./styles.css";
+import { GlobalCtx } from "./contexts/GlobalCtx.js";
+
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "../config/firebaseConfig.js";
+
 import GuestNav from "./components/Navigation/GuestNav.jsx";
 import UserNav from "./components/Navigation/UserNav.jsx";
 import Footer from "./components/Footer/Footer.jsx";
-import "./styles.css";
 import GuestContent from "./components/GuestHome/GuestContent.jsx";
-import { Routes, Route } from "react-router-dom";
 import Members from "./components/Members/Members.jsx";
 import LoginPage from "./components/Login/loginPage.jsx";
 import SignUpPage from "./components/SignUp/SignUpPage.jsx";
 import NotFound from "./components/Errors/NotFound.jsx";
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { firebaseConfig } from "../config/firebaseConfig.js";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
-import { GlobalCtx } from "./contexts/GlobalCtx.js";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
-import { doc, getFirestore, setDoc, getDoc } from "firebase/firestore";
+import FirebaseService from "./services/firebaseService.js";
 
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [userData, setUserData] = useState({
-    business: {},
-    roster: {},
-    events: {},
+    business: null,
+    roster: null,
+    events: null,
   });
 
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
+  const fireService = new FirebaseService(app);
+  const auth = fireService.auth;
 
   //Handle authentication changes
   useEffect(() => {
@@ -40,26 +41,13 @@ function App() {
 
       //load all user data
       if (user) {
-        const uid = user.uid;
-        for (let dbCollection in userData) {
-          const documentRef = doc(db, dbCollection, uid);
-          getDoc(documentRef)
-            .then((snapShot) => {
-              if (snapShot.exists()) {
-                setUserData((state) => ({
-                  ...state,
-                  [dbCollection]: snapShot.data(),
-                }));
-              } else {
-                setUserData((state) => ({ ...state, [dbCollection]: null }));
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching document:", error);
-            });
-        }
+        fireService.fetchData(userData)
+        .then(response => setUserData(response))
+        .catch(err => console.log('DB error: ', err))
+        .finally(() => setLoading(false))
+      } else {
+        setLoading(false)
       }
-      setLoading(false); // Set loading to false once the authentication check is complete
     });
 
     return () => unsubscribe();
@@ -73,7 +61,7 @@ function App() {
     );
   }
   return (
-    <GlobalCtx.Provider value={{ app, db, auth, setLoading, userData }}>
+    <GlobalCtx.Provider value={{ fireService, setLoading, userData }}>
       {user ? <UserNav user={user} /> : <GuestNav />}
 
       <main className={styles["main"]}>

@@ -1,6 +1,25 @@
 import styles from "./profileModal.module.css";
+import useForm from "../../../../hooks/useForm.js";
 
-export default function ProfileModal({ onSubmit }) {
+export default function ProfileModal({ onSubmitHandler }) {
+  const valueKeys = {
+    FirstName: "firstName",
+    LastName: "lastName",
+    PhoneNumber: "phoneNumber",
+    Email: "email",
+    ContractType: "contractType",
+  };
+
+  const initialValues = {
+    [valueKeys.FirstName]: "",
+    [valueKeys.LastName]: "",
+    [valueKeys.PhoneNumber]: "",
+    [valueKeys.Email]: "",
+    [valueKeys.ContractType]: "fullTime",
+  };
+
+  const { values, onChange, onSubmit } = useForm(initialValues, onSubmitHandler);
+
   return (
     <div className={styles["modal-content"]}>
       <h2> Create Employee </h2>
@@ -8,35 +27,64 @@ export default function ProfileModal({ onSubmit }) {
         <div className={styles["form-container"]}>
           <div className="input-div">
             <label htmlFor="firstName">First Name</label>
-            <input type="text" placeholder="First Name" name="firstName" required/>
+            <input
+              onChange={onChange}
+              type="text"
+              placeholder="First Name"
+              value={values[valueKeys.FirstName]}
+              name="firstName"
+              required
+            />
           </div>
 
           <div className="input-div">
-          <label htmlFor="lastName">Last Name</label>
-            <input type="text" placeholder="Last Name" name="lastName" required />
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              onChange={onChange}
+              value={values[valueKeys.LastName]}
+              type="text"
+              placeholder="Last Name"
+              name="lastName"
+              required
+            />
           </div>
           <div className="input-div">
-          <label htmlFor="phoneNumber">Phone Number</label>
+            <label htmlFor="phoneNumber">Phone Number</label>
 
-            <input type="tel" placeholder="Phone Number" name="phoneNumber" />
+            <input
+              onChange={onChange}
+              value={values[valueKeys.PhoneNumber]}
+              type="tel"
+              placeholder="Phone Number"
+              name="phoneNumber"
+            />
           </div>
           <div className="input-div">
-          <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email</label>
 
-            <input type="text" placeholder="Email" name="email" />
+            <input
+              onChange={onChange}
+              value={values[valueKeys.Email]}
+              type="text"
+              placeholder="Email"
+              name="email"
+            />
           </div>
         </div>
         <div className={styles["select-container"]}>
-          <label htmlFor="contractType">Contract type</label>
+          <label htmlFor="contractType">
+            <strong>Contract type</strong>
+          </label>
           <select
             name="contractType"
-            defaultValue="Contract Type"
             id="contractType"
+            onChange={onChange}
+            value={values[valueKeys.ContractType]}
           >
             <option value="fullTime">Full-Time</option>
-            <option value="fullTime">Part-Time</option>
-            <option value="fullTime">Full-time + Overtime</option>
-            <option value="fullTime">Student</option>
+            <option value="partTime">Part-Time</option>
+            <option value="overTime">Full-time + Overtime</option>
+            <option value="student">Student</option>
           </select>
         </div>
 
@@ -45,55 +93,12 @@ export default function ProfileModal({ onSubmit }) {
           <div className={styles["role-list"]}>
             <div className={styles["role-list-item"]}>
               <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
-            </div>
-            <div className={styles["role-list-item"]}>
-              <label htmlFor="ARGM">ARGM</label>
-              <input type="checkbox" name="ARGM" />
+              <input
+                onChange={onChange}
+                type="checkbox"
+                value="ARGM"
+                name="ARGM"
+              />
             </div>
           </div>
         </div>

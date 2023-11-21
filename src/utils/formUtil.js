@@ -5,8 +5,7 @@ export default class FormUtil {
     }
 
     let emailPattern =
-    /^(?!\.)[-\w\!\#\.\(\)\$\%\&\'\*\+\/\=\?\"\'\^\[\]\`\{\|\}\~]+?(?<!\.)@(?!\.)[-\w\!\#\.\(\)\$\%\&\'\*\+\/\=\?\"\'\^\[\]\`\{\|\}\~]+?\.[-\w\!\#\.\(\)\$\%\&\'\*\+\/\=\?\"\'\^\[\]\`\{\|\}\~]+(?<!\.)$/g;
-
+      /^(?!\.)[-\w\!\#\.\(\)\$\%\&\'\*\+\/\=\?\"\'\^\[\]\`\{\|\}\~]+?(?<!\.)@(?!\.)[-\w\!\#\.\(\)\$\%\&\'\*\+\/\=\?\"\'\^\[\]\`\{\|\}\~]+?\.[-\w\!\#\.\(\)\$\%\&\'\*\+\/\=\?\"\'\^\[\]\`\{\|\}\~]+(?<!\.)$/g;
 
     for (let key in formData) {
       if (formData[key] === "") {
@@ -32,17 +31,27 @@ export default class FormUtil {
     return true;
   }
 
-  valueConverter (value) {
-    if (typeof value === 'string') {
+  valueConverter(value) {
+    if (typeof value === "string") {
       value = value.toLowerCase();
-      if (['true', 'false'].includes(value)) {
-        return value === 'true' ? true : false;
+      if (["true", "false"].includes(value)) {
+        return value === "true" ? true : false;
       } else if (!isNaN(Number(value))) {
-        return Number(value)
+        return Number(value);
       } else {
         return value;
       }
     }
     return null;
+  }
+
+  formKeys({ formKeys = {}, empty = false } = {}) {
+    const iterator = Array.isArray(formKeys)
+      ? [...formKeys]
+      : Object.keys(formKeys);
+    return iterator.reduce((acc, curr) => {
+      acc[curr] = empty ? "" : curr;
+      return acc;
+    }, {});
   }
 }

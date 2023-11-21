@@ -4,17 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { useState } from "react";
 
-
-const UserNav = ({user, back}) => {
+const UserNav = ({ user }) => {
   const navigate = useNavigate();
 
   const [menuState, setMenuState] = useState({
     user: false,
-    app: false
-  })
+    app: false,
+  });
   const menuHandler = (menuName) => {
-    setMenuState(state => ({...state, [menuName]: !state[menuName]}))
-  }
+    setMenuState((state) => ({ ...state, [menuName]: !state[menuName] }));
+  };
 
   const logoutHandler = (e) => {
     e.preventDefault();
@@ -27,15 +26,25 @@ const UserNav = ({user, back}) => {
   };
 
   return (
-    <div className={styles['user-nav']}>
-      <div className={styles['menu-button']} onClick={() => menuHandler('app')}>
+    <div className={styles["user-nav"]}>
+      <div className={styles["menu-button"]} onClick={() => menuHandler("app")}>
         <div className={styles["dot"]}></div>
         <div className={styles["dot"]}></div>
         <div className={styles["dot"]}></div>
       </div>
 
-      <div className={`${styles["side-menu-backdrop"]} ${menuState.app ? styles["side-menu-backdrop-active"] : ""}`} onClick={() => setMenuState('app')}></div>
-      <div className={`${styles['side-menu']} ${menuState.app ? styles['side-menu-active'] : ''}`} onClick={() => setMenuState('app')}>
+      <div
+        className={`${styles["side-menu-backdrop"]} ${
+          menuState.app ? styles["side-menu-backdrop-active"] : ""
+        }`}
+        onClick={() => setMenuState("app")}
+      ></div>
+      <div
+        className={`${styles["side-menu"]} ${
+          menuState.app ? styles["side-menu-active"] : ""
+        }`}
+        onClick={() => setMenuState("app")}
+      >
         <nav className={styles["nav"]}>
           <div className={styles["home-button"]}>
             <Link className={styles["link-home"]} to="/">
@@ -43,23 +52,40 @@ const UserNav = ({user, back}) => {
             </Link>
           </div>
           <Link className={styles["link"]} to="/scheduler">
-          Scheduler
-            </Link>
+            Scheduler
+          </Link>
           <Link className={styles["link"]} to="/employee-view">
-          Employee View
-            </Link>
+            Employee View
+          </Link>
           <Link className={styles["link"]} to="/members">
-              Members
-            </Link>
+            Members
+          </Link>
         </nav>
       </div>
 
-      <div className={`${styles["user-menu-backdrop"]} ${menuState.user ? styles['user-menu-backdrop-active'] : ''}`}  onClick={() => setMenuState('user')} ></div>
+      <div
+        className={`${styles["user-menu-backdrop"]} ${
+          menuState.user ? styles["user-menu-backdrop-active"] : ""
+        }`}
+        onClick={() => setMenuState("user")}
+      ></div>
       <div className={styles["user-menu-container"]}>
-        <div className={styles["user-menu-nav"]} onClick={() => menuHandler('user')}>
-          <h4>{ user?.displayName ? user.displayName.slice(0,1).toUpperCase() : user.email.slice(0,1).toUpperCase()}</h4>
+        <div
+          className={styles["user-menu-nav"]}
+          onClick={() => menuHandler("user")}
+        >
+          <h4>
+            {user?.displayName
+              ? user.displayName.slice(0, 1).toUpperCase()
+              : user.email.slice(0, 1).toUpperCase()}
+          </h4>
         </div>
-        <div className={`${styles['user-menu']} ${menuState.user ? '' : styles['inactive']}`}  onClick={() => setMenuState('user')}>
+        <div
+          className={`${styles["user-menu"]} ${
+            menuState.user ? "" : styles["inactive"]
+          }`}
+          onClick={() => setMenuState("user")}
+        >
           <div className={styles["user-menu-email-container"]}>
             <h4>{user.email}</h4>
           </div>
@@ -67,7 +93,7 @@ const UserNav = ({user, back}) => {
             <Link className={styles["link"]} onClick={logoutHandler}>
               Logout
             </Link>
-          
+
             <Link className={styles["link"]} to="/account">
               Account
             </Link>
@@ -77,7 +103,7 @@ const UserNav = ({user, back}) => {
           </div>
         </div>
       </div>
-      </div>
+    </div>
   );
 };
 
