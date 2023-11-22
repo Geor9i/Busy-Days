@@ -17,8 +17,7 @@ export default function EmployeeView() {
   const [userProfileModalState, setUserProfileModalState] = useState(false);
   const { fireService, setLoading, userData, setUserData } =
     useContext(GlobalCtx);
-  const [roster, setRoster] = useState(userData.roster)
-  const [business, setBusiness] = useState(userData.business)
+  const [roster, setRoster] = useState(userData.roster);
 
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
@@ -31,14 +30,14 @@ export default function EmployeeView() {
 
   // Load roster data if it exists
 
-  const roles = business.positionHierarchy.map((pos) => pos.title);
+  const roles = userData.business.positionHierarchy.map((pos) => pos.title);
   const createProfileModalAndSubmitHandler = async ({
     e,
     formData = null,
   } = {}) => {
     //If there is no data passed simply toggle between the modal's visibility state
     if (formData) {
-      setLoading(true);
+      // setLoading(true);
       try {
         if (validateForm(formData)) {
           const employeeData = finalizeFormData(formData);
@@ -52,14 +51,18 @@ export default function EmployeeView() {
             ...employeeData,
             createdOn: date,
             updatedOn: date,
-          }
+          };
           const id = await fireService.updateDoc("roster", finalData);
-          setRoster(state => ({...state, [id]: {...finalData}}))
+          setRoster((state) => ({ ...state, [id]: finalData }));
+          // setUserData((state) => ({
+          //   ...state,
+          //   roster: { ...state.roster, [id]: { ...finalData } },
+          // }));
         }
       } catch (err) {
         console.log(err);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     }
     setUserProfileModalState((state) => !state);
