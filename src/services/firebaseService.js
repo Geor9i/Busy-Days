@@ -5,7 +5,7 @@ import {
   addDoc,
   collection,
   setDoc,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -43,9 +43,9 @@ export default class FirebaseService {
 
   async addDoc(collectionName, data) {
     try {
-        const documentRef = doc(this.db, collectionName, this.uid);
-        const result = await setDoc(documentRef, data);
-        console.log("Data written to Firestore successfully!");
+      const documentRef = doc(this.db, collectionName, this.uid);
+      const result = await setDoc(documentRef, data);
+      console.log("Data written to Firestore successfully!");
       return result;
     } catch (err) {
       throw new Error(err);
@@ -53,11 +53,20 @@ export default class FirebaseService {
   }
   async updateDoc(collectionName, data) {
     try {
-        const documentRef = doc(this.db, collectionName, this.uid);
-        const id = new Date().getTime().toString();
-        await updateDoc(documentRef, {[id]: data});
-        console.log("Data updated in Firestore successfully!");
+      const documentRef = doc(this.db, collectionName, this.uid);
+      const id = new Date().getTime().toString();
+      await updateDoc(documentRef, { [id]: data });
+      console.log("Data updated in Firestore successfully!");
       return id;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+  async setDoc(collectionName, data) {
+    try {
+      const documentRef = doc(this.db, collectionName, this.uid);
+      await setDoc(documentRef, data);
+      console.log("Data written to Firestore successfully!");
     } catch (err) {
       throw new Error(err);
     }
@@ -65,7 +74,7 @@ export default class FirebaseService {
 
   async checkDoc(collectionName) {
     const documentRef = doc(this.db, collectionName, this.uid);
-    let result = await getDoc(documentRef)
+    let result = await getDoc(documentRef);
     return result.exists();
   }
 
@@ -85,6 +94,7 @@ export default class FirebaseService {
         throw new Error(err);
       }
     }
+    console.log('Data Fetched!');
     return result;
   }
 }

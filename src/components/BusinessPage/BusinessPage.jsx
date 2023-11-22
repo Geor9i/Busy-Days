@@ -50,12 +50,9 @@ const BusinessPage = () => {
     setLoading(true);
     try {
       if (validateForm(businessData)) {
-        const uid = fireService.uid;
-        const data = finalizeFormData(businessData);
-        const documentRef = doc(fireService.db, "business", uid);
-        await setDoc(documentRef, data);
-        console.log("Data written to Firestore successfully!");
-        setUserData((state) => ({ ...state, business: { ...data } }));
+        const finalData = finalizeFormData(businessData);
+        await fireService.setDoc('business', finalData);
+        setUserData((state) => ({ ...state, business: { ...finalData } }));
         navigate("/");
       }
     } catch (err) {

@@ -12,12 +12,13 @@ import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import EmployeeListItem from "./employeeListItem.jsx";
 import Modal from "../misc/modal/modal.jsx";
 import ProfileModal from "./modals/ProfileModal/Profilemodal.jsx";
+import UseLoader from "../../hooks/useLoader.js";
 
 export default function EmployeeView() {
   const [userProfileModalState, setUserProfileModalState] = useState(false);
-  const { fireService, setLoading, userData, setUserData } =
-    useContext(GlobalCtx);
+  const { fireService, userData, setUserData } = useContext(GlobalCtx);
   const [roster, setRoster] = useState(userData.roster);
+  const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
 
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
@@ -26,7 +27,6 @@ export default function EmployeeView() {
   const timeUtil = new TimeUtil();
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
-  const uid = fireService.uid;
 
   // Load roster data if it exists
 
@@ -37,7 +37,7 @@ export default function EmployeeView() {
   } = {}) => {
     //If there is no data passed simply toggle between the modal's visibility state
     if (formData) {
-      // setLoading(true);
+      setLoading(true);
       try {
         if (validateForm(formData)) {
           const employeeData = finalizeFormData(formData);
@@ -54,15 +54,11 @@ export default function EmployeeView() {
           };
           const id = await fireService.updateDoc("roster", finalData);
           setRoster((state) => ({ ...state, [id]: finalData }));
-          // setUserData((state) => ({
-          //   ...state,
-          //   roster: { ...state.roster, [id]: { ...finalData } },
-          // }));
         }
       } catch (err) {
         console.log(err);
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
     }
     setUserProfileModalState((state) => !state);
@@ -113,12 +109,15 @@ export default function EmployeeView() {
 
   const modalStyle = {
     width: "30vw",
+    maxWidth: "500px",
+    minWidth: "400px",
     height: "55vh",
     borderRadius: "13px",
   };
 
   return (
     <>
+    {isLoading ? <ScreenLoader/ > : null}
       {userProfileModalState ? (
         <Modal
           customStyles={modalStyle}

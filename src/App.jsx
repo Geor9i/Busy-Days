@@ -17,10 +17,11 @@ import LoginPage from "./components/Login/loginPage.jsx";
 import SignUpPage from "./components/SignUp/SignUpPage.jsx";
 import NotFound from "./components/Errors/NotFound.jsx";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
-import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
 import FirebaseService from "./services/firebaseService.js";
 import ObjectUtil from "./utils/objectUtil.js";
+import useLoader from "./hooks/useLoader.js";
+import useSessionState from "./hooks/useSessionState.js";
 
 const app = initializeApp(firebaseConfig);
 const fireService = new FirebaseService(app);
@@ -28,15 +29,18 @@ const objectUtil = new ObjectUtil();
 
 function App() {
   const [user, setUser] = useState(null);
-  const [isLoading, setLoading] = useState(true);
-  const [userData, setUserData] = useState({
+  const { isLoading, setLoading, ScreenLoader } = useLoader(true);
+
+  const initialValues = {
     business: {},
     roster: {},
     events: {},
-  });
+  };
 
+  const [userData, setUserData] = useSessionState("userData", initialValues);
   //Handle authentication changes
   useEffect(() => {
+    setLoading(true);
     const unsubscribe = fireService.auth.onAuthStateChanged((user) => {
       setUser(user);
 
@@ -47,6 +51,12 @@ function App() {
           .then((response) => setUserData(response))
           .catch((err) => console.log("DB error: ", err))
           .finally(() => setLoading(false));
+      } else if (!user){
+        setUserData(initialValues, {reset: true})
+        setLoading(false);
+        console.log(userData);
+      } else {
+        setLoading(false);
       }
     });
 
@@ -64,7 +74,7 @@ function App() {
   }
   return (
     <GlobalCtx.Provider
-      value={{ fireService, setLoading, setUserData, userData }}
+      value={{ fireService, setUserData, userData, setLoading }}
     >
       {user ? <UserNav user={user} /> : <GuestNav />}
 

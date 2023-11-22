@@ -4,7 +4,7 @@
     height: 70vh;
     background-color: rgb(235, 235, 235);
     border: 2px solid black;
-    z-index: 1001;
+    z-index: 201;
 }
 
 .modal-backdrop {
@@ -12,5 +12,5 @@
     width: 100vw;
     height: 100vh;
     backdrop-filter: blur(5px);
-    z-index: 1000;
+    z-index: 200;
 }
