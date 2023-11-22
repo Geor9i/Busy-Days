@@ -18,9 +18,10 @@ export default class FirebaseService {
   constructor(app) {
     this.app = app;
     this.db = getFirestore(app);
+    this.auth = getAuth(this.app);
   }
 
-  get auth() {
+  getAuth() {
     return getAuth(this.app);
   }
 

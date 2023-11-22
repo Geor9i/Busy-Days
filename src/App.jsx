@@ -22,6 +22,10 @@ import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
 import FirebaseService from "./services/firebaseService.js";
 import ObjectUtil from "./utils/objectUtil.js";
 
+const app = initializeApp(firebaseConfig);
+const fireService = new FirebaseService(app);
+const objectUtil = new ObjectUtil();
+
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setLoading] = useState(true);
@@ -31,14 +35,9 @@ function App() {
     events: {},
   });
 
-  const app = initializeApp(firebaseConfig);
-  const fireService = new FirebaseService(app);
-  const auth = fireService.auth;
-
-  const objectUtil = new ObjectUtil()
   //Handle authentication changes
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = fireService.auth.onAuthStateChanged((user) => {
       setUser(user);
 
       // load all user data
@@ -46,15 +45,13 @@ function App() {
         fireService
           .fetchData(userData)
           .then((response) => setUserData(response))
-          .catch((err) => console.log('DB error: ', err))
+          .catch((err) => console.log("DB error: ", err))
           .finally(() => setLoading(false));
       }
-      setLoading(false)
     });
 
     return () => unsubscribe();
-  }, [auth]);
-
+  }, [user]);
 
   console.log(userData);
 
@@ -66,7 +63,9 @@ function App() {
     );
   }
   return (
-    <GlobalCtx.Provider value={{ fireService, setLoading, setUserData, userData }}>
+    <GlobalCtx.Provider
+      value={{ fireService, setLoading, setUserData, userData }}
+    >
       {user ? <UserNav user={user} /> : <GuestNav />}
 
       <main className={styles["main"]}>
