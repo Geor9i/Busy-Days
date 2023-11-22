@@ -10,7 +10,7 @@ import TimeUtil from "../../utils/timeUtil.js/";
 import ObjectUtil from "../../utils/objectUtil.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 
 const BusinessPage = () => {

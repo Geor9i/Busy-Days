@@ -28,7 +28,6 @@ export default function ProfileModal({ onSubmitHandler, roles }) {
     initialValues,
     onSubmitHandler
   );
-  console.log(formData);
   return (
     <div className={styles["modal-content"]}>
       <h2> Create Employee </h2>

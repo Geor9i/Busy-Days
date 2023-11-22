@@ -17,10 +17,8 @@ export default function EmployeeView() {
   const [userProfileModalState, setUserProfileModalState] = useState(false);
   const { fireService, setLoading, userData, setUserData } =
     useContext(GlobalCtx);
-  const [businessData, setBusinessData] = useState({
-    roster: userData.roster,
-    business: userData.business,
-  });
+  const [roster, setRoster] = useState(userData.roster)
+  const [business, setBusiness] = useState(userData.business)
 
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
@@ -33,13 +31,83 @@ export default function EmployeeView() {
 
   // Load roster data if it exists
 
-  const roles = businessData.business.positionHierarchy.map((pos) => pos.title);
-  const createNewEmployeeModalHandler = ({ e, values = null } = {}) => {
-    if (!values) {
-      setUserProfileModalState((state) => !state);
-    } else {
+  const roles = business.positionHierarchy.map((pos) => pos.title);
+  const createProfileModalAndSubmitHandler = async ({
+    e,
+    formData = null,
+  } = {}) => {
+    //If there is no data passed simply toggle between the modal's visibility state
+    if (formData) {
+      setLoading(true);
+      try {
+        if (validateForm(formData)) {
+          const employeeData = finalizeFormData(formData);
+          //check if doc exists
+          const itExists = await fireService.checkDoc("roster");
+          if (!itExists) {
+            await fireService.addDoc("roster", {});
+          }
+          const date = new Date().toISOString();
+          const finalData = {
+            ...employeeData,
+            createdOn: date,
+            updatedOn: date,
+          }
+          const id = await fireService.updateDoc("roster", finalData);
+          setRoster(state => ({...state, [id]: {...finalData}}))
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    setUserProfileModalState((state) => !state);
+    function validateForm(formData) {
+      const {
+        firstName,
+        lastName,
+        phoneNumber,
+        email,
+        contractType,
+        positions,
+      } = formData;
+      console.log(formData);
+      if (!firstName || !lastName) {
+        throw new Error("Please enter first and last name!");
+      }
+      if (firstName.length < 2 || lastName.length < 2) {
+        throw new Error(
+          "First and last names must be at least 2 characters long!"
+        );
+      }
+      let assignedPositions = Object.keys(positions).filter(
+        (name) => positions[name]
+      );
+      if (assignedPositions.length < 1) {
+        throw new Error("Please select at least one job role!");
+      }
+      return true;
+    }
+    function finalizeFormData(formData) {
+      let { firstName, lastName, phoneNumber, email, contractType, positions } =
+        formData;
+      firstName = stringUtil.toPascalCase(firstName);
+      lastName = stringUtil.toPascalCase(lastName);
+      positions = Object.keys(positions).filter((name) => positions[name]);
+
+      const result = {
+        firstName,
+        lastName,
+        phoneNumber,
+        email,
+        contractType,
+        positions,
+      };
+      return result;
     }
   };
+
   const modalStyle = {
     width: "30vw",
     height: "55vh",
@@ -51,10 +119,10 @@ export default function EmployeeView() {
       {userProfileModalState ? (
         <Modal
           customStyles={modalStyle}
-          changeState={createNewEmployeeModalHandler}
+          changeState={createProfileModalAndSubmitHandler}
           children={
             <ProfileModal
-              onSubmitHandler={createNewEmployeeModalHandler}
+              onSubmitHandler={createProfileModalAndSubmitHandler}
               roles={roles}
             />
           }
@@ -82,7 +150,7 @@ export default function EmployeeView() {
           </div>
           <div className={styles["add-btn-container"]}>
             <button
-              onClick={createNewEmployeeModalHandler}
+              onClick={createProfileModalAndSubmitHandler}
               className={styles["add-btn"]}
             >
               Add New
@@ -106,7 +174,12 @@ export default function EmployeeView() {
                 </tr>
               </thead>
               <tbody>
-                <EmployeeListItem />
+                {Object.keys(roster).map((employee) => (
+                  <EmployeeListItem
+                    key={employee}
+                    data={{ ...roster[employee] }}
+                  />
+                ))}
               </tbody>
             </table>
           </div>

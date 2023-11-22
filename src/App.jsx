@@ -20,27 +20,29 @@ import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import ScreenLoader from "./components/misc/ScreenLoader/ScreenLoader.jsx";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
 import FirebaseService from "./services/firebaseService.js";
+import ObjectUtil from "./utils/objectUtil.js";
 
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [userData, setUserData] = useState({
-    business: null,
-    roster: null,
-    events: null,
+    business: {},
+    roster: {},
+    events: {},
   });
 
   const app = initializeApp(firebaseConfig);
   const fireService = new FirebaseService(app);
   const auth = fireService.auth;
 
+  const objectUtil = new ObjectUtil()
   //Handle authentication changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
 
       // load all user data
-      if (user && !userData.business && !userData.roster && !userData.events) {
+      if (user && objectUtil.isEmpty(userData)) {
         fireService
           .fetchData(userData)
           .then((response) => setUserData(response))
