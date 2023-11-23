@@ -31,7 +31,7 @@ export default function ProfileModal({ onSubmitHandler, roles }) {
   return (
     <div className={styles["modal-content"]}>
       <h2> Create Employee </h2>
-      <form onSubmit={onSubmit}>
+      <form className={styles['form']} onSubmit={onSubmit}>
         <div className={styles["form-container"]}>
           <div className="input-div">
             <label htmlFor="firstName">First Name</label>

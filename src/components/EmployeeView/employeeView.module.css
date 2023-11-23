@@ -29,6 +29,7 @@
   }
   
   .functionality-main-container {
+    margin-top: 30px;
     display: flex;
     align-items:end;
     justify-content: flex-end;

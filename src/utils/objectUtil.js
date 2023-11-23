@@ -427,7 +427,9 @@ export default class ObjectUtil {
       if (filterOption === "date") {
         let dateA = new Date(detailsA[filterKey]);
         let dateB = new Date(detailsB[filterKey]);
-        return reverse ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime()
+        return reverse
+          ? dateA.getTime() - dateB.getTime()
+          : dateB.getTime() - dateA.getTime();
       } else if (filterOption === "hierarchy") {
         let highestPositionA = detailsA[filterKey].sort(
           (a, b) => hierarchyArr.indexOf(a) - hierarchyArr.indexOf(b)
@@ -448,5 +450,53 @@ export default class ObjectUtil {
     });
     // console.log(result.map(([id, obj]) => obj[filterKey]).join(', '));
     return result;
+  }
+
+  search(list, keyword, { filter = [], returnBool = false } = {}) {
+    let discovered = Object.keys(list).filter((listItem) => {
+      for (let item in list[listItem]) {
+        let content = list[listItem][item];
+        let type = this.typeof(content);
+        if (
+          type === "string" &&
+          content.toLowerCase().includes(keyword.toLowerCase())
+        ) {
+          return true;
+        } else if (
+          type === "array" &&
+          content.find((el) => {
+            let elType = this.typeof(el);
+            if (
+              elType === "string" &&
+              el.toLowerCase().includes(keyword.toLowerCase())
+            ) {
+              return true;
+            } else if (elType === "number" && String(el).includes(keyword)) {
+              return true;
+            } else if (elType === "object") {
+              return this.search(el, keyword, { returnBool: true });
+            }
+            return false;
+          })
+        ) {
+          return true;
+        } else if (type === "number" && String(content).includes(keyword)) {
+          return true;
+        } else if (
+          type === "object" &&
+          this.search(content, keyword, { returnBool: true })
+        ) {
+          return true;
+        }
+      }
+      return false;
+    });
+    if (returnBool) {
+      return discovered.length > 0 ? true : false;
+    }
+    return discovered.reduce((obj, curr) => {
+      obj[curr] = { ...list[curr] };
+      return obj;
+    }, {});
   }
 }

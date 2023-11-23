@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
+import useForm from "../../hooks/useForm.js";
 
 import styles from "./employeeView.module.css";
 import FormUtil from "../../utils/formUtil.js";
@@ -50,16 +51,17 @@ export default function EmployeeView() {
     (pos) => pos.title
   );
 
-  useEffect(() => {
-    function rosterToArr(roster) {
-      if (!objUtil.isEmpty(roster)) {
-        return Object.keys(roster).reduce((arr, id) => {
-          arr.push([[id], roster[id]]);
-          return arr;
-        }, []);
-      }
-      return [];
+  function rosterToArr(roster) {
+    if (!objUtil.isEmpty(roster)) {
+      return Object.keys(roster).reduce((arr, id) => {
+        arr.push([[id], roster[id]]);
+        return arr;
+      }, []);
     }
+    return [];
+  }
+  useEffect(() => {
+    
     let rosterArr = rosterToArr(roster);
 
     const filterOptions = {
@@ -78,7 +80,6 @@ export default function EmployeeView() {
     });
     setDisplayEmployees(filtered);
   }, [roster, filterData]);
-console.log(filterData);
   // Load roster data if it exists
 
   const createProfileModalAndSubmitHandler = async ({
@@ -182,6 +183,21 @@ console.log(filterData);
     borderRadius: "13px",
   };
 
+  //Search functionality
+  const searchHandler = ({ formData }) => {
+    if (formData.search === "") {
+      setDisplayEmployees(rosterToArr(roster));
+    } else {
+      let result = objUtil.search(roster, formData.search);
+      setDisplayEmployees(rosterToArr(result))
+    }
+  };
+
+  const { formData, onChange, onSubmit } = useForm(
+    { search: "" },
+    searchHandler
+  );
+
   return (
     <>
       {isLoading ? <ScreenLoader /> : null}
@@ -207,13 +223,24 @@ console.log(filterData);
 
         <div className={styles["functionality-main-container"]}>
           <div className={styles["search-main-container"]}>
-            <form>
+            <form onSubmit={onSubmit}>
               <div className={styles["search-container"]}>
-                <button type="button" className={styles["filter-search-btn"]}>
+                <button
+                  type="button"
+                  id="filter-btn"
+                  className={styles["filter-search-btn"]}
+                >
                   filter
                 </button>
-                <input type="text" />
-                <button className={styles["search-btn"]}>Search</button>
+                <input
+                  type="text"
+                  name="search"
+                  value={formData.search}
+                  onChange={onChange}
+                />
+                <button id="search-btn" className={styles["search-btn"]}>
+                  Search
+                </button>
               </div>
             </form>
           </div>
