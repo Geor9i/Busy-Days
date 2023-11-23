@@ -101,6 +101,11 @@ export default class DateUtil {
           : new Date(`${year}/${month}/${day}`);
       },
 
+      fromISO(date) {
+        const result = new Date(date);
+        return `${result.getDate()}-${result.getMonth()}-${result.getFullYear()}`
+      },
+
       getMonday: (options = {}) => {
         let step = options.next ? 1 : -1;
         let date = this.op(this.result).format();

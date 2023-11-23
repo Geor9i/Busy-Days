@@ -20,6 +20,11 @@ export default function EmployeeView() {
   const [roster, setRoster] = useState(
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
+  const [displayEmployees, setDisplayEmployees] = useState(roster)
+  useEffect(() => {
+    const unsubscribe = fireService.onSnapShot(ROSTER_KEY, roster, setRoster, setDisplayEmployees);
+    return () => unsubscribe();
+  }, []);
   const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
   // console.log('roster: ', roster);
   const objUtil = new ObjectUtil();
@@ -32,11 +37,7 @@ export default function EmployeeView() {
 
   // Load roster data if it exists
 
-  useEffect(() => {
-    const unsubscribe = fireService.onSnapShot(ROSTER_KEY, roster, setRoster);
-
-    return () => unsubscribe();
-  }, []);
+  
 
   const roles = userData[BUSINESS_KEY].positionHierarchy.map(
     (pos) => pos.title
@@ -117,6 +118,15 @@ export default function EmployeeView() {
     }
   };
 
+  const showDetailsHandler = (isVisible, id = '') => {
+      console.log(isVisible);
+      if (id && isVisible) {
+        setDisplayEmployees({[id]: roster[id]})
+      } else if (id && !isVisible) {
+        setDisplayEmployees(roster)
+      }
+  }
+
   const modalStyle = {
     width: "30vw",
     maxWidth: "500px",
@@ -174,26 +184,28 @@ export default function EmployeeView() {
             <h3>Employee List</h3>
           </div>
           <div className={styles["content-container"]}>
-            <table className={styles["employee-list-content"]}>
-              <thead>
-                <tr>
-                  <th className={styles["firstName-th"]}>First name</th>
-                  <th className={styles["lastName-th"]}>Last name</th>
-                  <th className={styles["updatedOn-th"]}>Contract Type</th>
-                  <th className={styles["positions-th"]}>Job Roles</th>
-                  <th className={styles["createdOn-th"]}>Created on</th>
-                  <th className={styles["updatedOn-th"]}>Updated on</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.keys(roster).map((employee) => (
-                  <EmployeeListItem
-                    key={employee}
-                    data={{ ...roster[employee] }}
-                  />
-                ))}
-              </tbody>
-            </table>
+          <div className={styles["employee-list-content"]}>
+  <div className={styles["employee-list-content-header"]}>
+    <div className={styles["content-header"]}>First name</div>
+    <div className={styles["content-header"]}>Last name</div>
+    <div className={styles["content-header"]}>Contract Type</div>
+    <div className={styles["content-header"]}>Job Roles</div>
+    <div className={styles["content-header"]}>Created on</div>
+    <div className={styles["content-header"]}>Updated on</div>
+  </div>
+
+  <div className={styles['employee-list-body']}>
+    {Object.keys(displayEmployees).map((employee) => (
+      <EmployeeListItem
+        key={employee}
+        data={{ ...roster[employee] }}
+        id={employee}
+        detailsHandler={showDetailsHandler}
+      />
+    ))}
+  </div>
+</div>
+
           </div>
         </div>
         <div className={styles["roster-footer"]}></div>

@@ -1,11 +1,22 @@
 import { useState } from "react";
 import styles from "./employeeListItem.module.css";
 import icon from "../../assets/userIcon_transparent.png";
+import DateUtil from "../../utils/dateUtil.js";
 
-export default function EmployeeListItem({ data }) {
-  const [show, setShow] = useState(false);
-  const showEmployeeDetails = (e) => {
-    setShow((state) => !state);
+export default function EmployeeListItem({ data, id, detailsHandler }) {
+  const dateUtil = new DateUtil();
+  const [onDisplay, setDisplay] = useState(false);
+  const [style, setStyle] = useState({
+    backgroundColor: ''
+  });
+  const showEmployeeDetails = () => {
+    setDisplay((state) => !state);
+    detailsHandler(!onDisplay, id)
+    if (!onDisplay) {
+      setStyle({backgroundColor:'#befcff'})
+    } else {
+      setStyle({backgroundColor:''})
+    }
   };
   /**
      * Rita: {
@@ -24,23 +35,23 @@ export default function EmployeeListItem({ data }) {
 
   return (
     <>
-      <tr
+      <div
         onClick={showEmployeeDetails}
         className={styles["employee-list-item"]}
+        style={style}
       >
-        <td className={styles["firstName-td"]}>{data.firstName}</td>
-        <td className={styles["lastName-td"]}>{data.lastName}</td>
-        <td className={styles["updatedOn-td"]}>{data.contractType}</td>
-        <td className={styles["positions-td"]}>{data.positions.join(", ")}</td>
-        <td className={styles["createdOn-td"]}>{data.createdOn}</td>
-        <td className={styles["updatedOn-td"]}>{data.updatedOn}</td>
-      </tr>
+        <div className={styles["content-cell"]}>{data.firstName}</div>
+        <div className={styles["content-cell"]}>{data.lastName}</div>
+        <div className={styles["content-cell"]}>{data.contractType}</div>
+        <div className={styles["content-cell"]}>{data.positions.join(", ")}</div>
+        <div className={styles["content-cell"]}>{dateUtil.op().fromISO(data.createdOn)}</div>
+        <div className={styles["content-cell"]}>{dateUtil.op().fromISO(data.updatedOn)}</div>
+      </div>
 
-      <tr>
-        <td colSpan={6} className={styles["employee-details"]}>
+        <div className={styles["employee-details"]}>
           <div
             className={`${styles["employee-details-content-container"]} ${
-              show ? "" : styles["collapse"]
+              onDisplay ? "" : styles["collapse"]
             }`}
           >
             <div className={styles["employee-details-content"]}>
@@ -138,8 +149,7 @@ export default function EmployeeListItem({ data }) {
               </div>
             </div>
           </div>
-        </td>
-      </tr>
+        </div>
     </>
   );
 }

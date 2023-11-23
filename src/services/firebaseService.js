@@ -98,12 +98,14 @@ export default class FirebaseService {
     return result;
   }
 
-  onSnapShot(collectionName, state, setState) {
+  onSnapShot(collectionName, state, ...setState) {
     const documentRef = doc(this.db, collectionName, this.uid);
     const unsubscribe = onSnapshot(documentRef, (doc) => {
       if (doc.exists() && this.auth?.currentUser) {
         let newState = doc.data();
-        !isEqual(newState, state) ? setState(newState) : null;
+        if (!isEqual(newState, state)) {
+          setState.forEach((set) => set(newState));
+        }
       }
     });
 
