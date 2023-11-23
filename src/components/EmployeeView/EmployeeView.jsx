@@ -25,8 +25,8 @@ export default function EmployeeView() {
   const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
   let [displayEmployees, setDisplayEmployees] = useState([]);
   const [filterData, setFilterData] = useState({
-    option: 'firstName',
-    reverse: false
+    key: "firstName",
+    reverse: false,
   });
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
@@ -46,6 +46,10 @@ export default function EmployeeView() {
     return () => unsubscribe();
   }, []);
 
+  const roles = userData[BUSINESS_KEY].positionHierarchy.map(
+    (pos) => pos.title
+  );
+
   useEffect(() => {
     function rosterToArr(roster) {
       if (!objUtil.isEmpty(roster)) {
@@ -57,17 +61,26 @@ export default function EmployeeView() {
       return [];
     }
     let rosterArr = rosterToArr(roster);
-    let filtered = objUtil.filterBy(rosterArr, filterData.option, {
+
+    const filterOptions = {
+      firstName: "string",
+      lastName: "string",
+      contractType: "string",
+      positions: "hierarchy",
+      createdOn: "date",
+      updatedOn: "date",
+    };
+
+    let filtered = objUtil.filterBy(rosterArr, filterData.key, {
+      filterOption: filterOptions[filterData.key],
       reverse: filterData.reverse,
+      hierarchyArr: roles,
     });
     setDisplayEmployees(filtered);
   }, [roster, filterData]);
-
+console.log(filterData);
   // Load roster data if it exists
 
-  const roles = userData[BUSINESS_KEY].positionHierarchy.map(
-    (pos) => pos.title
-  );
   const createProfileModalAndSubmitHandler = async ({
     e,
     formData = null,
@@ -154,10 +167,10 @@ export default function EmployeeView() {
 
   const filterByHandler = (e) => {
     const filterOption = e.target.id;
-    if (filterData.option === filterOption) {
-      setFilterData({option: filterOption, reverse: !filterData.reverse});
+    if (filterData.key === filterOption) {
+      setFilterData({ key: filterOption, reverse: !filterData.reverse });
     } else {
-      setFilterData({option: filterOption, reverse: false});
+      setFilterData({ key: filterOption, reverse: false });
     }
   };
 

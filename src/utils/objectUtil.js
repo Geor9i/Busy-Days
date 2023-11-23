@@ -418,20 +418,35 @@ export default class ObjectUtil {
     return result;
   }
 
-  filterBy(list, filterKey, { filterOption = "string", reverse = false } = {}) {
+  filterBy(
+    list,
+    filterKey,
+    { filterOption = "string", reverse = false, hierarchyArr = [] } = {}
+  ) {
     let result = list.sort(([idA, detailsA], [idB, detailsB]) => {
-      let compare;
-      switch (filterOption) {
-        case "string":
-        default:
-          compare = reverse
-            ? detailsB[filterKey].localeCompare(detailsA[filterKey])
-            : detailsA[filterKey].localeCompare(detailsB[filterKey]);
-          break;
+      if (filterOption === "date") {
+        let dateA = new Date(detailsA[filterKey]);
+        let dateB = new Date(detailsB[filterKey]);
+        return reverse ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime()
+      } else if (filterOption === "hierarchy") {
+        let highestPositionA = detailsA[filterKey].sort(
+          (a, b) => hierarchyArr.indexOf(a) - hierarchyArr.indexOf(b)
+        )[0];
+        let highestPositionB = detailsB[filterKey].sort(
+          (a, b) => hierarchyArr.indexOf(a) - hierarchyArr.indexOf(b)
+        )[0];
+        return reverse
+          ? hierarchyArr.indexOf(highestPositionA) -
+              hierarchyArr.indexOf(highestPositionB)
+          : hierarchyArr.indexOf(highestPositionB) -
+              hierarchyArr.indexOf(highestPositionA);
+      } else if (filterOption === "string") {
+        return reverse
+          ? detailsB[filterKey].localeCompare(detailsA[filterKey])
+          : detailsA[filterKey].localeCompare(detailsB[filterKey]);
       }
-      return compare;
     });
-    console.log(result.map(([id, obj]) => obj[filterKey]).join(', '));
-    return result
+    // console.log(result.map(([id, obj]) => obj[filterKey]).join(', '));
+    return result;
   }
 }
