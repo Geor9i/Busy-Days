@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./businessPage.module.css";
 import PositionHierarchyListItem from "./PositionHierarchyListItem/PositionHierarchyListItem.jsx";
 import AddSubstitutesModal from "./addSubstitutesModal/AddSubstitutesModal.jsx";
@@ -10,8 +10,8 @@ import TimeUtil from "../../utils/timeUtil.js/";
 import ObjectUtil from "../../utils/objectUtil.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { doc, setDoc } from "firebase/firestore";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
+import { BUSINESS_KEY } from "../../../config/constants.js";
 
 const BusinessPage = () => {
   const objUtil = new ObjectUtil();
@@ -22,11 +22,11 @@ const BusinessPage = () => {
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
 
-  const { fireService, setLoading, userData, setUserData } =
+  const { fireService, setMainLoader, userData, setUserData } =
     useContext(GlobalCtx);
   const [businessData, setBusinessData] = useState(
-    userData.business
-      ? userData.business
+    userData[BUSINESS_KEY]
+      ? userData[BUSINESS_KEY]
       : {
           name: "",
           openTimes: objUtil.reduceToObj(weekdays, {
@@ -47,18 +47,18 @@ const BusinessPage = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setMainLoader(true);
     try {
       if (validateForm(businessData)) {
         const finalData = finalizeFormData(businessData);
-        await fireService.setDoc('business', finalData);
-        setUserData((state) => ({ ...state, business: { ...finalData } }));
+        await fireService.setDoc(BUSINESS_KEY, finalData);
+        setUserData((state) => ({ ...state, [BUSINESS_KEY]: { ...finalData } }));
         navigate("/");
       }
     } catch (err) {
       console.log(err);
     }
-    setLoading(false);
+    setMainLoader(false);
 
     function validateForm(formData) {
       const { name, openTimes, positionHierarchy } = formData;

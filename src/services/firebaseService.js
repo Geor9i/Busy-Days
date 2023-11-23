@@ -2,10 +2,9 @@ import {
   doc,
   getDoc,
   getFirestore,
-  addDoc,
-  collection,
   setDoc,
   updateDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -13,6 +12,7 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
+import isEqual from "lodash.isequal";
 
 export default class FirebaseService {
   constructor(app) {
@@ -94,7 +94,19 @@ export default class FirebaseService {
         throw new Error(err);
       }
     }
-    console.log('Data Fetched!');
+    console.log("Data Fetched!");
     return result;
+  }
+
+  onSnapShot(collectionName, state, setState) {
+    const documentRef = doc(this.db, collectionName, this.uid);
+    const unsubscribe = onSnapshot(documentRef, (doc) => {
+      if (doc.exists() && this.auth?.currentUser) {
+        let newState = doc.data();
+        !isEqual(newState, state) ? setState(newState) : null;
+      }
+    });
+
+    return unsubscribe;
   }
 }

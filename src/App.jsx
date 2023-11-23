@@ -1,12 +1,21 @@
 import { useState, useEffect } from "react";
+import useLoader from "./hooks/useLoader.js";
 import { Routes, Route } from "react-router-dom";
+
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "../config/firebaseConfig.js";
 
 import styles from "./app.module.css";
 import "./styles.css";
 import { GlobalCtx } from "./contexts/GlobalCtx.js";
+import {
+  BUSINESS_KEY,
+  ROSTER_KEY,
+  EVENTS_KEY,
+} from "../config/constants.js";
 
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../config/firebaseConfig.js";
+import FirebaseService from "./services/firebaseService.js";
+import ObjectUtil from "./utils/objectUtil.js";
 
 import GuestNav from "./components/Navigation/GuestNav.jsx";
 import UserNav from "./components/Navigation/UserNav.jsx";
@@ -18,10 +27,6 @@ import SignUpPage from "./components/SignUp/SignUpPage.jsx";
 import NotFound from "./components/Errors/NotFound.jsx";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
-import FirebaseService from "./services/firebaseService.js";
-import ObjectUtil from "./utils/objectUtil.js";
-import useLoader from "./hooks/useLoader.js";
-import useSessionState from "./hooks/useSessionState.js";
 
 const app = initializeApp(firebaseConfig);
 const fireService = new FirebaseService(app);
@@ -29,18 +34,22 @@ const objectUtil = new ObjectUtil();
 
 function App() {
   const [user, setUser] = useState(null);
-  const { isLoading, setLoading, ScreenLoader } = useLoader(true);
+  const {
+    isLoading: isMainLoading,
+    setLoading: setMainLoader,
+    ScreenLoader,
+  } = useLoader(true);
 
   const initialValues = {
-    business: {},
-    roster: {},
-    events: {},
+    [BUSINESS_KEY]: {},
+    [ROSTER_KEY]: {},
+    [EVENTS_KEY]: {},
   };
 
-  const [userData, setUserData] = useSessionState("userData", initialValues);
+  const [userData, setUserData] = useState(initialValues);
   //Handle authentication changes
   useEffect(() => {
-    setLoading(true);
+    setMainLoader(true);
     const unsubscribe = fireService.auth.onAuthStateChanged((user) => {
       setUser(user);
 
@@ -50,22 +59,17 @@ function App() {
           .fetchData(userData)
           .then((response) => setUserData(response))
           .catch((err) => console.log("DB error: ", err))
-          .finally(() => setLoading(false));
-      } else if (!user){
-        setUserData(initialValues, {reset: true})
-        setLoading(false);
-        console.log(userData);
-      } else {
-        setLoading(false);
+          .finally(() => setMainLoader(false));
+      }else {
+        setMainLoader(false);
       }
     });
 
     return () => unsubscribe();
   }, [user]);
-
   console.log(userData);
 
-  if (isLoading) {
+  if (isMainLoading) {
     return (
       <main className={styles["main"]}>
         <ScreenLoader />
@@ -74,9 +78,14 @@ function App() {
   }
   return (
     <GlobalCtx.Provider
-      value={{ fireService, setUserData, userData, setLoading }}
+      value={{
+        fireService,
+        setUserData,
+        userData,
+        setMainLoader,
+      }}
     >
-      {user ? <UserNav user={user} /> : <GuestNav />}
+      {user ? <UserNav user={user} resetValues={initialValues} /> : <GuestNav />}
 
       <main className={styles["main"]}>
         <Routes>

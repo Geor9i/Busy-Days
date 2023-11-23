@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import styles from "./employeeView.module.css";
 import FormUtil from "../../utils/formUtil.js";
 import DateUtil from "../../utils/dateUtil.js";
@@ -13,13 +12,16 @@ import EmployeeListItem from "./employeeListItem.jsx";
 import Modal from "../misc/modal/modal.jsx";
 import ProfileModal from "./modals/ProfileModal/Profilemodal.jsx";
 import UseLoader from "../../hooks/useLoader.js";
+import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
 
 export default function EmployeeView() {
   const [userProfileModalState, setUserProfileModalState] = useState(false);
-  const { fireService, userData, setUserData } = useContext(GlobalCtx);
-  const [roster, setRoster] = useState(userData.roster);
+  const { fireService, userData } = useContext(GlobalCtx);
+  const [roster, setRoster] = useState(
+    userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
+  );
   const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
-
+  // console.log('roster: ', roster);
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
@@ -30,7 +32,15 @@ export default function EmployeeView() {
 
   // Load roster data if it exists
 
-  const roles = userData.business.positionHierarchy.map((pos) => pos.title);
+  useEffect(() => {
+    const unsubscribe = fireService.onSnapShot(ROSTER_KEY, roster, setRoster);
+
+    return () => unsubscribe();
+  }, []);
+
+  const roles = userData[BUSINESS_KEY].positionHierarchy.map(
+    (pos) => pos.title
+  );
   const createProfileModalAndSubmitHandler = async ({
     e,
     formData = null,
@@ -42,9 +52,9 @@ export default function EmployeeView() {
         if (validateForm(formData)) {
           const employeeData = finalizeFormData(formData);
           //check if doc exists
-          const itExists = await fireService.checkDoc("roster");
+          const itExists = await fireService.checkDoc(ROSTER_KEY);
           if (!itExists) {
-            await fireService.addDoc("roster", {});
+            await fireService.addDoc(ROSTER_KEY, {});
           }
           const date = new Date().toISOString();
           const finalData = {
@@ -52,7 +62,7 @@ export default function EmployeeView() {
             createdOn: date,
             updatedOn: date,
           };
-          const id = await fireService.updateDoc("roster", finalData);
+          const id = await fireService.updateDoc(ROSTER_KEY, finalData);
           setRoster((state) => ({ ...state, [id]: finalData }));
         }
       } catch (err) {
@@ -117,7 +127,7 @@ export default function EmployeeView() {
 
   return (
     <>
-    {isLoading ? <ScreenLoader/ > : null}
+      {isLoading ? <ScreenLoader /> : null}
       {userProfileModalState ? (
         <Modal
           customStyles={modalStyle}

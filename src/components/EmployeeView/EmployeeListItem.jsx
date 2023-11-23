@@ -31,7 +31,7 @@ export default function EmployeeListItem({ data }) {
         <td className={styles["firstName-td"]}>{data.firstName}</td>
         <td className={styles["lastName-td"]}>{data.lastName}</td>
         <td className={styles["updatedOn-td"]}>{data.contractType}</td>
-        <td className={styles["positions-td"]}>{data.positions.join(', ')}</td>
+        <td className={styles["positions-td"]}>{data.positions.join(", ")}</td>
         <td className={styles["createdOn-td"]}>{data.createdOn}</td>
         <td className={styles["updatedOn-td"]}>{data.updatedOn}</td>
       </tr>

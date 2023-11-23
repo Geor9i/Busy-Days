@@ -14,10 +14,10 @@ const LoginPage = () => {
     initialValues,
     submitHandler
   );
-  const { fireService, setLoading } = useContext(GlobalCtx);
+  const { fireService, setMainLoader } = useContext(GlobalCtx);
 
   function submitHandler({ formData }) {
-    setLoading(true);
+    setMainLoader(true);
     let { email, password } = formData;
     try {
       formUtil.formValidator(formData);
@@ -31,7 +31,7 @@ const LoginPage = () => {
         const errorMessage = error.message;
         alert(errorMessage);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setMainLoader(false));
   }
 
   return (

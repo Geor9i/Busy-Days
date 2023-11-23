@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { useState } from "react";
+import { useContext } from "react";
+import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 
-const UserNav = ({ user }) => {
+const UserNav = ({ user, resetValues }) => {
   const navigate = useNavigate();
-
   const [menuState, setMenuState] = useState({
     user: false,
     app: false,
   });
+  const { setUserData } = useContext(GlobalCtx);
   const menuHandler = (menuName) => {
     setMenuState((state) => ({ ...state, [menuName]: !state[menuName] }));
   };
@@ -20,6 +22,7 @@ const UserNav = ({ user }) => {
     const auth = getAuth();
     signOut(auth)
       .then(() => {
+        setUserData(resetValues)
         navigate("/");
       })
       .catch((err) => console.log(`Logout Error: ${err}`));

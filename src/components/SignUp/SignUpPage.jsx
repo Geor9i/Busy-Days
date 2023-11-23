@@ -13,14 +13,14 @@ const SignUpPage = () => {
     formKeys: ["firstName", "lastName", "email", "password", "repeatPassword"],
   });
   const initialValues = formUtil.formKeys({ formKeys, empty: true });
-  const { fireService, setLoading } = useContext(GlobalCtx);
+  const { fireService, setMainLoader } = useContext(GlobalCtx);
   const { formData, onChange, onSubmit } = useForm(
     initialValues,
     submitHandler
   );
 
   async function submitHandler({ formData }) {
-    setLoading(true);
+    setMainLoader(true);
     let { email, password, firstName, lastName } = formData;
     try {
       formUtil.formValidator(formData, 6, "repeatPassword");
@@ -34,7 +34,7 @@ const SignUpPage = () => {
       )
       .then(() => navigate("/"))
       .catch((err) => console.log("SignUp Error: ", err))
-      .finally(setLoading(false));
+      .finally(setMainLoader(false));
   }
 
   return (
