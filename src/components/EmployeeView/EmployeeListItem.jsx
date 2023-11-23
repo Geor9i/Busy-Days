@@ -7,7 +7,7 @@ export default function EmployeeListItem({ data, id, detailsHandler }) {
   const dateUtil = new DateUtil();
   const [onDisplay, setDisplay] = useState(false);
   const [style, setStyle] = useState({
-    backgroundColor: ''
+    backgroundColor: '',
   });
   const showEmployeeDetails = () => {
     setDisplay((state) => !state);

@@ -119,6 +119,8 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: auto;
+    color: white;
+    font-weight: bold;
   }
 
   .content-header {
@@ -135,14 +137,6 @@
     border-right: 1px solid black;
   }
 
-  
-  .employee-list-content th {
-    text-align: center;
-    border: 1px solid black;
-    background-color: rgb(66, 66, 66);
-    color: white;
-  }
-  
   .roster-footer {
     width: 100%;
     height: 10px;

@@ -417,4 +417,21 @@ export default class ObjectUtil {
     }
     return result;
   }
+
+  filterBy(list, filterKey, { filterOption = "string", reverse = false } = {}) {
+    let result = list.sort(([idA, detailsA], [idB, detailsB]) => {
+      let compare;
+      switch (filterOption) {
+        case "string":
+        default:
+          compare = reverse
+            ? detailsB[filterKey].localeCompare(detailsA[filterKey])
+            : detailsA[filterKey].localeCompare(detailsB[filterKey]);
+          break;
+      }
+      return compare;
+    });
+    console.log(result.map(([id, obj]) => obj[filterKey]).join(', '));
+    return result
+  }
 }

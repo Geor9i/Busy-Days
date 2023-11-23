@@ -1,32 +1,33 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { GlobalCtx } from "../../contexts/GlobalCtx.js";
+
 import styles from "./employeeView.module.css";
 import FormUtil from "../../utils/formUtil.js";
 import DateUtil from "../../utils/dateUtil.js";
 import StringUtil from "../../utils/stringUtil.js";
 import TimeUtil from "../../utils/timeUtil.js/";
 import ObjectUtil from "../../utils/objectUtil.js";
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { GlobalCtx } from "../../contexts/GlobalCtx.js";
+import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
+
 import EmployeeListItem from "./employeeListItem.jsx";
 import Modal from "../misc/modal/modal.jsx";
 import ProfileModal from "./modals/ProfileModal/Profilemodal.jsx";
 import UseLoader from "../../hooks/useLoader.js";
-import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
 
 export default function EmployeeView() {
-  const [userProfileModalState, setUserProfileModalState] = useState(false);
   const { fireService, userData } = useContext(GlobalCtx);
   const [roster, setRoster] = useState(
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
-  const [displayEmployees, setDisplayEmployees] = useState(roster)
-  useEffect(() => {
-    const unsubscribe = fireService.onSnapShot(ROSTER_KEY, roster, setRoster, setDisplayEmployees);
-    return () => unsubscribe();
-  }, []);
+  const [userProfileModalState, setUserProfileModalState] = useState(false);
   const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
-  // console.log('roster: ', roster);
+  let [displayEmployees, setDisplayEmployees] = useState([]);
+  const [filterData, setFilterData] = useState({
+    option: 'firstName',
+    reverse: false
+  });
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
@@ -35,9 +36,34 @@ export default function EmployeeView() {
   const navigate = useNavigate();
   const weekdays = dateUtil.getWeekdays([]);
 
-  // Load roster data if it exists
+  useEffect(() => {
+    const unsubscribe = fireService.onSnapShot(
+      ROSTER_KEY,
+      roster,
+      setRoster
+      // setDisplayEmployees
+    );
+    return () => unsubscribe();
+  }, []);
 
-  
+  useEffect(() => {
+    function rosterToArr(roster) {
+      if (!objUtil.isEmpty(roster)) {
+        return Object.keys(roster).reduce((arr, id) => {
+          arr.push([[id], roster[id]]);
+          return arr;
+        }, []);
+      }
+      return [];
+    }
+    let rosterArr = rosterToArr(roster);
+    let filtered = objUtil.filterBy(rosterArr, filterData.option, {
+      reverse: filterData.reverse,
+    });
+    setDisplayEmployees(filtered);
+  }, [roster, filterData]);
+
+  // Load roster data if it exists
 
   const roles = userData[BUSINESS_KEY].positionHierarchy.map(
     (pos) => pos.title
@@ -118,14 +144,22 @@ export default function EmployeeView() {
     }
   };
 
-  const showDetailsHandler = (isVisible, id = '') => {
-      console.log(isVisible);
-      if (id && isVisible) {
-        setDisplayEmployees({[id]: roster[id]})
-      } else if (id && !isVisible) {
-        setDisplayEmployees(roster)
-      }
-  }
+  const showDetailsHandler = (isVisible, id = "") => {
+    if (id && isVisible) {
+      setDisplayEmployees([[id, roster[id]]]);
+    } else if (id && !isVisible) {
+      setRoster({ ...roster });
+    }
+  };
+
+  const filterByHandler = (e) => {
+    const filterOption = e.target.id;
+    if (filterData.option === filterOption) {
+      setFilterData({option: filterOption, reverse: !filterData.reverse});
+    } else {
+      setFilterData({option: filterOption, reverse: false});
+    }
+  };
 
   const modalStyle = {
     width: "30vw",
@@ -184,28 +218,63 @@ export default function EmployeeView() {
             <h3>Employee List</h3>
           </div>
           <div className={styles["content-container"]}>
-          <div className={styles["employee-list-content"]}>
-  <div className={styles["employee-list-content-header"]}>
-    <div className={styles["content-header"]}>First name</div>
-    <div className={styles["content-header"]}>Last name</div>
-    <div className={styles["content-header"]}>Contract Type</div>
-    <div className={styles["content-header"]}>Job Roles</div>
-    <div className={styles["content-header"]}>Created on</div>
-    <div className={styles["content-header"]}>Updated on</div>
-  </div>
+            <div className={styles["employee-list-content"]}>
+              <div className={styles["employee-list-content-header"]}>
+                <div
+                  className={styles["content-header"]}
+                  onClick={filterByHandler}
+                  id="firstName"
+                >
+                  First name
+                </div>
+                <div
+                  className={styles["content-header"]}
+                  onClick={filterByHandler}
+                  id="lastName"
+                >
+                  Last name
+                </div>
+                <div
+                  className={styles["content-header"]}
+                  onClick={filterByHandler}
+                  id="contractType"
+                >
+                  Contract Type
+                </div>
+                <div
+                  className={styles["content-header"]}
+                  onClick={filterByHandler}
+                  id="positions"
+                >
+                  Job Roles
+                </div>
+                <div
+                  className={styles["content-header"]}
+                  onClick={filterByHandler}
+                  id="createdOn"
+                >
+                  Created on
+                </div>
+                <div
+                  className={styles["content-header"]}
+                  onClick={filterByHandler}
+                  id="updatedOn"
+                >
+                  Updated on
+                </div>
+              </div>
 
-  <div className={styles['employee-list-body']}>
-    {Object.keys(displayEmployees).map((employee) => (
-      <EmployeeListItem
-        key={employee}
-        data={{ ...roster[employee] }}
-        id={employee}
-        detailsHandler={showDetailsHandler}
-      />
-    ))}
-  </div>
-</div>
-
+              <div className={styles["employee-list-body"]}>
+                {displayEmployees.map(([id, details]) => (
+                  <EmployeeListItem
+                    key={id}
+                    data={{ ...details }}
+                    id={id}
+                    detailsHandler={showDetailsHandler}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         <div className={styles["roster-footer"]}></div>
