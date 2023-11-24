@@ -62,6 +62,15 @@ export default class FirebaseService {
       throw new Error(err);
     }
   }
+  async updateDocFields(collectionName, data) {
+    try {
+      const documentRef = doc(this.db, collectionName, this.uid);
+      await updateDoc(documentRef, data);
+      console.log("Data fields updated in Firestore successfully!");
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
   async setDoc(collectionName, data) {
     try {
       const documentRef = doc(this.db, collectionName, this.uid);

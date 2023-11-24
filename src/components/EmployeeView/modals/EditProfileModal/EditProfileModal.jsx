@@ -1,9 +1,10 @@
-import styles from "./profileModal.module.css";
+import styles from "./editProfileModal.module.css";
 import useForm from "../../../../hooks/useForm.js";
 import FormUtil from "../../../../utils/formUtil.js";
 import ObjectUtil from "../../../../utils/objectUtil.js";
+import deleteIcon from "../../../../assets/delete_user.png";
 
-export default function ProfileModal({ onSubmitHandler, roles }) {
+export default function EditProfileModal({ onSubmitHandler, roles, data }) {
   const formUtil = new FormUtil();
   const objectUtil = new ObjectUtil();
 
@@ -19,10 +20,17 @@ export default function ProfileModal({ onSubmitHandler, roles }) {
   });
 
   const initialValues = {
-    ...formUtil.formKeys({ formKeys, empty: true }),
-    contractType: "fullTime",
-    positions: { ...objectUtil.reduceToObj(roles, false) },
+    firstName: data.firstName,
+    lastName: data.lastName,
+    phoneNumber: data.phoneNumber,
+    email: data.email,
+    contractType: data.contractType,
+    positions: {
+      ...objectUtil.reduceToObj(roles, false),
+      ...objectUtil.reduceToObj(data.positions, true),
+    },
   };
+  console.log(initialValues);
 
   const { formData, onChange, onSubmit } = useForm(
     initialValues,
@@ -30,8 +38,15 @@ export default function ProfileModal({ onSubmitHandler, roles }) {
   );
   return (
     <div className={styles["modal-content"]}>
-      <h2> Create Employee </h2>
-      <form className={styles['form']} onSubmit={onSubmit}>
+      <div className={styles["edit-modal-header"]}>
+        <h2> Edit Employee </h2>
+        <div className={styles["delete-employee-btn-container"]}>
+          <div className={styles["delete-employee-btn"]}>
+            <img src={deleteIcon} />
+          </div>
+        </div>
+      </div>
+      <form className={styles["form"]} onSubmit={(e) => onSubmit(e, id)}>
         <div className={styles["form-container"]}>
           <div className="input-div">
             <label htmlFor="firstName">First Name</label>
@@ -103,7 +118,9 @@ export default function ProfileModal({ onSubmitHandler, roles }) {
               <div key={role} className={styles["role-list-item"]}>
                 <label htmlFor={role}>{role}</label>
                 <input
-                  onChange={(e) => onChange(e, {key: 'positions', useValue: 'checked'})}
+                  onChange={(e) =>
+                    onChange(e, { key: "positions", useValue: "checked" })
+                  }
                   type="checkbox"
                   checked={formData[formKeys.positions][role]}
                   name={role}
@@ -112,7 +129,7 @@ export default function ProfileModal({ onSubmitHandler, roles }) {
             ))}
           </div>
         </div>
-        <button className={styles["submit-btn"]}>Create Employee</button>
+        <button className={styles["submit-btn"]} id="submit-edit-btn">Edit Details</button>
       </form>
     </div>
   );

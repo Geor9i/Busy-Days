@@ -16,6 +16,7 @@ import EmployeeListItem from "./employeeListItem.jsx";
 import Modal from "../misc/modal/modal.jsx";
 import ProfileModal from "./modals/ProfileModal/Profilemodal.jsx";
 import UseLoader from "../../hooks/useLoader.js";
+import EditProfileModal from "./modals/EditProfileModal/EditProfileModal.jsx";
 
 export default function EmployeeView() {
   const { fireService, userData } = useContext(GlobalCtx);
@@ -23,6 +24,11 @@ export default function EmployeeView() {
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
   const [userProfileModalState, setUserProfileModalState] = useState(false);
+  const [editProfileModalState, setEditProfileModalState] = useState({
+    on: false,
+    data: null,
+    id: null
+  });
   const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
   let [displayEmployees, setDisplayEmployees] = useState([]);
   const [filterData, setFilterData] = useState({
@@ -61,7 +67,6 @@ export default function EmployeeView() {
     return [];
   }
   useEffect(() => {
-    
     let rosterArr = rosterToArr(roster);
 
     const filterOptions = {
@@ -81,6 +86,74 @@ export default function EmployeeView() {
     setDisplayEmployees(filtered);
   }, [roster, filterData]);
   // Load roster data if it exists
+
+  const editProfileModalAndSubmitHandler = async ({
+    e,
+    data,
+    formData,
+    id = [],
+  } = {}) => {
+    //If there is no data passed simply toggle between the modal's visibility state
+    id = id[0];
+    if (formData) {
+      setLoading(true);
+      try {
+        if (validateForm(formData)) {
+          const employeeData = finalizeFormData(formData);
+          //check if doc exists
+          const date = new Date().toISOString();
+          const finalData = {
+            [id]: { ...employeeData, updatedOn: date },
+          };
+          await fireService.updateDocFields(ROSTER_KEY, finalData);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    setEditProfileModalState((state) => ({...state, data: data, on: !state.on }));
+  };
+
+  function validateForm(formData) {
+    const { firstName, lastName, phoneNumber, email, contractType, positions } =
+      formData;
+    console.log(formData);
+    if (!firstName || !lastName) {
+      throw new Error("Please enter first and last name!");
+    }
+    if (firstName.length < 2 || lastName.length < 2) {
+      throw new Error(
+        "First and last names must be at least 2 characters long!"
+      );
+    }
+    let assignedPositions = Object.keys(positions).filter(
+      (name) => positions[name]
+    );
+    if (assignedPositions.length < 1) {
+      throw new Error("Please select at least one job role!");
+    }
+    return true;
+  }
+  function finalizeFormData(formData) {
+    let { firstName, lastName, phoneNumber, email, contractType, positions } =
+      formData;
+    firstName = stringUtil.toPascalCase(firstName);
+    lastName = stringUtil.toPascalCase(lastName);
+    positions = Object.keys(positions).filter((name) => positions[name]);
+
+    const result = {
+      firstName,
+      lastName,
+      phoneNumber,
+      email,
+      contractType,
+      positions,
+    };
+    return result;
+  }
 
   const createProfileModalAndSubmitHandler = async ({
     e,
@@ -113,49 +186,6 @@ export default function EmployeeView() {
       }
     }
     setUserProfileModalState((state) => !state);
-    function validateForm(formData) {
-      const {
-        firstName,
-        lastName,
-        phoneNumber,
-        email,
-        contractType,
-        positions,
-      } = formData;
-      console.log(formData);
-      if (!firstName || !lastName) {
-        throw new Error("Please enter first and last name!");
-      }
-      if (firstName.length < 2 || lastName.length < 2) {
-        throw new Error(
-          "First and last names must be at least 2 characters long!"
-        );
-      }
-      let assignedPositions = Object.keys(positions).filter(
-        (name) => positions[name]
-      );
-      if (assignedPositions.length < 1) {
-        throw new Error("Please select at least one job role!");
-      }
-      return true;
-    }
-    function finalizeFormData(formData) {
-      let { firstName, lastName, phoneNumber, email, contractType, positions } =
-        formData;
-      firstName = stringUtil.toPascalCase(firstName);
-      lastName = stringUtil.toPascalCase(lastName);
-      positions = Object.keys(positions).filter((name) => positions[name]);
-
-      const result = {
-        firstName,
-        lastName,
-        phoneNumber,
-        email,
-        contractType,
-        positions,
-      };
-      return result;
-    }
   };
 
   const showDetailsHandler = (isVisible, id = "") => {
@@ -189,7 +219,7 @@ export default function EmployeeView() {
       setDisplayEmployees(rosterToArr(roster));
     } else {
       let result = objUtil.search(roster, formData.search);
-      setDisplayEmployees(rosterToArr(result))
+      setDisplayEmployees(rosterToArr(result));
     }
   };
 
@@ -209,6 +239,20 @@ export default function EmployeeView() {
             <ProfileModal
               onSubmitHandler={createProfileModalAndSubmitHandler}
               roles={roles}
+            />
+          }
+        />
+      ) : null}
+      {editProfileModalState.on ? (
+        <Modal
+          customStyles={modalStyle}
+          changeState={editProfileModalAndSubmitHandler}
+          children={
+            <EditProfileModal
+              onSubmitHandler={editProfileModalAndSubmitHandler}
+              roles={roles}
+              data={editProfileModalState.data}
+              id={editProfileModalState.id}
             />
           }
         />
@@ -249,7 +293,7 @@ export default function EmployeeView() {
               onClick={createProfileModalAndSubmitHandler}
               className={styles["add-btn"]}
             >
-              Add New
+              Create Employee
             </button>
           </div>
         </div>
@@ -311,6 +355,7 @@ export default function EmployeeView() {
                     data={{ ...details }}
                     id={id}
                     detailsHandler={showDetailsHandler}
+                    editModalHandler={editProfileModalAndSubmitHandler}
                   />
                 ))}
               </div>

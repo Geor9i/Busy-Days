@@ -3,7 +3,7 @@ import styles from "./employeeListItem.module.css";
 import icon from "../../assets/userIcon_transparent.png";
 import DateUtil from "../../utils/dateUtil.js";
 
-export default function EmployeeListItem({ data, id, detailsHandler }) {
+export default function EmployeeListItem({ data, id, detailsHandler, editModalHandler }) {
   const dateUtil = new DateUtil();
   const [onDisplay, setDisplay] = useState(false);
   const [style, setStyle] = useState({
@@ -60,7 +60,7 @@ export default function EmployeeListItem({ data, id, detailsHandler }) {
                   <div className={styles["user-icon-container"]}>
                     <img src={icon} className={styles["user-icon"]} />
                   </div>
-                  <button className={styles["edit-profile-btn"]}>
+                  <button onClick={(e) => editModalHandler({e, data, id})} id="edit-profile-btn" className={styles["edit-profile-btn"]}>
                     Edit Profile
                   </button>
                 </div>

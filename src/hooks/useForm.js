@@ -8,6 +8,7 @@ export default function useForm(initialValues, submitHandler) {
     if (key) {
       if (useValue) {
         const customValue = e.target[useValue];
+        console.log(customValue);
         setFormData((state) => ({
           ...state,
           [key]: { ...state[key], [name]: customValue },
@@ -19,10 +20,10 @@ export default function useForm(initialValues, submitHandler) {
     setFormData((state) => ({ ...state, [name]: value }));
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = (e, ...params) => {
     e.preventDefault();
 
-    submitHandler({ e, formData });
+    submitHandler({ e, formData, ...params });
   };
 
   return { formData, onChange, onSubmit };
