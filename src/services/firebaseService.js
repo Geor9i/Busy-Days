@@ -112,6 +112,7 @@ export default class FirebaseService {
     const unsubscribe = onSnapshot(documentRef, (doc) => {
       if (doc.exists() && this.auth?.currentUser) {
         let newState = doc.data();
+        console.log('data read!');
         if (!isEqual(newState, state)) {
           setState.forEach((set) => set(newState));
         }

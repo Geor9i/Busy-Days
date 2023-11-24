@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function useForm(initialValues, submitHandler) {
+export default function useForm(initialValues, submitHandler, confirmHandler) {
   const [formData, setFormData] = useState(initialValues);
 
   const onChange = (e, { key = null, useValue = null } = {}) => {
@@ -20,10 +20,22 @@ export default function useForm(initialValues, submitHandler) {
     setFormData((state) => ({ ...state, [name]: value }));
   };
 
-  const onSubmit = (e, ...params) => {
+  const onSubmit = async(e, paramObj) => {
     e.preventDefault();
-
-    submitHandler({ e, formData, ...params });
+    if (confirmHandler) {
+      try {
+        const hasConfirmed = await Promise.resolve(confirmHandler());
+  
+        if (!hasConfirmed) {
+          console.log('Confirmation rejected');
+          return;
+        }
+      } catch (error) {
+        console.error('Error in confirmHandler:', error);
+        return;
+      }
+    }
+    submitHandler({ e, formData, ...paramObj });
   };
 
   return { formData, onChange, onSubmit };

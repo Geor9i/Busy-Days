@@ -26,7 +26,7 @@ export default function EmployeeView() {
   const [userProfileModalState, setUserProfileModalState] = useState(false);
   const [editProfileModalState, setEditProfileModalState] = useState({
     on: false,
-    data: null,
+    oldData: null,
     id: null
   });
   const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
@@ -48,7 +48,6 @@ export default function EmployeeView() {
       ROSTER_KEY,
       roster,
       setRoster
-      // setDisplayEmployees
     );
     return () => unsubscribe();
   }, []);
@@ -89,12 +88,12 @@ export default function EmployeeView() {
 
   const editProfileModalAndSubmitHandler = async ({
     e,
-    data,
     formData,
     id = [],
+    oldData
   } = {}) => {
     //If there is no data passed simply toggle between the modal's visibility state
-    id = id[0];
+    id = Array.isArray(id) ? id[0] : id;
     if (formData) {
       setLoading(true);
       try {
@@ -103,7 +102,7 @@ export default function EmployeeView() {
           //check if doc exists
           const date = new Date().toISOString();
           const finalData = {
-            [id]: { ...employeeData, updatedOn: date },
+            [id]: { ...employeeData, updatedOn: date, createdOn: oldData.createdOn },
           };
           await fireService.updateDocFields(ROSTER_KEY, finalData);
         }
@@ -114,7 +113,7 @@ export default function EmployeeView() {
       }
     }
 
-    setEditProfileModalState((state) => ({...state, data: data, on: !state.on }));
+    setEditProfileModalState((state) => ({...state, oldData, on: !state.on, id }));
   };
 
   function validateForm(formData) {
@@ -251,7 +250,7 @@ export default function EmployeeView() {
             <EditProfileModal
               onSubmitHandler={editProfileModalAndSubmitHandler}
               roles={roles}
-              data={editProfileModalState.data}
+              oldData={editProfileModalState.oldData}
               id={editProfileModalState.id}
             />
           }
@@ -309,14 +308,14 @@ export default function EmployeeView() {
                   onClick={filterByHandler}
                   id="firstName"
                 >
-                  First name
+                  First Name
                 </div>
                 <div
                   className={styles["content-header"]}
                   onClick={filterByHandler}
                   id="lastName"
                 >
-                  Last name
+                  Last Name
                 </div>
                 <div
                   className={styles["content-header"]}
@@ -337,14 +336,14 @@ export default function EmployeeView() {
                   onClick={filterByHandler}
                   id="createdOn"
                 >
-                  Created on
+                  Created On
                 </div>
                 <div
                   className={styles["content-header"]}
                   onClick={filterByHandler}
                   id="updatedOn"
                 >
-                  Updated on
+                  Updated On
                 </div>
               </div>
 

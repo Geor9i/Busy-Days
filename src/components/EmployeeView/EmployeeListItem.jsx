@@ -60,7 +60,7 @@ export default function EmployeeListItem({ data, id, detailsHandler, editModalHa
                   <div className={styles["user-icon-container"]}>
                     <img src={icon} className={styles["user-icon"]} />
                   </div>
-                  <button onClick={(e) => editModalHandler({e, data, id})} id="edit-profile-btn" className={styles["edit-profile-btn"]}>
+                  <button onClick={(e) => editModalHandler({e, oldData: data, id})} id="edit-profile-btn" className={styles["edit-profile-btn"]}>
                     Edit Profile
                   </button>
                 </div>

@@ -3,8 +3,9 @@
     width: 70%;
     min-height: 80vh;
     height: auto;
-    border-radius: 13px 13px 0 0;
+    border-radius: 13px;
     background-color: rgb(94, 94, 94);
+    border: 1px solid black;
   }
   
   .header {
@@ -14,7 +15,7 @@
     height: 5%;
     background-image: linear-gradient(to bottom, #d3d3d3, #616161);
     border-radius: 13px 13px 0 0;
-    border-bottom: 2px solid rgb(0, 0, 0);
+    border-bottom: 4px solid rgb(0, 0, 0);
   }
   
   .business-title-container {
