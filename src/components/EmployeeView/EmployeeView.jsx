@@ -97,7 +97,7 @@ export default function EmployeeView() {
     formData,
     id = [],
     oldData,
-    deleteUser = false
+    deleteUser = false,
   } = {}) => {
     //If there is no data passed simply toggle between the modal's visibility state
     id = Array.isArray(id) ? id[0] : id;
@@ -126,10 +126,15 @@ export default function EmployeeView() {
         setLoading(false);
       }
     } else if (deleteUser) {
-      const goAhead = confirm(`Delete ${oldData.firstName} ${oldData.lastName} from the Roster?`);
+      const goAhead = confirm(
+        `Delete ${oldData.firstName} ${oldData.lastName} from the Roster?`
+      );
       if (goAhead) {
         await fireService.deleteField(ROSTER_KEY, id);
-        console.log('User Deleted!');
+        console.log("User Deleted!");
+        const updatedRoster = { ...roster };
+        delete updatedRoster[id];
+        setRoster(updatedRoster);
       }
     }
     if (oldData) {
@@ -147,8 +152,6 @@ export default function EmployeeView() {
       }));
     }
   };
-
- 
 
   function validateForm(formData) {
     const { firstName, lastName, phoneNumber, email, contractType, positions } =

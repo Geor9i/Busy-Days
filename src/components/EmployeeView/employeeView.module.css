@@ -80,8 +80,9 @@
   
   .add-btn {
       width: 40%;
-      height: 40%;
+      height: 30px;
       cursor: pointer;
+      font-weight: bold;
   }
   
   .employee-list-container {
