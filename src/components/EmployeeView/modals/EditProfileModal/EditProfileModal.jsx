@@ -3,16 +3,9 @@ import useForm from "../../../../hooks/useForm.js";
 import FormUtil from "../../../../utils/formUtil.js";
 import ObjectUtil from "../../../../utils/objectUtil.js";
 import deleteIcon from "../../../../assets/delete_user.png";
-import Modal from "../../../misc/modal/modal.jsx";
-import { useState } from "react";
-
 export default function EditProfileModal({ onSubmitHandler, roles, oldData, id }) {
   const formUtil = new FormUtil();
   const objectUtil = new ObjectUtil();
-  const [confirmModalState, setConfirmModalState] = useState({
-    on: false,
-    response: false
-  })
   const formKeys = formUtil.formKeys({
     formKeys: [
       "firstName",
@@ -36,9 +29,7 @@ export default function EditProfileModal({ onSubmitHandler, roles, oldData, id }
     },
   };
 
-  const confirmModalHandler = () => {
-
-  }
+ const deleteUser  = true;
 
   const { formData, onChange, onSubmit } = useForm(
     initialValues,
@@ -50,7 +41,7 @@ export default function EditProfileModal({ onSubmitHandler, roles, oldData, id }
       <div className={styles["edit-modal-header"]}>
         <h2> Edit Employee </h2>
         <div className={styles["delete-employee-btn-container"]}>
-          <div className={styles["delete-employee-btn"]}>
+          <div className={styles["delete-employee-btn"]} onClick={() => onSubmitHandler({id, oldData, deleteUser})}>
             <img src={deleteIcon} />
           </div>
         </div>

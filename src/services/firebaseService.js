@@ -5,6 +5,8 @@ import {
   setDoc,
   updateDoc,
   onSnapshot,
+  deleteDoc,
+  deleteField
 } from "firebase/firestore";
 import {
   getAuth,
@@ -120,5 +122,17 @@ export default class FirebaseService {
     });
 
     return unsubscribe;
+  }
+
+  async deleteDoc(collectionName) {
+    await deleteDoc(doc(this.db, collectionName, this.uid))
+  }
+
+  async deleteField(collectionName, id) {
+    const ref = doc(this.db, collectionName, this.uid)
+
+    await updateDoc(ref, {
+      [id]: deleteField()
+    })
   }
 }

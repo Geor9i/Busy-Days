@@ -13,8 +13,8 @@ import ObjectUtil from "../../utils/objectUtil.js";
 import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
 
 import EmployeeListItem from "./employeeListItem.jsx";
-import Modal from "../misc/modal/modal.jsx";
-import ProfileModal from "./modals/ProfileModal/Profilemodal.jsx";
+import Modal from "../misc/modal/Modal.jsx";
+import ProfileModal from "./modals/ProfileModal/ProfileModal.jsx";
 import UseLoader from "../../hooks/useLoader.js";
 import EditProfileModal from "./modals/EditProfileModal/EditProfileModal.jsx";
 
@@ -27,7 +27,7 @@ export default function EmployeeView() {
   const [editProfileModalState, setEditProfileModalState] = useState({
     on: false,
     oldData: null,
-    id: null
+    id: null,
   });
   const { setLoading, ScreenLoader, isLoading } = UseLoader(false);
   let [displayEmployees, setDisplayEmployees] = useState([]);
@@ -35,6 +35,16 @@ export default function EmployeeView() {
     key: "firstName",
     reverse: false,
   });
+
+  // const confirmModalParams = {
+  //   content: {
+  //     title: "Are you sure",
+  //     confirm: "Yes",
+  //     cancel: "No",
+  //   },
+  //   handler: confirmModalHandler,
+  // };
+
   const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
@@ -44,11 +54,7 @@ export default function EmployeeView() {
   const weekdays = dateUtil.getWeekdays([]);
 
   useEffect(() => {
-    const unsubscribe = fireService.onSnapShot(
-      ROSTER_KEY,
-      roster,
-      setRoster
-    );
+    const unsubscribe = fireService.onSnapShot(ROSTER_KEY, roster, setRoster);
     return () => unsubscribe();
   }, []);
 
@@ -90,31 +96,59 @@ export default function EmployeeView() {
     e,
     formData,
     id = [],
-    oldData
+    oldData,
+    deleteUser = false
   } = {}) => {
     //If there is no data passed simply toggle between the modal's visibility state
     id = Array.isArray(id) ? id[0] : id;
     if (formData) {
-      setLoading(true);
       try {
         if (validateForm(formData)) {
-          const employeeData = finalizeFormData(formData);
-          //check if doc exists
-          const date = new Date().toISOString();
-          const finalData = {
-            [id]: { ...employeeData, updatedOn: date, createdOn: oldData.createdOn },
-          };
-          await fireService.updateDocFields(ROSTER_KEY, finalData);
+          const goAhead = confirm("Are you sure?");
+          if (goAhead) {
+            setLoading(true);
+            const employeeData = finalizeFormData(formData);
+            //check if doc exists
+            const date = new Date().toISOString();
+            const finalData = {
+              [id]: {
+                ...employeeData,
+                updatedOn: date,
+                createdOn: oldData.createdOn,
+              },
+            };
+            await fireService.updateDocFields(ROSTER_KEY, finalData);
+          }
         }
       } catch (err) {
         console.log(err);
       } finally {
         setLoading(false);
       }
+    } else if (deleteUser) {
+      const goAhead = confirm(`Delete ${oldData.firstName} ${oldData.lastName} from the Roster?`);
+      if (goAhead) {
+        await fireService.deleteField(ROSTER_KEY, id);
+        console.log('User Deleted!');
+      }
     }
-
-    setEditProfileModalState((state) => ({...state, oldData, on: !state.on, id }));
+    if (oldData) {
+      setEditProfileModalState((state) => ({
+        ...state,
+        oldData,
+        on: !editProfileModalState.on,
+        id,
+      }));
+    } else {
+      setEditProfileModalState((state) => ({
+        ...state,
+        on: !editProfileModalState.on,
+        id,
+      }));
+    }
   };
+
+ 
 
   function validateForm(formData) {
     const { firstName, lastName, phoneNumber, email, contractType, positions } =
