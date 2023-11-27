@@ -7,6 +7,7 @@ import { useState } from "react";
 
 export default function AvailabilityModal({ onSubmitHandler, roles }) {
   const [page, setPage] = useState("availability");
+  const [priority, setPriority] = useState("strict");
 
   const formUtil = new FormUtil();
   const objectUtil = new ObjectUtil();
@@ -21,8 +22,17 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
     setPage(id);
   }
 
-  const highlighted = {
+  function changePriority(e) {
+    const id = e.currentTarget.id;
+    setPriority(id);
+  }
+
+  const highlightedPageStyle = {
     backgroundColor: "rgb(0, 255, 255)",
+  };
+  const highlightedPriorityStyle = {
+    backgroundColor: "rgb(255, 255, 255)",
+    border: "2px inset white",
   };
 
   return (
@@ -34,7 +44,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
       <div className={styles["category-setting-btn-container"]}>
         <div
           className={styles["category-setting-btn"]}
-          style={page === "availability" ? highlighted : {}}
+          style={page === "availability" ? highlightedPageStyle : {}}
           onClick={changePage}
           id="availability"
         >
@@ -42,7 +52,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
         </div>
         <div
           className={styles["category-setting-btn"]}
-          style={page === "daysOff" ? highlighted : {}}
+          style={page === "daysOff" ? highlightedPageStyle : {}}
           onClick={changePage}
           id="daysOff"
         >
@@ -52,24 +62,33 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
 
       <div className={styles["main-content-container"]}>
         <div className={styles["availability-content-container"]}>
-        <div className={styles["priority-setting-btn-container"]}>
-              <div
-                className={`${styles["priority-setting-btn"]} ${styles["strict"]}`}
-              >
-                <h4>Strict</h4>
-              </div>
-              <div
-                className={`${styles["priority-setting-btn"]} ${styles["important"]}`}
-              >
-                <h4>Important</h4>
-              </div>
-              <div
-                className={`${styles["priority-setting-btn"]} ${styles["optional"]}`}
-              >
-                <h4>Optional</h4>
-              </div>
+          <div className={styles["priority-setting-btn-container"]}>
+            <div
+              className={`${styles["priority-setting-btn"]} ${styles["strict"]}`}
+              style={priority === "strict" ? highlightedPriorityStyle : {}}
+              onClick={changePriority}
+              id="strict"
+            >
+              <h4>Strict</h4>
             </div>
-        {page === "availability" ? (
+            <div
+              className={`${styles["priority-setting-btn"]} ${styles["important"]}`}
+              style={priority === "important" ? highlightedPriorityStyle : {}}
+              onClick={changePriority}
+              id="important"
+            >
+              <h4>Important</h4>
+            </div>
+            <div
+              className={`${styles["priority-setting-btn"]} ${styles["optional"]}`}
+              style={priority === "optional" ? highlightedPriorityStyle : {}}
+              onClick={changePriority}
+              id="optional"
+            >
+              <h4>Optional</h4>
+            </div>
+          </div>
+          {page === "availability" ? (
             <div className={styles["availability-table-container"]}>
               <h4>Set availability time window</h4>
               <div className={styles["availability-table"]}>
@@ -92,7 +111,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
                 </div>
               </div>
             </div>
-        ) : (
+          ) : (
             <div className={styles["days-off-content-container"]}>
               <div className={styles["days-off-category-content-container"]}>
                 <div className={styles["days-off-select-content-container"]}>
@@ -107,29 +126,30 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
                     ))}
                   </div>
                 </div>
-                  <div className={styles['days-off-specifics-content-container']}>
-                      <div className={styles['days-off-specifics-content']}>
-                        <p>Minimum required days off</p>
-                        <input type="text" className={styles['input-amount']} />
-                      </div>
-                      <div className={styles['days-off-specifics-content']}>
-                        <p>Give Consecutive days</p>
-                        <input className={styles['checkbox-consecutive']} type="checkbox" />
-                      </div>
+                <div className={styles["days-off-specifics-content-container"]}>
+                  <div className={styles["days-off-specifics-content"]}>
+                    <p>Minimum required days off</p>
+                    <input type="text" className={styles["input-amount"]} />
                   </div>
+                  <div className={styles["days-off-specifics-content"]}>
+                    <p>Give Consecutive days</p>
+                    <input
+                      className={styles["checkbox-consecutive"]}
+                      type="checkbox"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-        )}
-         <div className={styles["save-btn-container"]}>
-              <button>Save</button>
-            </div>
+          )}
+          <div className={styles["save-btn-container"]}>
+            <button>Save</button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-
 
 /**
  *   <div className={styles["availability-content-container"]}>
