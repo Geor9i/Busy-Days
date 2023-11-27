@@ -147,15 +147,29 @@
  .body-weekday {
     width: 100%;
     height: 100%;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
  }
- .body-weekday input {
+ 
+ .time-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
     width: 100%;
     height: 100%;
+    padding: 1px;
+ }
+ .time-container p {
+    font-weight: bold;
+ }
+
+ .time-container input {
+    width: 100%;
     text-align: center;
     font-size: 0.9rem;
-    font-weight: bold;
-    
+    height: 60%;
  }
 
  .body-weekday:nth-child(odd) {
@@ -230,7 +244,7 @@
 
   .day-off-weekday:hover {
     cursor: pointer;
-    background-color: white;
+    background-color: rgb(167, 167, 167);
     
   }
 
@@ -264,10 +278,11 @@
 }
  
 .input-amount {
-    width: 40px;
+    width: 20px;
     height: 20px;
     font-weight: bold;
     font-size: 1.2rem;
+    text-align: center;
 }
 
 .checkbox-consecutive {

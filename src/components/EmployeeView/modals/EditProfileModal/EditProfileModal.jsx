@@ -119,7 +119,7 @@ export default function EditProfileModal({ onSubmitHandler, roles, oldData, id }
                 <label htmlFor={role}>{role}</label>
                 <input
                   onChange={(e) =>
-                    onChange(e, { key: "positions", useValue: "checked" })
+                    onChange(e, { key: "positions", useProp: "checked" })
                   }
                   type="checkbox"
                   checked={formData[formKeys.positions][role]}

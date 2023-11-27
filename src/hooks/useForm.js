@@ -1,22 +1,23 @@
 import { useState } from "react";
+import ObjectUtil from "../utils/objectUtil.js";
 
 export default function useForm(initialValues, submitHandler, confirmHandler) {
   const [formData, setFormData] = useState(initialValues);
+  const objUtil = new ObjectUtil();
 
-  const onChange = (e, { key = null, useValue = null } = {}) => {
+  const onChange = (e, { key = null, useProp = null, useValue } = {}) => {
     let { name, value } = e.target;
     if (key) {
-      if (useValue) {
-        const customValue = e.target[useValue];
+      if (useProp) {
+        const customValue = e.target[useProp];
         console.log(customValue);
         setFormData((state) => ({
           ...state,
           [key]: { ...state[key], [name]: customValue },
         }));
-      }
       return
-    }
-
+    } 
+  }
     setFormData((state) => ({ ...state, [name]: value }));
   };
 

@@ -103,7 +103,7 @@ export default function ProfileModal({ onSubmitHandler, roles }) {
               <div key={role} className={styles["role-list-item"]}>
                 <label htmlFor={role}>{role}</label>
                 <input
-                  onChange={(e) => onChange(e, {key: 'positions', useValue: 'checked'})}
+                  onChange={(e) => onChange(e, {key: 'positions', useProp: 'checked'})}
                   type="checkbox"
                   checked={formData[formKeys.positions][role]}
                   name={role}
