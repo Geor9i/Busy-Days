@@ -1,0 +1,277 @@
+:root {
+    --strict-color: #ff640a;
+    --important-color: #ffde0a;
+    --optional-color: #98fc03;
+  }
+
+.modal-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.title-container h2 {
+    margin: 0;
+}
+
+.category-setting-btn-container {
+    width: auto;
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+}
+.category-setting-btn:nth-child(even) {
+    border-left: 3px solid black;
+}
+
+.category-setting-btn {
+   padding: 0 40px;
+   background-color: rgb(146, 146, 146);
+
+}
+
+.category-setting-btn:hover {
+    background-color: rgb(199, 199, 199);
+    cursor: pointer;
+}
+
+.main-content-container {
+    margin-top: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.availability-content-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.priority-setting-btn-container {
+    width: auto;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+}
+
+.priority-setting-btn {
+    padding: 0 20px;
+    background-color: rgb(146, 146, 146);
+ 
+ }
+ 
+ .priority-setting-btn:hover {
+     background-color: rgb(199, 199, 199);
+     cursor: pointer;
+ }
+
+ .strict {
+    background-color: var(--strict-color);
+ }
+ .important {
+    background-color: var(--important-color);
+ }
+ .optional {
+    background-color: var(--optional-color);
+ }
+
+ .availability-table-container {
+    margin-top: 3%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+    height: 50%;
+ }
+
+ .availability-table {
+    width: 95%;
+    height: 8vh;
+    background-color: green;
+ }
+
+ .availability-table-header {
+    display: grid;
+    height: 40%;
+    grid-template-columns: repeat(7, 1fr);
+    justify-items: center;
+    background-color: rgb(218, 218, 218);
+    border-bottom: 2px solid black;
+ }
+
+ .header-weekday {
+    border-top: 1px solid black;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    background-color: rgb(78, 78, 78);
+    color: white;
+ }
+
+ .header-weekday:nth-child(odd) {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+ }
+
+ .availability-table-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    justify-items: center;
+    background-color: rgb(218, 218, 218);
+    border-bottom: 2px solid black;
+    height: 100%;
+ }
+
+ .body-weekday {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+ }
+ .body-weekday input {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+    
+ }
+
+ .body-weekday:nth-child(odd) {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+ }
+
+
+ .save-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+ }
+
+ .save-btn-container button {
+    margin-top: 20px;
+    width: 50%;
+    height: 30%;
+    cursor: pointer;
+ }
+
+  /* Days off content*/
+
+  .days-off-content-container {
+    margin-top: 2%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+  }
+
+  .days-off-category-content-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+  }
+
+  .days-off-select-content-container {
+    width: 90%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .days-off-select-container{
+    display: grid;
+    width: 100%;
+    height: 60%;
+    grid-template-columns: repeat(7, 1fr);
+    justify-items: center;
+    background-color: rgb(218, 218, 218);
+  }
+
+  .day-off-weekday {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    background-color: rgb(110, 110, 110);
+  }
+
+  .day-off-weekday:hover {
+    cursor: pointer;
+    background-color: white;
+    
+  }
+
+  .day-off-weekday:nth-child(odd) {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+ }
+
+ .days-off-specifics-content-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.days-off-specifics-content {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.days-off-specifics-content input {
+    margin-left: 15px;
+}
+
+.days-off-specifics-content p {
+    font-size: 1.2rem;
+}
+ 
+.input-amount {
+    width: 40px;
+    height: 20px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.checkbox-consecutive {
+    width: 20px;
+    height: 20px;
+}

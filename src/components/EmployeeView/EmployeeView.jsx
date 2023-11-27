@@ -15,6 +15,7 @@ import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
 import EmployeeListItem from "./employeeListItem.jsx";
 import Modal from "../misc/modal/Modal.jsx";
 import ProfileModal from "./modals/ProfileModal/ProfileModal.jsx";
+import AvailabilityModal from "./modals/RosterModal/AvailabilityModal.jsx";
 import UseLoader from "../../hooks/useLoader.js";
 import EditProfileModal from "./modals/EditProfileModal/EditProfileModal.jsx";
 
@@ -24,6 +25,7 @@ export default function EmployeeView() {
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
   const [userProfileModalState, setUserProfileModalState] = useState(false);
+  const [availabilityModalState, setAvailabilityModalState] = useState(true);
   const [editProfileModalState, setEditProfileModalState] = useState({
     on: false,
     oldData: null,
@@ -249,6 +251,14 @@ export default function EmployeeView() {
     borderRadius: "13px",
   };
 
+  const availabilityModalStyle = {
+    width: "60vw",
+    maxWidth: "1000px",
+    minWidth: "600px",
+    height: "40vh",
+    borderRadius: "13px",
+  };
+
   //Search functionality
   const searchHandler = ({ formData }) => {
     if (formData.search === "") {
@@ -263,6 +273,10 @@ export default function EmployeeView() {
     { search: "" },
     searchHandler
   );
+
+  const availabilityHandler = () => {
+    setAvailabilityModalState(state => !state)
+  }
 
   return (
     <>
@@ -289,6 +303,17 @@ export default function EmployeeView() {
               roles={roles}
               oldData={editProfileModalState.oldData}
               id={editProfileModalState.id}
+            />
+          }
+        />
+      ) : null}
+      {availabilityModalState ? (
+        <Modal
+          customStyles={availabilityModalStyle}
+          changeState={availabilityHandler}
+          children={
+            <AvailabilityModal
+            onSubmitHandler={availabilityHandler}
             />
           }
         />
@@ -392,6 +417,7 @@ export default function EmployeeView() {
                     id={id}
                     detailsHandler={showDetailsHandler}
                     editModalHandler={editProfileModalAndSubmitHandler}
+                    availabilityHandler={availabilityHandler}
                   />
                 ))}
               </div>

@@ -3,7 +3,7 @@ import styles from "./employeeListItem.module.css";
 import icon from "../../assets/userIcon_transparent.png";
 import DateUtil from "../../utils/dateUtil.js";
 
-export default function EmployeeListItem({ data, id, detailsHandler, editModalHandler }) {
+export default function EmployeeListItem({ data, id, detailsHandler, editModalHandler, availabilityHandler }) {
   const dateUtil = new DateUtil();
   const [onDisplay, setDisplay] = useState(false);
   const [style, setStyle] = useState({
@@ -98,7 +98,7 @@ export default function EmployeeListItem({ data, id, detailsHandler, editModalHa
                   <h2>Availability</h2>
                 </div>
                 <div className={styles["availability-container"]}>
-                  <button className={styles["edit-availability-btn"]}>
+                  <button onClick={availabilityHandler} className={styles["edit-availability-btn"]}>
                     Edit
                   </button>
 
