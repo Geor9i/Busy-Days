@@ -98,7 +98,7 @@ export default function EmployeeListItem({ data, id, detailsHandler, editModalHa
                   <h2>Availability</h2>
                 </div>
                 <div className={styles["availability-container"]}>
-                  <button onClick={availabilityHandler} className={styles["edit-availability-btn"]}>
+                  <button onClick={() => availabilityHandler(id, data)} className={styles["edit-availability-btn"]}>
                     Edit
                   </button>
 

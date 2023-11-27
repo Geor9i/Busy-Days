@@ -15,7 +15,7 @@ import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
 import EmployeeListItem from "./employeeListItem.jsx";
 import Modal from "../misc/modal/Modal.jsx";
 import ProfileModal from "./modals/ProfileModal/ProfileModal.jsx";
-import AvailabilityModal from "./modals/RosterModal/AvailabilityModal.jsx";
+import AvailabilityModal from "./modals/AvailabilityModal/AvailabilityModal.jsx";
 import UseLoader from "../../hooks/useLoader.js";
 import EditProfileModal from "./modals/EditProfileModal/EditProfileModal.jsx";
 
@@ -25,7 +25,11 @@ export default function EmployeeView() {
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
   const [userProfileModalState, setUserProfileModalState] = useState(false);
-  const [availabilityModalState, setAvailabilityModalState] = useState(true);
+  const [availabilityModalState, setAvailabilityModalState] = useState({
+    data: null,
+    on: false,
+    id: null,
+  });
   const [editProfileModalState, setEditProfileModalState] = useState({
     on: false,
     oldData: null,
@@ -274,9 +278,9 @@ export default function EmployeeView() {
     searchHandler
   );
 
-  const availabilityHandler = () => {
-    setAvailabilityModalState(state => !state)
-  }
+  const availabilityHandler = (id, data) => {
+    setAvailabilityModalState((state) => ({ ...state, on: !state.on, id: id, data: data }));
+  };
 
   return (
     <>
@@ -307,13 +311,16 @@ export default function EmployeeView() {
           }
         />
       ) : null}
-      {availabilityModalState ? (
+      {availabilityModalState.on ? (
         <Modal
           customStyles={availabilityModalStyle}
           changeState={availabilityHandler}
           children={
             <AvailabilityModal
-            onSubmitHandler={availabilityHandler}
+              fireService={fireService}
+              closeModal={availabilityHandler}
+              id={availabilityModalState.id}
+              data={availabilityModalState.data}
             />
           }
         />

@@ -6,7 +6,8 @@ import {
   updateDoc,
   onSnapshot,
   deleteDoc,
-  deleteField
+  deleteField,
+  collection
 } from "firebase/firestore";
 import {
   getAuth,
@@ -64,19 +65,29 @@ export default class FirebaseService {
       throw new Error(err);
     }
   }
-  async updateDocFields(collectionName, data) {
+  async updateDocFields(collectionName, data, ...nestedKeys) {
     try {
-      const documentRef = doc(this.db, collectionName, this.uid);
+      let documentRef;
+      if (nestedKeys.length > 0) {
+        documentRef = doc(this.db, collectionName, this.uid, ...nestedKeys);
+      } else {
+        documentRef = doc(this.db, collectionName, this.uid);
+      }
       await updateDoc(documentRef, data);
       console.log("Data fields updated in Firestore successfully!");
     } catch (err) {
       throw new Error(err);
     }
   }
-  async setDoc(collectionName, data) {
+  async setDoc(collectionName, data, { merge = false } = {}, ...nestedKeys) {
     try {
-      const documentRef = doc(this.db, collectionName, this.uid);
-      await setDoc(documentRef, data);
+      let documentRef;
+      if (nestedKeys.length > 0) {
+        documentRef = doc(this.db, collectionName, this.uid, ...nestedKeys);
+      } else {
+        documentRef = doc(this.db, collectionName, this.uid);
+      }
+      await setDoc(documentRef, data, merge ? { merge } : {});
       console.log("Data written to Firestore successfully!");
     } catch (err) {
       throw new Error(err);
@@ -114,7 +125,7 @@ export default class FirebaseService {
     const unsubscribe = onSnapshot(documentRef, (doc) => {
       if (doc.exists() && this.auth?.currentUser) {
         let newState = doc.data();
-        console.log('data read!');
+        console.log("data read!");
         if (!isEqual(newState, state)) {
           setState.forEach((set) => set(newState));
         }
@@ -125,14 +136,14 @@ export default class FirebaseService {
   }
 
   async deleteDoc(collectionName) {
-    await deleteDoc(doc(this.db, collectionName, this.uid))
+    await deleteDoc(doc(this.db, collectionName, this.uid));
   }
 
   async deleteField(collectionName, id) {
-    const ref = doc(this.db, collectionName, this.uid)
+    const ref = doc(this.db, collectionName, this.uid);
 
     await updateDoc(ref, {
-      [id]: deleteField()
-    })
+      [id]: deleteField(),
+    });
   }
 }

@@ -42,7 +42,7 @@ export default function EditProfileModal({ onSubmitHandler, roles, oldData, id }
         <h2> Edit Employee </h2>
         <div className={styles["delete-employee-btn-container"]}>
           <div className={styles["delete-employee-btn"]} onClick={() => onSubmitHandler({id, oldData, deleteUser})}>
-            <img src={deleteIcon} />
+            <img src={deleteIcon} alt="Delete User" />
           </div>
         </div>
       </div>

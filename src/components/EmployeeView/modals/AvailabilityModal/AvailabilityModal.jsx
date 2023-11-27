@@ -1,14 +1,12 @@
 import styles from "./availabilityModal.module.css";
-import FormUtil from "../../../../utils/formUtil.js";
 import ObjectUtil from "../../../../utils/objectUtil.js";
 import DateUtil from "../../../../utils/dateUtil.js";
 import StringUtil from "../../../../utils/stringUtil.js";
-import { useState } from "react";
-import useForm from "../../../../hooks/useForm.js";
+import { useEffect, useState } from "react";
 import TimeUtil from "../../../../utils/timeUtil.js";
+import { ROSTER_KEY } from "../../../../../config/constants.js";
 
-export default function AvailabilityModal({ onSubmitHandler, roles }) {
-  const formUtil = new FormUtil();
+export default function AvailabilityModal({ fireService, closeModal, id, data }) {
   const objectUtil = new ObjectUtil();
   const stringUtil = new StringUtil();
   const dateUtil = new DateUtil();
@@ -18,24 +16,59 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
   const [page, setPage] = useState("availability");
   const [priority, setPriority] = useState("strict");
   const [lastKey, setLastKey] = useState("");
+  const initAvailability = objectUtil.reduceToObj(weekdays, {
+    startTime: "",
+    endTime: "",
+  })
+  const initDaysOff =  {
+    days: objectUtil.reduceToObj(weekdays, false),
+    amount: "",
+    consecutive: false,
+  }
   const initialValues = {
-    availability: objectUtil.reduceToObj(weekdays, {
-      startTime: "",
-      endTime: "",
-    }),
+    availability: data.availability?.[priority] ? data.availability[priority] : initAvailability ,
     daysOff: {
-      days: objectUtil.reduceToObj(weekdays, false),
-      amount: "",
-      consecutive: false,
+      days: data?.daysOff?.days?.[priority] ? data.daysOff.days[priority] : initDaysOff.days,
+      amount: data?.daysOff?.amount?.[priority] ? data.daysOff.amount[priority] : initDaysOff.amount,
+      consecutive: data?.daysOff?.consecutive?.[priority] ? data.daysOff.consecutive[priority] : initDaysOff.consecutive,
     },
-    priority,
   };
   const [formData, setFormData] = useState(initialValues);
-
+  useEffect(() => {
+    setFormData(initialValues);
+  }, [page, priority])
+  console.log(initialValues);
   //AvailabilityForm
 
-  function submitHandler(e) {
-    e.preventdefault();
+  async function submitHandler(e) {
+    e.preventDefault();
+    let employeeId = id[0];
+    const targetData = formData[page];
+    // const isEmpty = isEmptyFormData(formData, { [page]: true });
+    // if (isEmpty) return;
+
+    const goAhead = confirm("Save all changes ?");
+    if (goAhead) {
+      let finalData;
+      if (page === "availability") {
+        finalData = {
+          [employeeId]: { [page]: { [priority]: targetData } },
+        };
+      } else if (page === "daysOff") {
+        finalData = {
+          [employeeId]: {
+            [page]: {
+              days: { [priority]: targetData.days },
+              consecutive: { [priority]: targetData.consecutive },
+              amount: { [priority]: targetData.amount },
+            },
+          },
+        };
+      }
+
+      await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
+      closeModal();
+    }
   }
 
   function onChange(e) {
@@ -77,7 +110,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
       }));
     } else if (name.includes("startTime") || name.includes("endTime")) {
       const [weekday, timeSetting] = name.split("-");
-      if (lastKey === 'Backspace') {
+      if (lastKey === "Backspace") {
         value = value.replace(":", "");
       }
       let amount = stringUtil.filterString(value, {
@@ -96,7 +129,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
   }
 
   function onBlurHandler(e) {
-    let {value, name} = e.currentTarget;
+    let { value, name } = e.currentTarget;
     const [weekday, timeSetting] = name.split("-");
     let amount = timeUtil.time().fillTime(value);
     try {
@@ -116,14 +149,52 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
     }
   }
 
-  function changePage(e) {
+  function switchMenu(e) {
+    const options = {
+      page: ["availability", "daysOff"],
+      priority: ["strict", "important", "optional"],
+    };
     const id = e.currentTarget.id;
-    setPage(id);
+    const goAhead = checkFilled();
+    if (goAhead) {
+      if (options.page.includes(id)) {
+        setPage(id);
+      } else if (options.priority.includes(id)) {
+        setPriority(id);
+      }
+    }
+    //  !TODO: CheckFilled when Object is saved
+    function checkFilled() {
+      if (page !== id && priority !== id) {
+        if (!isEmptyFormData(formData, { all: true })) {
+          return confirm("Lose all changes ?");
+        }
+      }
+      return true;
+    }
   }
 
-  function changePriority(e) {
-    const id = e.currentTarget.id;
-    setPriority(id);
+  function isEmptyFormData(
+    formData,
+    { availability = false, daysOff = false, all = false } = {}
+  ) {
+    if (availability || all) {
+      if (!objectUtil.isEmpty(formData.availability)) {
+        return false;
+      }
+    }
+    if (daysOff || all) {
+      const hasDaysOff = !!Object.keys(formData.daysOff.days).find(
+        (day) => formData.daysOff.days[day]
+      );
+      if (!!hasDaysOff) {
+        return false;
+      }
+      if (formData.daysOff.amount || formData.daysOff.consecutive) {
+        return false;
+      }
+    }
+    return true;
   }
 
   const highlightedPageStyle = {
@@ -152,7 +223,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
         <div
           className={styles["category-setting-btn"]}
           style={page === "availability" ? highlightedPageStyle : {}}
-          onClick={changePage}
+          onClick={switchMenu}
           id="availability"
         >
           <h4>Availability</h4>
@@ -160,7 +231,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
         <div
           className={styles["category-setting-btn"]}
           style={page === "daysOff" ? highlightedPageStyle : {}}
-          onClick={changePage}
+          onClick={switchMenu}
           id="daysOff"
         >
           <h4>Days Off</h4>
@@ -176,7 +247,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
             <div
               className={`${styles["priority-setting-btn"]} ${styles["strict"]}`}
               style={priority === "strict" ? highlightedPriorityStyle : {}}
-              onClick={changePriority}
+              onClick={switchMenu}
               id="strict"
             >
               <h4>Strict</h4>
@@ -184,7 +255,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
             <div
               className={`${styles["priority-setting-btn"]} ${styles["important"]}`}
               style={priority === "important" ? highlightedPriorityStyle : {}}
-              onClick={changePriority}
+              onClick={switchMenu}
               id="important"
             >
               <h4>Important</h4>
@@ -192,7 +263,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
             <div
               className={`${styles["priority-setting-btn"]} ${styles["optional"]}`}
               style={priority === "optional" ? highlightedPriorityStyle : {}}
-              onClick={changePriority}
+              onClick={switchMenu}
               id="optional"
             >
               <h4>Optional</h4>
@@ -218,7 +289,11 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
                       <div className={styles["time-container"]}>
                         <p>Start</p>
                         <input
-                          style={formData.availability[day].startTime ? priorityStyle : {}}
+                          style={
+                            formData.availability[day].startTime
+                              ? priorityStyle
+                              : {}
+                          }
                           name={`${day}-startTime`}
                           maxLength={5}
                           type="text"
@@ -231,7 +306,11 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
                       <div className={styles["time-container"]}>
                         <p>End</p>
                         <input
-                          style={formData.availability[day].endTime ? priorityStyle : {}}
+                          style={
+                            formData.availability[day].endTime
+                              ? priorityStyle
+                              : {}
+                          }
                           name={`${day}-endTime`}
                           maxLength={5}
                           type="text"
@@ -253,11 +332,7 @@ export default function AvailabilityModal({ onSubmitHandler, roles }) {
                   <div className={styles["days-off-select-container"]}>
                     {weekdays.map((day) => (
                       <div
-                        style={
-                          formData.daysOff.days[day]
-                            ? priorityStyle
-                            : {}
-                        }
+                        style={formData.daysOff.days[day] ? priorityStyle : {}}
                         key={`${day}-day-off-selector`}
                         className={styles["day-off-weekday"]}
                         onClick={(e) => onChange(e)}
