@@ -278,8 +278,8 @@ export default function EmployeeView() {
     searchHandler
   );
 
-  const availabilityHandler = (id, data) => {
-    setAvailabilityModalState((state) => ({ ...state, on: !state.on, id: id, data: data }));
+  const availabilityHandler = (id, data ) => {
+    setAvailabilityModalState((state) => ({ ...state, on: !state.on, id: id, data: data}));
   };
 
   return (

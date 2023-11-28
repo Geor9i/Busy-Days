@@ -3,10 +3,10 @@ import ObjectUtil from "../utils/objectUtil.js";
 import TimeUtil from "../utils/timeUtil.js";
 import Evaluator from "./evaluator.js";
 
-export class Rota {
+export default class Rota {
   constructor(business) {
     this.objUtil = new ObjectUtil();
-    this.clock = new TimeUtil();
+    this.time = new TimeUtil();
     this.date = new DateUtil();
     this.evaluator = new Evaluator();
     this.positions = business.positions;
@@ -19,7 +19,7 @@ export class Rota {
   }
 
   create(date, labourHours) {
-    console.log(this.clock.relativeTime('11:00', {hourLength: 24}).isBiggerThan('00:00'))
+    console.log(this.time.relativeTime('11:00', {hourLength: 24}).isBiggerThan('00:00'))
     // date = this.date.op(date).getMonday();
     // this.openTimes = this.util.iterate(this.openTimes, this.clock.time().toObj);
     // const [rota, staffAvailability] = this.init();
@@ -44,7 +44,7 @@ export class Rota {
   }
 
   strictWorkHours(weekday) {
-    let openTimes = this.clock.time().toObj(this.openTimes[weekday]);
+    let openTimes = this.time.time().toObj(this.openTimes[weekday]);
 
     for (let entry in this.events) {
       const event = this.events[entry];
@@ -54,16 +54,16 @@ export class Rota {
             event.times.strict[weekday],
             weekday
           );
-          timeFrame = this.clock.time().toObj(timeFrame);
+          timeFrame = this.time.time().toObj(timeFrame);
           if (
-            this.clock
+            this.time
               .relativeTime(openTimes.startTime)
               .isBiggerThan(timeFrame.startTime)
           ) {
             openTimes.startTime = timeFrame.startTime;
           }
           if (
-            this.clock
+            this.time
               .relativeTime(openTimes.endTime)
               .isLessThan(timeFrame.endTime)
           ) {
@@ -84,19 +84,19 @@ export class Rota {
               if (priority !== 'strict') {
                 continue;
               }
-              let calcTime = this.clock
+              let calcTime = this.time
                 .math()
                 .calcClockTime(startTime, timeLength, sign);
-              calcTime = this.clock.time().toTime(calcTime);
+              calcTime = this.time.time().toTime(calcTime);
               if (
-                this.clock
+                this.time
                   .relativeTime(openTimes.startTime)
                   .isBiggerThan(calcTime)
               ) {
                 openTimes.startTime = calcTime;
               }
               if (
-                this.clock.relativeTime(openTimes.endTime).isLessThan(calcTime)
+                this.time.relativeTime(openTimes.endTime).isLessThan(calcTime)
               ) {
                 openTimes.endTime = calcTime;
               }
@@ -121,15 +121,15 @@ export class Rota {
 
       if (event.times.strict && event.times.strict[weekday] && event.markerType === "timeFrame") {
         let timeSpan = this.fillOpenCloseTimes(event.times.strict[weekday], weekday);
-        let timeLength = this.clock.time().timeSpanLength(timeSpan);
+        let timeLength = this.time.time().timeSpanLength(timeSpan);
         let positionConfig = this.objUtil.getPriorityValue(event, `positions`)
         for (let position in event.positions) {
           let [priority, staffCount] = Object.entries(positionConfig[position])[0];
           staffCount = priority === 'strict' ? staffCount : 1;
-          let totalHours = this.clock
+          let totalHours = this.time
             .math()
             .multiplyNormal(timeLength, staffCount);
-          positionTotalHours[position] = this.clock
+          positionTotalHours[position] = this.time
             .math()
             .add(positionTotalHours[position], totalHours);
         }
@@ -141,7 +141,7 @@ export class Rota {
         for (let position in event.positions) {
           let [priority, hours] = Object.entries(hoursConfig[position])[0];
           if (priority === 'strict') {
-            positionTotalHours[position] = this.clock
+            positionTotalHours[position] = this.time
               .math()
               .add(positionTotalHours[position], hours);
           }
@@ -149,7 +149,7 @@ export class Rota {
       }
     }
     let total = Object.keys(positionTotalHours).reduce((timeStr, curr) => {
-      timeStr = this.clock.math().add(positionTotalHours[curr], timeStr);
+      timeStr = this.time.math().add(positionTotalHours[curr], timeStr);
       return timeStr;
     }, "00:00");
     positionTotalHours.total = total;
@@ -203,7 +203,7 @@ export class Rota {
                   markerType: event.markerType,
                 };
               } else {
-                timeline[position][eventTime].hours = this.clock.math().add(timeline[position][eventTime].hours, hours);
+                timeline[position][eventTime].hours = this.time.math().add(timeline[position][eventTime].hours, hours);
               }
             }
           }
@@ -220,20 +220,20 @@ export class Rota {
     );
     staffTime = this.objUtil.reduceToObj(staffTime, 0);
     staffTime.all = 0;
-    const timeFrame = this.clock.time().toObj(queryTime);
+    const timeFrame = this.time.time().toObj(queryTime);
     let currentTime = timeFrame.startTime;
-    timeFrame.startTime = this.clock.time().toMinutes(timeFrame.startTime);
-    timeFrame.endTime = this.clock.time().toMinutes(timeFrame.endTime);
+    timeFrame.startTime = this.time.time().toMinutes(timeFrame.startTime);
+    timeFrame.endTime = this.time.time().toMinutes(timeFrame.endTime);
     for (let i = timeFrame.startTime; i < timeFrame.endTime; i++) {
       let snapshot = this.labourSnapshot(currentTime, weekday);
       for (let position in snapshot) {
         staffTime[position] += snapshot[position];
       }
-      currentTime = this.clock.math().add(currentTime, 1);
+      currentTime = this.time.math().add(currentTime, 1);
     }
 
     staffTime = Object.keys(staffTime).reduce((acc, curr) => {
-      acc[curr] = this.clock
+      acc[curr] = this.time
         .time()
         .toTime(staffTime[curr], { fromMinutes: true });
       return acc;
@@ -255,7 +255,7 @@ export class Rota {
 
       if (event.times.strict && event.times.strict[weekday] && event.markerType === "timeFrame") {
         let timeSpan = this.fillOpenCloseTimes(event.times.strict[weekday], weekday);
-        let isAtQueryTime = this.clock.time(queryTime).isWithin(timeSpan);
+        let isAtQueryTime = this.time.time(queryTime).isWithin(timeSpan);
         if (isAtQueryTime) {
           let staffConfig = this.objUtil.getPriorityValue(event, `positions`);
           for (let pos in event.positions) {

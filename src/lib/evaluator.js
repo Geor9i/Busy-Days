@@ -5,9 +5,9 @@ import LegalRequirements from "./legalRequirement.js";
 
 export default class Evaluator {
   constructor() {
-    this.util = new ObjectUtil();
+    this.objUtil = new ObjectUtil();
     this.date = new DateUtil();
-    this.timeUtil = new TimeUtil();
+    this.time = new TimeUtil();
     this.legal = new LegalRequirements();
     this.employeePotential = null;
     this.staff = null;
@@ -101,7 +101,7 @@ export default class Evaluator {
       employeeValueName = employeeValueName
         ? employeeValueName
         : reportValueName;
-      const valueConfig = this.util.getPriorityValue(
+      const valueConfig = this.objUtil.getPriorityValue(
         employeeConfig,
         employeeValueName
       );
@@ -111,13 +111,13 @@ export default class Evaluator {
       let [priority, value] = Object.entries(valueConfig)[0];
       if (value !== undefined) {
         if (priority) {
-          this.util.setNestedProperty(
+          this.objUtil.setNestedProperty(
             report,
             `${reportValueName}.${priority}`,
             value
           );
         } else {
-          this.util.setNestedProperty(
+          this.objUtil.setNestedProperty(
             report,
             `${reportValueName}.optional`,
             value
@@ -132,7 +132,7 @@ export default class Evaluator {
       setValue("minHours");
       setValue("consecutiveDaysOff", "consecutive");
       //? set Availability
-      let availability = this.util.getPriorityValue(employeeConfig, 'availability');
+      let availability = this.objUtil.getPriorityValue(employeeConfig, 'availability');
       for (let priority in availability) {
         report.availableWorkTimes[priority] =
           availability[priority];
@@ -168,7 +168,7 @@ export default class Evaluator {
     };
    
     if (
-      this.util.hasOwnProperties(
+      this.objUtil.hasOwnProperties(
         employee.availability,
         ["strict", "optional", "important"],
         "||"
@@ -210,7 +210,7 @@ export default class Evaluator {
     }
 
     if (employee.daysOff) {
-      let daysOffConfig = this.util.getPriorityValue(employee, "daysOff");
+      let daysOffConfig = this.objUtil.getPriorityValue(employee, "daysOff");
       for (let priority in daysOffConfig) {
         let daysOff = daysOffConfig[priority]
         .filter((day, index, arr) => arr.indexOf(day) === index)

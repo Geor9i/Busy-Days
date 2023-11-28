@@ -38,7 +38,6 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
     setFormData(initialValues);
   }, [page, priority])
   console.log(initialValues);
-  //AvailabilityForm
 
   async function submitHandler(e) {
     e.preventDefault();
@@ -65,7 +64,6 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
           },
         };
       }
-
       await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
       closeModal();
     }

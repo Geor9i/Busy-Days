@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./employeeListItem.module.css";
 import icon from "../../assets/userIcon_transparent.png";
 import DateUtil from "../../utils/dateUtil.js";
+import EmployeeTools from "../../lib/employeeTools.js";
 
 export default function EmployeeListItem({
   data,
@@ -11,6 +12,7 @@ export default function EmployeeListItem({
   availabilityHandler,
 }) {
   const dateUtil = new DateUtil();
+  const empTools = new EmployeeTools();
   const weekdays = dateUtil.getWeekdays([]);
   const [onDisplay, setDisplay] = useState(false);
   const [style, setStyle] = useState({
@@ -18,63 +20,18 @@ export default function EmployeeListItem({
   });
   const [availability, setAvailability] = useState({
     strict: [],
-    hasStrict: false,
     important: [],
-    hasImportant: false,
     optional: [],
-    hasOptional: false,
 
   });
 
   useEffect(() => {
-    const strictArr = getAvailability("strict");
-    const hasStrict = strictArr.filter((day) => day[1] === "").length < 7;
-    let strict = [...strictArr];
-    if (hasStrict) {
-      strict = strict.map((day) => (day[1] === "" ? [day[0], "off"] : day));
-    }
-    const importantArr = getAvailability("important");
-    const hasImportant = importantArr.filter((day) => day[1] === "").length < 7;
-    let important = [...importantArr];
-    if (hasImportant) {
-      important = important.map((day) => {
-        if (day[1] === "" && hasStrict) {
-          const isOff = strict.find(
-            (strictDay) => strictDay[0] === day[0] && strictDay[1] === "off"
-          );
-          return isOff ? [day[0], "off"] : day;
-        }
-        return [day[0], "off"];
-      });
-    }
-    const optionalArr = getAvailability("optional");
-    const hasOptional = optionalArr.filter((day) => day[1] === "").length < 7;
-    let optional = [...optionalArr];
-    if (hasOptional) {
-      optional = optional.map((day) => {
-        if (day[1] === "" && hasImportant) {
-          const isOff = important.find(
-            (importantDay) =>
-              importantDay[0] === day[0] && importantDay[1] === "off"
-          );
-          return isOff ? [day[0], "off"] : day;
-        } else if (day[1] === "" && hasStrict) {
-          const isOff = strict.find(
-            (strictDay) => strictDay[0] === day[0] && strictDay[1] === "off"
-          );
-          return isOff ? [day[0], "off"] : day;
-        }
-        return [day[0], "off"];
-      });
-    }
-
+    
+    const availability = empTools.calcAvailabilityArr(data.availability)
     setAvailability({
-      strict: strict,
-      hasStrict,
-      important: important,
-      hasImportant,
-      optional: optional,
-      hasOptional
+      strict: availability?.strict ? availability.strict : null,
+      important: availability?.important ? availability.important : null,
+      optional: availability?.optional ? availability.optional : null,
     });
   }, [data]);
 
@@ -102,29 +59,7 @@ export default function EmployeeListItem({
   },
      */
 
-  function getAvailability(option) {
-    const toArr = (obj) => Object.entries(obj);
-    let result = [];
-    if (option === "strict" && data?.availability?.strict) {
-      result = toArr(data.availability.strict);
-    } else if (option === "important" && data?.availability?.important) {
-      result = toArr(data.availability.important);
-    } else if (option === "optional" && data?.availability?.optional) {
-      result = toArr(data.availability.optional);
-    } else {
-      return [...weekdays].map((day) => [day, ""]);
-    }
-    result = result.map((el) => {
-      if (el[1].startTime !== "" && el[1].endTime !== "") {
-        return [el[0], `${el[1].startTime} - ${el[1].endTime}`];
-      }
-      return [el[0], ""];
-    });
-    return result.sort(
-      (a, b) => weekdays.indexOf(a[0]) - weekdays.indexOf(b[0])
-    );
-  }
-
+ 
   return (
     <>
       <div
@@ -222,35 +157,29 @@ export default function EmployeeListItem({
 
                   <tbody>
                     <tr>
-                      {availability.hasStrict && availability.strict.map((day) => {
-                        if (!day[1]) {
-                          return <td className={styles["blank-td"]}>{day[1]}</td>
-                        } else if (day[1] !== "off") {
-                          return <td className={styles["strict"]}>{day[1]}</td>;
+                      {availability.strict && availability.strict.map((day) => {
+                       if (day[1] !== "off") {
+                          return <td key={day[0]} className={styles["strict"]}>{day[1]}</td>;
                         } else {
-                          return <td className={styles["off-td"]}>Day off</td>;
+                          return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                    {availability.hasImportant && availability.important.map((day) => {
-                        if (!day[1]) {
-                          return <td className={styles["blank-td"]}>{day[1]}</td>
-                        } else if (day[1] !== "off") {
-                          return <td className={styles["strict"]}>{day[1]}</td>;
+                    {availability.important && availability.important.map((day) => {
+                       if (day[1] !== "off") {
+                          return <td key={day[0]} className={styles["important"]}>{day[1]}</td>;
                         } else {
-                          return <td className={styles["off-td"]}>Day off</td>;
+                          return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                    {availability.hasOptional && availability.optional.map((day) => {
-                        if (!day[1]) {
-                          return <td className={styles["blank-td"]}>{day[1]}</td>
-                        } else if (day[1] !== "off") {
-                          return <td className={styles["strict"]}>{day[1]}</td>;
+                    {availability.optional && availability.optional.map((day) => {
+                        if (day[1] !== "off") {
+                          return <td key={day[0]} className={styles["optional"]}>{day[1]}</td>;
                         } else {
-                          return <td className={styles["off-td"]}>Day off</td>;
+                          return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
