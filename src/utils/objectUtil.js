@@ -68,6 +68,22 @@ export default class ObjectUtil {
     }, {});
   }
 
+  reduceToArr(obj, {addParams = {}, setId = false} = {}) {
+    return Object.keys(obj).reduce((arr, key, i) => {
+      let element = obj[key];
+      if (addParams) {
+        Object.keys(addParams).forEach(key => {
+          element[key] = addParams[key]
+        })
+      }
+      if (setId) {
+        element.id = i
+      }
+      arr.push(element);
+      return arr;
+    }, [])
+  }
+
   typeof(target) {
     if (target === null) return null;
     if (target === undefined) return undefined;

@@ -21,13 +21,14 @@ import GuestNav from "./components/Navigation/GuestNav.jsx";
 import UserNav from "./components/Navigation/UserNav.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import GuestContent from "./components/GuestHome/GuestContent.jsx";
-import Members from "./components/Members/Members.jsx";
 import LoginPage from "./components/Login/loginPage.jsx";
 import SignUpPage from "./components/SignUp/SignUpPage.jsx";
 import NotFound from "./components/Errors/NotFound.jsx";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
 import EventsView from "./components/EventsView/EventView.jsx";
+import Clients from "./components/Clients/Clients.jsx";
+import Account from "./components/Account/Account.jsx";
 
 const app = initializeApp(firebaseConfig);
 const fireService = new FirebaseService(app);
@@ -84,6 +85,7 @@ function App() {
         setUserData,
         userData,
         setMainLoader,
+        app
       }}
     >
       {user ? <UserNav user={user} resetValues={initialValues} /> : <GuestNav />}
@@ -91,10 +93,10 @@ function App() {
       <main className={styles["main"]}>
         <Routes>
           <Route path="/" element={<GuestContent />} />
-          <Route path="/members" element={<Members />} />
+          <Route path="/clients" element={<Clients />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
-          <Route path="/account" element={<Members />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/business" element={<BusinessPage />} />
           <Route path="/employee-view" element={<EmployeeView />} />
           <Route path="/events-view" element={<EventsView />} />

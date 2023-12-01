@@ -7,7 +7,6 @@ import {
   onSnapshot,
   deleteDoc,
   deleteField,
-  collection
 } from "firebase/firestore";
 import {
   getAuth,
@@ -93,10 +92,10 @@ export default class FirebaseService {
       throw new Error(err);
     }
   }
-  async setPublicDoc(collectionName, data, publicId) {
+  async setPublicDoc(collectionName, data, docKey) {
     try {
-      let documentRef = doc(this.db, collectionName, publicId);
-      await setDoc(documentRef, data);
+      let documentRef = doc(this.db, collectionName, docKey);
+      await setDoc(documentRef, data, { merge: true });
       console.log("Data written to Firestore successfully!");
     } catch (err) {
       throw new Error(err);
@@ -130,18 +129,18 @@ export default class FirebaseService {
   }
   async fetchOne(collectionName) {
     const uid = this.uid;
-      try {
-        const documentRef = doc(this.db, collectionName, uid);
-        const snapShot = await getDoc(documentRef);
-        if (snapShot.exists()) {
-          console.log("Data Fetched!");
-          return snapShot.data()
-        } else {
-          return null
-        }
-      } catch (err) {
-        throw new Error(err);
+    try {
+      const documentRef = doc(this.db, collectionName, uid);
+      const snapShot = await getDoc(documentRef);
+      if (snapShot.exists()) {
+        console.log("Data Fetched!");
+        return snapShot.data();
+      } else {
+        return null;
       }
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   onSnapShot(collectionName, state, ...setState) {

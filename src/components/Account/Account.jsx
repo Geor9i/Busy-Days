@@ -1,9 +1,7 @@
-const Members = () => {
+export default function Account() {
     return (
         <>
         
         </>
     )
 }
-
-export default Members;

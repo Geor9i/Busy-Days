@@ -11,7 +11,11 @@ import ObjectUtil from "../../utils/objectUtil.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
-import { BUSINESS_KEY, GUEST_KEY } from "../../../config/constants.js";
+import {
+  BUSINESS_KEY,
+  CLIENTS_KEY,
+  GUEST_KEY,
+} from "../../../config/constants.js";
 
 const BusinessPage = () => {
   const objUtil = new ObjectUtil();
@@ -30,7 +34,7 @@ const BusinessPage = () => {
       : {
           name: "",
           description: "",
-          image: "http",
+          image: "",
           openTimes: objUtil.reduceToObj(weekdays, {
             startTime: "",
             endTime: "",
@@ -48,16 +52,16 @@ const BusinessPage = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    setMainLoader(true);
     try {
       if (validateForm(businessData)) {
+        setMainLoader(true);
         // id = new Date().getTime();
         const finalData = finalizeFormData(businessData);
         //Check if doc exists
         let existing = await fireService.fetchOne(BUSINESS_KEY);
-        let publicId; 
+        let publicId;
         if (existing) {
-           publicId = existing.publicId 
+          publicId = existing.publicId;
         } else {
           publicId = new Date().getTime();
         }
@@ -66,11 +70,13 @@ const BusinessPage = () => {
         await fireService.setDoc(BUSINESS_KEY, finalData);
         //Add public details to Guest collection
         const publicData = {
-          name: finalData.name,
-          description: finalData.description,
-          image: finalData.image,
-        }
-        await fireService.setPublicDoc(GUEST_KEY, publicData, publicId);
+          [publicId]: {
+            name: finalData.name,
+            description: finalData.description,
+            image: finalData.image,
+          },
+        };
+        await fireService.setPublicDoc(GUEST_KEY, publicData, CLIENTS_KEY);
         setUserData((state) => ({
           ...state,
           [BUSINESS_KEY]: { ...finalData },
@@ -79,11 +85,13 @@ const BusinessPage = () => {
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      setMainLoader(false);
     }
-    setMainLoader(false);
 
     function validateForm(formData) {
-      const { name, openTimes, positionHierarchy, description, image } = formData;
+      const { name, openTimes, positionHierarchy, description, image } =
+        formData;
       if (name.length < 2) {
         throw new Error("Business name must be at least 2 characters long!");
       }
@@ -92,7 +100,9 @@ const BusinessPage = () => {
       }
 
       if (description.length < 10) {
-        throw new Error("Business description must be at least 10 characters long!");
+        throw new Error(
+          "Business description must be at least 10 characters long!"
+        );
       }
       if (image.length < 10) {
         throw new Error("Image link must be at least 10 characters long!");
@@ -101,7 +111,6 @@ const BusinessPage = () => {
       if (!pattern.test(image)) {
         throw new Error("Image link must start with http of https!");
       }
-      
 
       let closedDays = 0;
       for (let day in openTimes) {
@@ -364,6 +373,7 @@ const BusinessPage = () => {
               required
               type="text"
               maxLength="30"
+              name="name"
               value={businessData.name}
               onChange={onChangeDescriptionHandler}
             />

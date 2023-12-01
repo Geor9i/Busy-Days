@@ -113,7 +113,7 @@ export default function EmployeeView() {
           const goAhead = confirm("Are you sure?");
           if (goAhead) {
             setLoading(true);
-            const employeeData = finalizeFormData(formData);
+            const employeeData = finalizeFormData(formData, oldData);
             //check if doc exists
             const date = new Date().toISOString();
             const finalData = {
@@ -179,7 +179,7 @@ export default function EmployeeView() {
     }
     return true;
   }
-  function finalizeFormData(formData) {
+  function finalizeFormData(formData, oldData) {
     let { firstName, lastName, phoneNumber, email, contractType, positions } =
       formData;
     firstName = stringUtil.toPascalCase(firstName);
@@ -194,6 +194,14 @@ export default function EmployeeView() {
       contractType,
       positions,
     };
+
+    if (oldData.hasOwnProperty("availability")) {
+      result.availability = oldData.availability;
+    }
+    if (oldData.hasOwnProperty("daysOff")) {
+      result.daysOff = oldData.daysOff;
+    }
+
     return result;
   }
 
@@ -278,8 +286,13 @@ export default function EmployeeView() {
     searchHandler
   );
 
-  const availabilityHandler = (id, data ) => {
-    setAvailabilityModalState((state) => ({ ...state, on: !state.on, id: id, data: data}));
+  const availabilityHandler = (id, data) => {
+    setAvailabilityModalState((state) => ({
+      ...state,
+      on: !state.on,
+      id: id,
+      data: data,
+    }));
   };
 
   return (
