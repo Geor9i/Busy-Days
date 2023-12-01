@@ -1,9 +1,9 @@
-import styles from "./editProfileModal.module.css";
+import styles from "./editEventModal.module.css";
 import useForm from "../../../../hooks/useForm.js";
 import FormUtil from "../../../../utils/formUtil.js";
 import ObjectUtil from "../../../../utils/objectUtil.js";
 import deleteIcon from "../../../../assets/delete_user.png";
-export default function EditProfileModal({ onSubmitHandler, roles, oldData, id }) {
+export default function EditEventModal({ onSubmitHandler, roles, oldData, id }) {
   const formUtil = new FormUtil();
   const objectUtil = new ObjectUtil();
   const formKeys = formUtil.formKeys({

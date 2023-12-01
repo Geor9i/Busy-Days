@@ -8,7 +8,7 @@
   .user-nav {
     position: fixed;
     width: 100%;
-    background-color: rgba(250, 249, 245, 0);
+    background-color: rgba(235, 235, 235, 0);
     z-index: 100;
   }
 
@@ -63,13 +63,13 @@
     justify-content:left;
     width: 20vw;
     height: auto;
-    border: 1px solid var(--link-color);
+    border: 1px solid black;
     z-index: 2;
     top: 15px;
     right: -10px;
     margin: 3rem;
     border-radius: 3%;
-    background-color: rgba(250, 249, 245, 0);
+    background-color: rgb(250, 249, 245);
 }
 
 .user-menu a {

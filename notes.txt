@@ -1,0 +1,11 @@
+EventManager - 
+
+Used to create events 
+
+Events will be 3 types:
+ * time window event
+ * pre/post requisite event
+ * calendar event
+
+
+ Events must have a priority setting for  

@@ -27,6 +27,7 @@ import SignUpPage from "./components/SignUp/SignUpPage.jsx";
 import NotFound from "./components/Errors/NotFound.jsx";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
+import EventsView from "./components/EventsView/EventView.jsx";
 
 const app = initializeApp(firebaseConfig);
 const fireService = new FirebaseService(app);
@@ -96,6 +97,7 @@ function App() {
           <Route path="/account" element={<Members />} />
           <Route path="/business" element={<BusinessPage />} />
           <Route path="/employee-view" element={<EmployeeView />} />
+          <Route path="/events-view" element={<EventsView />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

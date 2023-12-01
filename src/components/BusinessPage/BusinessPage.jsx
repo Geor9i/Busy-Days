@@ -29,6 +29,8 @@ const BusinessPage = () => {
       ? userData[BUSINESS_KEY]
       : {
           name: "",
+          description: "",
+          image: "http",
           openTimes: objUtil.reduceToObj(weekdays, {
             startTime: "",
             endTime: "",
@@ -44,7 +46,6 @@ const BusinessPage = () => {
     roleIndex: "",
   });
 
-
   const submitHandler = async (e) => {
     e.preventDefault();
     setMainLoader(true);
@@ -52,7 +53,10 @@ const BusinessPage = () => {
       if (validateForm(businessData)) {
         const finalData = finalizeFormData(businessData);
         await fireService.setDoc(BUSINESS_KEY, finalData);
-        setUserData((state) => ({ ...state, [BUSINESS_KEY]: { ...finalData } }));
+        setUserData((state) => ({
+          ...state,
+          [BUSINESS_KEY]: { ...finalData },
+        }));
         navigate("/");
       }
     } catch (err) {
@@ -61,16 +65,26 @@ const BusinessPage = () => {
     setMainLoader(false);
 
     function validateForm(formData) {
-      const { name, openTimes, positionHierarchy } = formData;
-      if (typeof name !== "string") {
-        throw new Error("Name is not of type String");
-      }
+      const { name, openTimes, positionHierarchy, description, image } = formData;
       if (name.length < 2) {
         throw new Error("Business name must be at least 2 characters long!");
       }
       if (name.length > 30) {
         throw new Error("Business name cannot exceed 30 characters!");
       }
+
+      if (description.length < 10) {
+        throw new Error("Business description must be at least 10 characters long!");
+      }
+      if (image.length < 10) {
+        throw new Error("Image link must be at least 10 characters long!");
+      }
+      const pattern = /^https?:\/\/\S+$/i;
+      if (!pattern.test(image)) {
+        throw new Error("Image link must start with http of https!");
+      }
+      
+
       let closedDays = 0;
       for (let day in openTimes) {
         let weekday = openTimes[day];
@@ -165,9 +179,9 @@ const BusinessPage = () => {
     }));
   };
 
-  const onChangeNameHandler = (e) => {
-    const value = e.target.value;
-    setBusinessData((state) => ({ ...state, name: value }));
+  const onChangeDescriptionHandler = (e) => {
+    const { value, name } = e.currentTarget;
+    setBusinessData((state) => ({ ...state, [name]: value }));
   };
 
   const addPositionHandler = (e) => {
@@ -329,11 +343,34 @@ const BusinessPage = () => {
           <div className={styles["name-container"]}>
             <h1>Business Name</h1>
             <input
+              required
               type="text"
               maxLength="30"
               value={businessData.name}
-              onChange={onChangeNameHandler}
+              onChange={onChangeDescriptionHandler}
             />
+          </div>
+          <div className={styles["details-container"]}>
+            <div className={styles["description-container"]}>
+              <label htmlFor="description">Describe your business!</label>
+              <textarea
+                required
+                value={businessData.description}
+                onChange={onChangeDescriptionHandler}
+                maxLength={200}
+                name="description"
+              ></textarea>
+            </div>
+            <div className={styles["image-container"]}>
+              <label htmlFor="image">Image URL</label>
+              <input
+                required
+                value={businessData.image}
+                onChange={onChangeDescriptionHandler}
+                name="image"
+                type="text"
+              />
+            </div>
           </div>
           <div className={styles["opening-times-container"]}>
             <h2>Opening Times</h2>
