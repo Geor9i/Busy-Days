@@ -117,4 +117,14 @@ export default class EmployeeTools {
     }
     return result;
   }
+
+  contractTypeFormat(contractType) {
+    const types = {
+      fullTime: 'Full-Time',
+      partTime: 'Part-Time',
+      overTime: 'Overtime',
+      student: 'Student',
+    }
+    return types[contractType]
+  }
 }

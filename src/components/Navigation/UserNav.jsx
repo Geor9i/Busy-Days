@@ -54,7 +54,7 @@ const UserNav = ({ user, resetValues }) => {
               Busy Days
             </Link>
           </div>
-          <Link className={styles["link"]} to="/scheduler">
+          <Link className={styles["link"]} to="/scheduler-menu">
             Scheduler
           </Link>
           <Link className={styles["link"]} to="/employee-view">

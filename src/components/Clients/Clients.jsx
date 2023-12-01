@@ -36,7 +36,7 @@ export default function Clients() {
     <>
       <div className={styles["clients-container"]}>
         <div className={styles["title-container"]}>
-          <h1>Our Client List</h1>
+          <h1>Our Clients</h1>
         </div>
         <div className={styles["clients-content-container"]}>
           <div className={styles["clients-content"]}>

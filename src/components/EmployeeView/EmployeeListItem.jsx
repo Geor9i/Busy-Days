@@ -69,7 +69,7 @@ export default function EmployeeListItem({
       >
         <div className={styles["content-cell"]}>{data.firstName}</div>
         <div className={styles["content-cell"]}>{data.lastName}</div>
-        <div className={styles["content-cell"]}>{data.contractType}</div>
+        <div className={styles["content-cell"]}>{empTools.contractTypeFormat(data.contractType)}</div>
         <div className={styles["content-cell"]}>
           {data.positions.join(", ")}
         </div>
@@ -112,7 +112,7 @@ export default function EmployeeListItem({
                 </div>
                 <div className={styles["text-container"]}>
                   <strong>Contract Type: </strong>
-                  <p>{data.contractType}</p>
+                  <p>{empTools.contractTypeFormat(data.contractType)}</p>
                 </div>
                 <div className={styles["text-container"]}>
                   <strong>Job roles :</strong>
