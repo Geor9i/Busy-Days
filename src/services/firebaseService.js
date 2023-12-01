@@ -93,6 +93,15 @@ export default class FirebaseService {
       throw new Error(err);
     }
   }
+  async setPublicDoc(collectionName, data, publicId) {
+    try {
+      let documentRef = doc(this.db, collectionName, publicId);
+      await setDoc(documentRef, data);
+      console.log("Data written to Firestore successfully!");
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
 
   async checkDoc(collectionName) {
     const documentRef = doc(this.db, collectionName, this.uid);
@@ -118,6 +127,21 @@ export default class FirebaseService {
     }
     console.log("Data Fetched!");
     return result;
+  }
+  async fetchOne(collectionName) {
+    const uid = this.uid;
+      try {
+        const documentRef = doc(this.db, collectionName, uid);
+        const snapShot = await getDoc(documentRef);
+        if (snapShot.exists()) {
+          console.log("Data Fetched!");
+          return snapShot.data()
+        } else {
+          return null
+        }
+      } catch (err) {
+        throw new Error(err);
+      }
   }
 
   onSnapShot(collectionName, state, ...setState) {

@@ -11,7 +11,7 @@ import ObjectUtil from "../../utils/objectUtil.js";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
-import { BUSINESS_KEY } from "../../../config/constants.js";
+import { BUSINESS_KEY, GUEST_KEY } from "../../../config/constants.js";
 
 const BusinessPage = () => {
   const objUtil = new ObjectUtil();
@@ -51,8 +51,26 @@ const BusinessPage = () => {
     setMainLoader(true);
     try {
       if (validateForm(businessData)) {
+        // id = new Date().getTime();
         const finalData = finalizeFormData(businessData);
+        //Check if doc exists
+        let existing = await fireService.fetchOne(BUSINESS_KEY);
+        let publicId; 
+        if (existing) {
+           publicId = existing.publicId 
+        } else {
+          publicId = new Date().getTime();
+        }
+        finalData.publicId = publicId;
+        // Set Business collection
         await fireService.setDoc(BUSINESS_KEY, finalData);
+        //Add public details to Guest collection
+        const publicData = {
+          name: finalData.name,
+          description: finalData.description,
+          image: finalData.image,
+        }
+        await fireService.setPublicDoc(GUEST_KEY, publicData, publicId);
         setUserData((state) => ({
           ...state,
           [BUSINESS_KEY]: { ...finalData },
