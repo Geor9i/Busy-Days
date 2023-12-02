@@ -39,22 +39,22 @@ export default class DateUtil {
     }
   }
 
-  getMonth(index) {
+  getMonth(index, { full = false } = {}) {
     let months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
+      "January",
+      "February",
+      "March",
+      "April",
       "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
-    return months[index];
+    return full ? months[index] : months[index].slice(0, 3);
   }
 
   op(date) {
@@ -123,7 +123,7 @@ export default class DateUtil {
         }
         return options.toString ? this.op(date).format() : date;
       },
-      getWeekSpread: ({ toString = false } = {}) => {
+      getWeekSpread: (options = {}) => {
         if (typeof this.result !== "object") {
           this.result = this.op(this.result).format();
         }
@@ -132,11 +132,26 @@ export default class DateUtil {
           .map((_, index) => {
             let newDate = new Date(this.result);
             newDate.setDate(this.result.getDate() + index);
-            newDate = toString ? this.op(newDate).format() : newDate;
+            newDate = options.string ? this.op(newDate).format() : newDate;
             return newDate;
           });
       },
     };
+  }
+
+  getDateOrdinal(num) {
+    let number = String(num);
+    const ordinals = {
+      1: "st",
+      2: "nd",
+      3: "rd",
+    };
+    if (ordinals[number]) {
+      return ordinals[number];
+    } else if (num !== 0) {
+      return 'th';
+    }
+    return null;
   }
 
   consecutiveDays(daysArr) {

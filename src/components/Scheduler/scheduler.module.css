@@ -3,30 +3,172 @@
 }
 
 :root {
-    --border-prop: 2px solid black;
-    --table-darks: rgb(63, 63, 63);
-    --table-lights: rgb(175, 175, 175);;
+    --border-prop: 1px solid black;
+    --table-darks: rgb(54, 54, 54);
+    --table-lights: rgb(175, 175, 175);
+    --table-small-text: 1rem;
+    --table-large-text: 1.5rem;
 }
 
-.schedule-container {
+.page-container {
+    padding: 0 1vw;
+    margin-top: 5vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 90%;
-    height: 90%;
-    background-color: blue;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
 }
-.table-container {
+
+.menu-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 10%;
+    background-color: gray;
+}
+
+.content-container {
+    display: grid;
+    align-items: start;
+    grid-template-columns: 70% 1fr;
+    justify-items: center;
+    width: 100%;
+    height: 100%;
+    max-height: 80vh;
+}
+
+.control-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+    height: 60%;
+    background-color: rgb(202, 202, 202);
+}
+
+
+.control-title-container {
+    width: 100%;
+    height: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-bottom: 3px solid black;
+    background-color: black;
+}
+
+.message-screen {
+    width: 100%;
+    height: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: rgb(231, 231, 231);
+}
+
+.message-screen p {
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.message-screen strong {
+    color: red;
+    font-size: 1.5rem;
+}
+
+.message-stack {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background-color: rgb(124, 124, 124);
+    min-height: 20vh;
+    background-color: rgb(255, 255, 255);
+    border-bottom: 2px solid black;
 }
 
-.manager-table {
+.message-header-container {
+    width: 100%;
+    height: 20px;
+    background-color: rgb(54, 54, 54);
+    display: grid;
+    grid-template-columns: 25% 25% 50%;
+    align-items: center;
+    justify-items: center;
+    flex-direction: column;
+}
+
+.message-th {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: white;
+}
+
+.message-th:nth-child(even) {
+    border: 1px dotted white;
+}
+
+.message-content-container {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.control-title-container p {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.schedule-container {
+    display: flex;
+    align-items: start;
+    justify-content: flex-start;
+    width: 70%;
+    max-width: 70vw;
+    height: auto;
+    padding: 0 2vw;
+    background-color: blue;
+}
+.title-header {
+    width: 100%;
+    height: 5vh;
+    background-color: var(--table-darks);
+    border-bottom: 2px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 5px;
+}
+
+.title-header p {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.table-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+}
+
+.shift-table {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -77,7 +219,7 @@
 .th-empty {
     width: 100%;
     height: 100%;
-    background-color: rgb(63, 63, 63);
+    background-color: var(--table-darks);
 }
 .th:nth-child(even) {
      border-left: 1px solid black; 
@@ -91,4 +233,18 @@
     flex-direction: column;
     width: 100%;
     height: auto;
+    max-height: 100%;
+    overflow: auto;
+    max-height: 50vh;
+}
+
+.table-small-text {
+    font-size: var(--table-small-text);
+    text-align: center;
+}
+
+.table-large-text {
+    font-size: var(--table-large-text);
+    font-weight: bold;
+    text-align: center;
 }

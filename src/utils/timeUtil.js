@@ -169,14 +169,30 @@ export default class TimeUtil {
           return Number(time.replace(":", ""));
         },
         toTimeFormat(string){
-          let timeNumber = Number(string.split(':').join(''))
+          string = string.split(':').join('');
+          let timeNumber = Number(string)
           if (isNaN(timeNumber)) {
             throw new Error(`${string} is not in a valid time format`)
           }
+
           if (string.length >= 4) {
             if (timeNumber > 2359 || timeNumber < 0) {
               string = '0000'
             }
+
+            if (string.length > 2) {
+              let hours = string.slice(0, 2);
+              let minutes = string.slice(2);
+              let [tens, units] = minutes.split('');
+              if (tens) {
+                tens = Number(tens) > 5 ? 5 : tens;
+              }
+              if (units) {
+                units = Number(units) > 9 ? 9 : units;
+              }
+              string = `${hours}${tens}${units}`
+            }
+
             string = string.split(':').join('')
             return `${string.slice(0,2)}:${string.slice(2, 4)}`
           }
