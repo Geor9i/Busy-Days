@@ -103,12 +103,15 @@ export default class DateUtil {
 
       fromISO(date) {
         const result = new Date(date);
-        return `${result.getDate()}-${result.getMonth()}-${result.getFullYear()}`
+        return `${result.getDate()}-${result.getMonth()}-${result.getFullYear()}`;
       },
 
       getMonday: (options = {}) => {
         let step = options.next ? 1 : -1;
-        let date = this.op(this.result).format();
+        let date = this.result;
+        if (typeof date !== "object") {
+          date = this.op(date).format();
+        }
         if (date.getDay() === 1 && !options.previous && !options.next) {
           return date;
         }
@@ -118,7 +121,20 @@ export default class DateUtil {
           date = new Date(date.setDate(date.getDate() + step));
           day = date.getDay();
         }
-        return date;
+        return options.toString ? this.op(date).format() : date;
+      },
+      getWeekSpread: ({ toString = false } = {}) => {
+        if (typeof this.result !== "object") {
+          this.result = this.op(this.result).format();
+        }
+        return Array(7)
+          .fill(0)
+          .map((_, index) => {
+            let newDate = new Date(this.result);
+            newDate.setDate(this.result.getDate() + index);
+            newDate = toString ? this.op(newDate).format() : newDate;
+            return newDate;
+          });
       },
     };
   }
@@ -131,7 +147,10 @@ export default class DateUtil {
 
     for (let day of daysArr) {
       let rotated = this.util.rotateArr(weekGuide, { element: day });
-      let backElement = this.util.rotateArr(rotated, { left: false, amount: 1 })[0];
+      let backElement = this.util.rotateArr(rotated, {
+        left: false,
+        amount: 1,
+      })[0];
       let frontElement = this.util.rotateArr(rotated, { amount: 1 })[0];
       if (!daysArr.includes(backElement) && !daysArr.includes(frontElement)) {
         return false;
@@ -139,5 +158,4 @@ export default class DateUtil {
     }
     return true;
   }
-
 }

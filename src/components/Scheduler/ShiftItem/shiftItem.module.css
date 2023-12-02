@@ -1,0 +1,29 @@
+
+.tr {
+    display: grid;
+    grid-template-columns: 15% repeat(7, 1fr)  repeat(3, 5%);
+    align-items: center;
+    justify-items: center;
+    background-color: var(--table-darks);
+    width: 100%;
+    height: auto;
+    border-bottom: var(--border-prop);
+}
+
+
+.td {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0.25vh 0;
+    color: white;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.td:nth-child(even) {
+    border-left: 1px solid black; 
+   border-right: 1px solid black; 
+}

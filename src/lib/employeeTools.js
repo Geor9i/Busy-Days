@@ -1,7 +1,7 @@
+import { BUSINESS_KEY, ROSTER_KEY } from "../../config/constants.js";
 import DateUtil from "../utils/dateUtil.js";
 import ObjectUtil from "../utils/objectUtil.js";
 import TimeUtil from "../utils/timeUtil.js";
-
 export default class EmployeeTools {
   constructor() {
     this.dateUtil = new DateUtil();
@@ -104,7 +104,8 @@ export default class EmployeeTools {
 
       let allOffDays =
         result[priority] &&
-        result[priority].filter(([day, time]) => time === "" || time === "off").length > 6;
+        result[priority].filter(([day, time]) => time === "" || time === "off")
+          .length > 6;
       if (allOffDays) {
         result[priority] = null;
       }
@@ -120,11 +121,33 @@ export default class EmployeeTools {
 
   contractTypeFormat(contractType) {
     const types = {
-      fullTime: 'Full-Time',
-      partTime: 'Part-Time',
-      overTime: 'Overtime',
-      student: 'Student',
+      fullTime: "Full-Time",
+      partTime: "Part-Time",
+      overTime: "Overtime",
+      student: "Student",
+    };
+    return types[contractType];
+  }
+
+  getStaff(data, type = "management") {
+    const positions = data[BUSINESS_KEY].positionHierarchy;
+    const sortedTypes = positions.reduce((acc, curr) => {
+      acc[curr.title.toUpperCase()] = curr.responsibility.toLowerCase();
+      return acc;
+    }, {});
+    const roster = data[ROSTER_KEY];
+    const result = {};
+    for (let entry in roster) {
+      const employee = roster[entry];
+      const isManager = employee.positions.find(
+        (pos) => sortedTypes[pos] === "management"
+      );
+      if (type === "management" && isManager) {
+        result[entry] = { ...roster[entry] };
+      } else if (type === "staff" && !isManager) {
+        result[entry] = { ...roster[entry] };
+      }
     }
-    return types[contractType]
+    return result;
   }
 }

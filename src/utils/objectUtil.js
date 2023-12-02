@@ -68,7 +68,7 @@ export default class ObjectUtil {
     }, {});
   }
 
-  reduceToArr(obj, {addParams = {}, setId = false} = {}) {
+  reduceToArr(obj, {addParams = {}, setId = false, ownId = false} = {}) {
     return Object.keys(obj).reduce((arr, key, i) => {
       let element = obj[key];
       if (addParams) {
@@ -78,6 +78,8 @@ export default class ObjectUtil {
       }
       if (setId) {
         element.id = i
+      } else if (ownId) {
+        element.id = key
       }
       arr.push(element);
       return arr;
