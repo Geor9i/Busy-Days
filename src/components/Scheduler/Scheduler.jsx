@@ -1,22 +1,23 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import DateUtil from "../../utils/dateUtil.js";
 import StringUtil from "../../utils/stringUtil.js";
 import ShiftItem from "./ShiftItem/ShiftItem.jsx";
 import styles from "./scheduler.module.css";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import ObjectUtil from "../../utils/objectUtil.js";
-import EmployeeTools from "../../lib/employeeTools.js";
 import MessageListItem from "./MessageListItem/MessageListItem.jsx";
 import Modal from "../misc/modal/Modal.jsx";
 import ShiftModal from "./modals/ShiftModal.jsx";
-import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
+import { BUSINESS_KEY } from "../../../config/constants.js";
 import Rota from "../../lib/rota.js";
+import TimeUtil from "../../utils/timeUtil.js";
 
 export default function Scheduler() {
   const { userData, fireService } = useContext(GlobalCtx);
   const stringUtil = new StringUtil();
   const objUtil = new ObjectUtil();
   const dateUtil = new DateUtil();
+  const timeUtil = new TimeUtil();
   let rotaTools = new Rota(userData);
   let today = new Date();
   let [managerTemplate, staffTemplate] = rotaTools.getRotaTemplate();
@@ -63,6 +64,26 @@ export default function Scheduler() {
     console.log({ empData, shiftData });
 
     if (formData) {
+      if (
+        (formData.startTime && !formData.endTime) ||
+        (!formData.startTime && formData.endTime)
+      ) {
+        throw new Error("Please provide a start time and an end time!");
+      }
+
+      if (timeUtil.time(formData.startTime).isBiggerEqThan(formData.endTime)) {
+        throw new Error("Start time must always be before the end time!");
+      }
+
+      const timeDifference = timeUtil
+        .math()
+        .deduct(formData.endTime, formData.startTime);
+      let minutes = timeUtil.time().toMinutes(timeDifference);
+      if (minutes < 90) {
+        throw new Error("Minimum shift length must be 01:30 hours!");
+      }
+      console.log(minutes);
+
       const id = empData.id;
       const staffCollection = empData.manager ? "managers" : "staff";
       const employeeIndex = rota[staffCollection].findIndex(
@@ -74,16 +95,19 @@ export default function Scheduler() {
         [staffCollection]: [
           ...rota[staffCollection].map((employee, i) => {
             if (i === employeeIndex) {
-              return {...employee, shifts: [
-                ...employee.shifts.map((shift, i) =>
-                  i === shiftIndex ? [weekday, formData] : shift
-                ),
-              ]};
+              return {
+                ...employee,
+                shifts: [
+                  ...employee.shifts.map((shift, i) =>
+                    i === shiftIndex ? [weekday, formData] : shift
+                  ),
+                ],
+              };
             }
-            return {...employee};
+            return { ...employee };
           }),
         ],
-      }
+      };
       setRota(newRotaState);
       setShiftModalState((state) => ({ on: !state.on }));
     } else if (empData) {
