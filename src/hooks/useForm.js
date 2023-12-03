@@ -40,9 +40,9 @@ export default function useForm(initialValues, submitHandler, confirmHandler) {
     setFormData((state) => ({ ...state, [name]: value }));
   };
 
-  const onSubmit = async (e, paramObj) => {
+  const onSubmit = async (e, paramObj = {}) => {
     e.preventDefault();
-    const hasOptions = !!paramObj.options;
+    const hasOptions = paramObj.options && Object.keys(paramObj.options).length > 0;
     if (confirmHandler) {
       try {
         const hasConfirmed = await Promise.resolve(confirmHandler());
