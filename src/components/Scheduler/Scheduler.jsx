@@ -69,10 +69,10 @@ export default function Scheduler() {
         (employee) => employee.id === id
       );
       const shiftIndex = dateUtil.getWeekdays([]).indexOf(weekday);
-      setRota((state) => ({
-        ...state,
+      const newRotaState = {
+        ...rota,
         [staffCollection]: [
-          ...state[staffCollection].map((employee, i) => {
+          ...rota[staffCollection].map((employee, i) => {
             if (i === employeeIndex) {
               return {...employee, shifts: [
                 ...employee.shifts.map((shift, i) =>
@@ -83,7 +83,8 @@ export default function Scheduler() {
             return {...employee};
           }),
         ],
-      }));
+      }
+      setRota(newRotaState);
       setShiftModalState((state) => ({ on: !state.on }));
     } else if (empData) {
       setShiftModalState((state) => ({

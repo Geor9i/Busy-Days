@@ -2,16 +2,16 @@ import useForm from "../../../hooks/useForm.js";
 import StringUtil from "../../../utils/stringUtil.js";
 import TimeUtil from "../../../utils/timeUtil.js";
 import styles from "./shiftModal.module.css";
+import bin from "../../../assets/bin.png";
 
 export default function ShiftModal({ data, handler, shiftData, weekday }) {
   const timeUtil = new TimeUtil();
   const stringUtil = new StringUtil();
-  const initialPosition = data.positions[0]
+  const initialPosition = data.positions[0];
   const initialValues = {
     startTime: shiftData.startTime ? shiftData.startTime : "",
     endTime: shiftData.endTime ? shiftData.endTime : "",
     position: shiftData.position ? shiftData.position : initialPosition,
-     
   };
   const { formData, onSubmit, onChange, onBlur } = useForm(
     initialValues,
@@ -29,11 +29,29 @@ export default function ShiftModal({ data, handler, shiftData, weekday }) {
   ];
 
   return (
-    <form
-      onSubmit={(e) => onSubmit(e, { empData: { ...data }, weekday })}
-      className={styles["shift-container"]}
-    >
-      <h4>Select Shift Times</h4>
+    <form className={styles["shift-container"]}>
+      <div className={styles["header-container"]}>
+        <h4>Select Shift Times</h4>
+        <button
+          onClick={(e) =>
+            onSubmit(e, {
+              empData: { ...data },
+              weekday,
+              options: {
+                reset: true,
+                data: {
+                  startTime: "",
+                  endTime: "",
+                  position: "",
+                },
+              },
+            })
+          }
+          className={styles["delete-btn"]}
+        >
+          <img className={styles["bin-image"]} src={bin} alt="del" />
+        </button>
+      </div>
       <div className={styles["shift-input-main-container"]}>
         <div className={styles["shift-input-container"]}>
           <label htmlFor="startTime">Start</label>
@@ -72,7 +90,12 @@ export default function ShiftModal({ data, handler, shiftData, weekday }) {
       </div>
 
       <div className={styles["confirm-btn-container"]}>
-        <button className={styles["confirm-btn"]}>Confirm</button>
+        <button
+          onClick={(e) => onSubmit(e, { empData: { ...data }, weekday })}
+          className={styles["confirm-btn"]}
+        >
+          Confirm
+        </button>
       </div>
     </form>
   );
