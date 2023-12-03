@@ -179,7 +179,7 @@ export default function EmployeeView() {
     }
     return true;
   }
-  function finalizeFormData(formData, oldData) {
+  function finalizeFormData(formData, oldData = {}) {
     let { firstName, lastName, phoneNumber, email, contractType, positions } =
       formData;
     firstName = stringUtil.toPascalCase(firstName);
