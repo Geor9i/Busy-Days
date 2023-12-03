@@ -17,7 +17,6 @@ export default class EmployeeTools {
       important: data.important ? data.important : null,
       optional: data.optional ? data.optional : null,
     };
-    console.log(priorityData);
     for (let priority in priorityData) {
       let currentData = priorityData[priority];
       if (currentData) {
@@ -149,5 +148,17 @@ export default class EmployeeTools {
       }
     }
     return Object.keys(result).length > 0 ? result : null;
+  }
+
+  getCurrentEmployeePositions(positionHierarchy, employeePositions) {
+    const allPositions = positionHierarchy.map((pos) => pos.title);
+    let result = [...employeePositions];
+    const hierarchy = positionHierarchy
+    let substitutableRoles = positionHierarchy.filter(pos => pos.canSubstitute);
+    for (let employeePosition of employeePositions) {
+      if (substitutableRoles.includes(employeePosition)) {
+        let employeePositionIndex = allPositions.indexOf(employeePosition)
+      }
+    }
   }
 }

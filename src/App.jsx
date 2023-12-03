@@ -70,7 +70,7 @@ function App() {
 
     return () => unsubscribe();
   }, [user]);
-  console.log(userData);
+  // console.log(userData);
 
   if (isMainLoading) {
     return (

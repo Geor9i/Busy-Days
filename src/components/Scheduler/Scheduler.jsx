@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import DateUtil from "../../utils/dateUtil.js";
 import StringUtil from "../../utils/stringUtil.js";
 import ShiftItem from "./ShiftItem/ShiftItem.jsx";
@@ -7,6 +7,9 @@ import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import ObjectUtil from "../../utils/objectUtil.js";
 import EmployeeTools from "../../lib/employeeTools.js";
 import MessageListItem from "./MessageListItem/MessageListItem.jsx";
+import Modal from "../misc/modal/Modal.jsx";
+import ShiftModal from "./modals/ShiftModal.jsx";
+import { BUSINESS_KEY } from "../../../config/constants.js";
 
 export default function Scheduler() {
   const stringUtil = new StringUtil();
@@ -14,7 +17,21 @@ export default function Scheduler() {
   const empTools = new EmployeeTools();
   const dateUtil = new DateUtil();
   let today = new Date();
-  let startDate = dateUtil.op(today).getMonday();
+  let todaysDate = dateUtil.op(today).getMonday();
+  const [startDate, setStartDate] = useState(todaysDate);
+  const [shiftModalState, setShiftModalState] = useState({
+    on: false,
+    empData: {},
+    index: 0,
+  });
+  const initialShiftStyles = {
+    width: "15vw",
+    height: "16vh",
+    position: "absolute",
+    borderRadius: "23px"
+  };
+  const [shiftModalStyle, setShiftModalStyle] = useState(initialShiftStyles);
+  console.log(shiftModalState.style);
   let weekDates = dateUtil
     .op(startDate)
     .getWeekSpread()
@@ -30,18 +47,45 @@ export default function Scheduler() {
   staffData = objUtil.reduceToArr(staffData, {
     ownId: true,
   });
-  const [managers, setManagers] = useState(managerData);
-  const [employees, setEmployees] = useState(staffData);
   const weekdays = dateUtil
     .getWeekdays([])
     .map((day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`);
 
+  function shiftHandler({e, empData, index, formData}) {
+    setShiftModalStyle({
+      width: "15vw",
+      height: "16vh",
+      position: "absolute",
+      borderRadius: "23px",
+      left: e.clientX - ((window.innerWidth / 100) * 15) / 2 + 'px',
+      top: e.clientY - ((window.innerHeight / 100) * 16) / 2 + 'px',
+    });
+
+    if (empData && index !== undefined) {
+      setShiftModalState((state) => ({ on: !state.on, empData, index }));
+    } else {
+      setShiftModalState((state) => ({ on: !state.on }));
+    }
+  }
+
   return (
     <>
+      {shiftModalState.on && (
+        <Modal customStyles={shiftModalStyle}
+         changeState={setShiftModalState}
+         id={'shift-modal'}
+         >
+          <ShiftModal
+           data={shiftModalState.empData}
+           handler={shiftHandler}
+           positionHierarchy={userData[BUSINESS_KEY].positionHierarchy}
+           />
+        </Modal>
+      )}
       <div className={styles["page-container"]}>
-        <div className={styles["menu-container"]}></div>
         <div className={styles["content-container"]}>
           <div className={styles["table-container"]}>
+            <div className={styles["menu-container"]}></div>
             {/* Manager table */}
             <div className={styles["title-header"]}>
               <p>
@@ -84,9 +128,14 @@ export default function Scheduler() {
               </div>
               {/* Table Body */}
               <div className={styles["table-body"]}>
-                {managers.map((e) => (
-                  <ShiftItem key={e.id} {...e} />
-                ))}
+                {managerData &&
+                  managerData.map((e) => (
+                    <ShiftItem
+                      key={e.id}
+                      data={e}
+                      shiftHandler={shiftHandler}
+                    />
+                  ))}
               </div>
             </div>
 
@@ -125,9 +174,14 @@ export default function Scheduler() {
               </div>
               {/* Table Body */}
               <div className={styles["table-body"]}>
-                {employees.map((e) => (
-                  <ShiftItem key={e.id} {...e} />
-                ))}
+                {staffData &&
+                  staffData.map((e) => (
+                    <ShiftItem
+                      key={e.id}
+                      data={e}
+                      shiftHandler={shiftHandler}
+                    />
+                  ))}
               </div>
             </div>
           </div>
@@ -152,10 +206,9 @@ export default function Scheduler() {
                   <p>Message</p>
                 </div>
               </div>
-              <div className={styles['message-content-container']}>
-              <MessageListItem />
+              <div className={styles["message-content-container"]}>
+                <MessageListItem />
               </div>
-             
             </div>
           </div>
         </div>

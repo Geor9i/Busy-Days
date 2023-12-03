@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from './shiftItem.module.css'
 
-export default function ShiftItem({ firstName, lastName, display }) {
-    console.log(display);
+export default function ShiftItem({ data, shiftHandler }) {
 
     const shiftTemplate = {
         startTime: '',
@@ -25,8 +24,8 @@ export default function ShiftItem({ firstName, lastName, display }) {
 
   return (
     <div className={styles["tr"]}>
-      <div className={styles["td"]}>{`${firstName} ${lastName}`}</div>
-       { shifts.map(shift => <div className={`${styles["td"]} ${styles['shift']}`}>{shift}</div>)}
+      <div className={styles["td"]}>{`${data.firstName} ${data.lastName}`}</div>
+       { shifts.map((shift, i) => <div key={i} onClick={(e) => {shiftHandler({e, empData: data, index: i})}} className={`${styles["td"]} ${styles['shift']}`}>{shift}</div>)}
       <div className={styles["td"]}></div>
       <div className={styles["td"]}></div>
       <div className={styles["td"]}></div>

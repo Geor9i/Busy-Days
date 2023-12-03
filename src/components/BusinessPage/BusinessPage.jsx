@@ -184,6 +184,7 @@ const BusinessPage = () => {
         }
       }
       for (let role of positionHierarchy) {
+        role.title = role.title.toUpperCase();
         if (!role.canSubstitute) {
           role.substitutes = [];
         }
