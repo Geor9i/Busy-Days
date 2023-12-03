@@ -148,6 +148,6 @@ export default class EmployeeTools {
         result[entry] = { ...roster[entry] };
       }
     }
-    return result;
+    return Object.keys(result).length > 0 ? result : null;
   }
 }

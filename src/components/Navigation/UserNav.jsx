@@ -22,7 +22,7 @@ const UserNav = ({ user, resetValues }) => {
     const auth = getAuth();
     signOut(auth)
       .then(() => {
-        setUserData(resetValues)
+        setUserData(resetValues);
         navigate("/");
       })
       .catch((err) => console.log(`Logout Error: ${err}`));
@@ -54,7 +54,7 @@ const UserNav = ({ user, resetValues }) => {
               Busy Days
             </Link>
           </div>
-          <Link className={styles["link"]} to="/scheduler-menu">
+          <Link className={styles["link"]} to="/scheduler">
             Scheduler
           </Link>
           <Link className={styles["link"]} to="/employee-view">
@@ -90,17 +90,20 @@ const UserNav = ({ user, resetValues }) => {
           onClick={() => setMenuState("user")}
         >
           <div className={styles["user-menu-email-container"]}>
+            <h3>{user.displayName}</h3>
             <h4>{user.email}</h4>
           </div>
           <div className={styles["user-menu-link-container"]}>
-            <Link className={styles["link"]} onClick={logoutHandler}>
-              Logout
-            </Link>
+            <div className={styles["account-links"]}>
+              <Link className={styles["link-user"]} onClick={logoutHandler}>
+                Logout
+              </Link>
 
-            <Link className={styles["link"]} to="/account">
-              Account
-            </Link>
-            <Link className={styles["link"]} to="/business">
+              <Link className={styles["link-user"]} to="/account">
+                Account
+              </Link>
+            </div>
+            <Link className={styles["link-user"]} to="/business">
               Business
             </Link>
           </div>

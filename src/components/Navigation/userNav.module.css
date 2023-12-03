@@ -83,9 +83,14 @@
     text-align: center;
 }
 
+.user-menu-email-container h3{
+    margin: 5px;
+    font-size: 1.5rem;
+    font-weight:bold;
+}
 .user-menu-email-container h4{
-    margin: 0;
-    font-weight:normal;
+  font-size: 1.2rem;
+  font-weight:normal;
 }
 
 .user-menu-link-container {
@@ -96,13 +101,28 @@
     width: 100%;
     height: auto;
     text-align: center;
-    margin: 2rem 0;
+}
+
+.account-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-user {
+  font-size: 1.2rem;
+  margin: 20px;
+}
+
+.link-home {
+  font-size:2rem;
 }
 
 .link {
-  margin: 5px;
+  margin: 20px;
+  font-size: 1.5rem;
 }
-.link:hover {
+.link:hover, .link-home:hover, .link-user:hover {
   color: var(--link-color);
 }
 

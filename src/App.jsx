@@ -29,7 +29,6 @@ import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
 import EventsView from "./components/EventsView/EventView.jsx";
 import Clients from "./components/Clients/Clients.jsx";
 import Account from "./components/Account/Account.jsx";
-import SchedulerMenu from "./components/SchedulerMenu/SchedulerMenu.jsx";
 import Scheduler from "./components/Scheduler/Scheduler.jsx";
 
 const app = initializeApp(firebaseConfig);
@@ -100,7 +99,6 @@ function App() {
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/account" element={<Account />} />
           <Route path="/scheduler" element={<Scheduler />} />
-          <Route path="/scheduler-menu" element={<SchedulerMenu />} />
           <Route path="/business" element={<BusinessPage />} />
           <Route path="/employee-view" element={<EmployeeView />} />
           <Route path="/events-view" element={<EventsView />} />

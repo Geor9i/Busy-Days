@@ -143,8 +143,12 @@ export default class DateUtil {
     let number = String(num);
     const ordinals = {
       1: "st",
+      21: "st",
+      31: "st",
       2: "nd",
+      22: "nd",
       3: "rd",
+      23: "rd",
     };
     if (ordinals[number]) {
       return ordinals[number];
