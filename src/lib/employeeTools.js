@@ -128,37 +128,7 @@ export default class EmployeeTools {
     return types[contractType];
   }
 
-  getStaff(data, type = "management") {
-    const positions = data[BUSINESS_KEY].positionHierarchy;
-    const sortedTypes = positions.reduce((acc, curr) => {
-      acc[curr.title.toUpperCase()] = curr.responsibility.toLowerCase();
-      return acc;
-    }, {});
-    const roster = data[ROSTER_KEY];
-    const result = {};
-    for (let entry in roster) {
-      const employee = roster[entry];
-      const isManager = employee.positions.find(
-        (pos) => sortedTypes[pos] === "management"
-      );
-      if (type === "management" && isManager) {
-        result[entry] = { ...roster[entry] };
-      } else if (type === "staff" && !isManager) {
-        result[entry] = { ...roster[entry] };
-      }
-    }
-    return Object.keys(result).length > 0 ? result : null;
-  }
+ 
 
-  getCurrentEmployeePositions(positionHierarchy, employeePositions) {
-    const allPositions = positionHierarchy.map((pos) => pos.title);
-    let result = [...employeePositions];
-    const hierarchy = positionHierarchy
-    let substitutableRoles = positionHierarchy.filter(pos => pos.canSubstitute);
-    for (let employeePosition of employeePositions) {
-      if (substitutableRoles.includes(employeePosition)) {
-        let employeePositionIndex = allPositions.indexOf(employeePosition)
-      }
-    }
-  }
+  
 }

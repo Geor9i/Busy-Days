@@ -41,7 +41,7 @@ export default function Clients() {
         <div className={styles["clients-content-container"]}>
           <div className={styles["clients-content"]}>
             {clients.map((client) => (
-              <ClientListItem {...client} />
+              <ClientListItem key={client.id} {...client} />
             ))}
           </div>
         </div>

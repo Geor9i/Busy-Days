@@ -170,6 +170,9 @@ const BusinessPage = () => {
     function finalizeFormData(formData) {
       let data = { ...formData };
       const { openTimes, positionHierarchy } = data;
+      data.name = data.name.trim();
+      data.description = data.description.trim();
+      data.image = data.image.trim();
       for (let weekday in openTimes) {
         if (!openTimes[weekday].isWorkday) {
           openTimes[weekday].startTime = "";
@@ -298,15 +301,10 @@ const BusinessPage = () => {
     }
   };
   const openTimesOnBlurHandler = (e) => {
-    const element = e.target;
-    const name = element.name;
-    let value = element.value;
+    let { name, value } = e.target;
     try {
       value = timeUtil.time().fillTime(value);
       value = timeUtil.time().toTimeFormat(value);
-      if (lastKey === "Backspace") {
-        value = value.replace(":", "");
-      }
     } catch (err) {
       console.log(err);
     }

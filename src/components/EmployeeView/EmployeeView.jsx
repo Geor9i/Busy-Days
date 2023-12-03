@@ -182,8 +182,8 @@ export default function EmployeeView() {
   function finalizeFormData(formData, oldData = {}) {
     let { firstName, lastName, phoneNumber, email, contractType, positions } =
       formData;
-    firstName = stringUtil.toPascalCase(firstName);
-    lastName = stringUtil.toPascalCase(lastName);
+    firstName = stringUtil.toPascalCase(firstName).trim();
+    lastName = stringUtil.toPascalCase(lastName).trim();
     positions = Object.keys(positions).filter((name) => positions[name]);
 
     const result = {

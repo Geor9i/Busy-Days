@@ -16,7 +16,6 @@
     justify-content: center;
 }
 .shift-input-container {
-    margin: 10px;
     width: 80%;
     height: 50%;
     display: flex;
@@ -24,10 +23,15 @@
     flex-direction: column;
     justify-content: center;
 }
+.shift-input-container:nth-child(odd) {
+    margin-right: 5px;
+}
 
 
 .shift-input-container input {
     width: 100%;
+    text-align: center;
+    font-size: 1rem;
 }
 
 .shift-select-main-container {
@@ -40,6 +44,7 @@
 }
 
 .shift-select-main-container select {
+    text-align: center;
     min-width: 70%;
     width: auto;
 }
