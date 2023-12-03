@@ -26,7 +26,7 @@ export default function ShiftItem({ firstName, lastName, display }) {
   return (
     <div className={styles["tr"]}>
       <div className={styles["td"]}>{`${firstName} ${lastName}`}</div>
-       { shifts.map(shift => <div className={styles["td"]}>{shift}</div>)}
+       { shifts.map(shift => <div className={`${styles["td"]} ${styles['shift']}`}>{shift}</div>)}
       <div className={styles["td"]}></div>
       <div className={styles["td"]}></div>
       <div className={styles["td"]}></div>

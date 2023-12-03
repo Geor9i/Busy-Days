@@ -95,17 +95,29 @@
    }
    
    .day-table td {
-       background-color: rgb(243, 243, 243);
        padding: 3px;
        vertical-align: middle;
        width: 30px;
        border-radius: 2px;
-       border: 1px solid rgb(214, 214, 214);
    }
    
    .day-table td:hover {
        background-color: rgba(247, 247, 247, 0.582);
-       border: 1px solid rgb(255, 255, 255);
        cursor: pointer;
        border-radius: 3px;
+   }
+
+   .current {
+    background-color: rgb(235, 235, 235);
+    border: 1px solid rgb(250, 250, 250);
+   }
+
+   .other {
+    background-color: rgb(170, 170, 170);
+    border: 1px solid rgb(214, 214, 214);
+   }
+
+   .current-day {
+    background-color: rgb(255, 255, 255);
+    border: 2px solid gold;
    }

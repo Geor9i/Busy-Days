@@ -110,7 +110,7 @@
 
   .employee-list-body {
     max-height: 65vh;
-    overflow: hidden;
+    overflow: auto;
   }
 
   .employee-list-content {
