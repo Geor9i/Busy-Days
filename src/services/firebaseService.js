@@ -13,6 +13,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  updatePassword
 } from "firebase/auth";
 import isEqual from "lodash.isequal";
 
@@ -41,11 +42,15 @@ export default class FirebaseService {
 
   reAuthenticate(password) {
     const email = this.auth.currentUser.email;
-    signInWithEmailAndPassword(this.auth, email, password);
+    return signInWithEmailAndPassword(this.auth, email, password);
   }
 
   updateProfile(newData) {
     return updateProfile(this.auth.currentUser, newData);
+  }
+  
+  updatePassword(newPassword) {
+    return updatePassword(this.auth.currentUser, newPassword);
   }
 
   async addDoc(collectionName, data) {
