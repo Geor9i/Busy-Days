@@ -39,6 +39,11 @@ export default class FirebaseService {
     return createUserWithEmailAndPassword(this.auth, email, password);
   }
 
+  reAuthenticate(password) {
+    const email = this.auth.currentUser.email;
+    signInWithEmailAndPassword(this.auth, email, password);
+  }
+
   updateProfile(newData) {
     return updateProfile(this.auth.currentUser, newData);
   }
