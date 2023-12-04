@@ -1,19 +1,23 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "./account.module.css";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import useForm from "../../hooks/useForm.js";
-import FormUtil from "../../utils/formUtil.js";
 import { useNavigate } from "react-router-dom";
+import LoginModal from "./modals/LoginModal.jsx";
+import Modal from "../misc/modal/Modal.jsx";
 
 export default function Account() {
-  const { fireService } = useContext(GlobalCtx);
+  const { fireService, setMainLoader } = useContext(GlobalCtx);
   const navigate = useNavigate();
-  const formUtil = new FormUtil();
   const user = fireService.auth.currentUser;
   const email = user.email;
   const [firstName, lastName] = user.displayName
     .split(" ")
     .map((el) => el.trim());
+
+  const [loginModal, setLoginModal] = useState(false);
+
+  const [confirmLoginForDelete, setConfirmLoginForDelete] = useState(false);
 
   const formKeys = {
     EMAIL: "email",
@@ -32,6 +36,15 @@ export default function Account() {
     [formKeys.NEW_PASSWORD]: "",
     [formKeys.REPEAT_PASSWORD]: "",
   };
+
+  function setDeleteConfirmation(hasConfirm) {
+    if (hasConfirm) {
+      setConfirmLoginForDelete(true);
+    } else {
+      setConfirmLoginForDelete(false);
+      toggleLoginModal();
+    }
+  }
 
   async function submitHandler({ formData }) {
     formUtil.formValidator(formData, 6, "repeatPassword");
@@ -54,6 +67,31 @@ export default function Account() {
     }
   }
 
+  useEffect(() => {
+    if (confirmLoginForDelete) {
+      setMainLoader(true);
+      toggleLoginModal();
+      fireService
+        .deleteAccount()
+        .then(() => navigate("/"))
+        .catch((err) => console.log(err))
+        .finally(() => setMainLoader(false));
+    } else {
+      console.log("Account information is not correct!");
+    }
+  }, [confirmLoginForDelete]);
+
+  async function toggleLoginModal() {
+    setLoginModal((state) => !state);
+  }
+
+  const modalStyles = {
+    width: "30rem",
+    height: "18rem",
+    border: "1px solid black",
+    borderRadius: "13px",
+  };
+
   const { formData, onChange, onSubmit } = useForm(
     initialValues,
     submitHandler
@@ -61,67 +99,94 @@ export default function Account() {
 
   return (
     <>
-      <div className={styles["account-container"]}>
-        <form onSubmit={onSubmit} className={styles["form"]}>
-          <div className={styles["input-container"]}>
-            <label htmlFor={formKeys.EMAIL}>Email</label>
-            <input
-              type="text"
-              onChange={onChange}
-              value={formData[formKeys.EMAIL]}
-              name={formKeys.EMAIL}
-            />
-          </div>
-          <div className={styles["input-container"]}>
-            <label htmlFor={formKeys.FIRST_NAME}>First Name</label>
-            <input
-              type="text"
-              onChange={onChange}
-              value={formData[formKeys.FIRST_NAME]}
-              name={formKeys.FIRST_NAME}
-            />
-          </div>
-          <div className={styles["input-container"]}>
-            <label htmlFor={formKeys.LAST_NAME}>Last Name</label>
-            <input
-              type="text"
-              onChange={onChange}
-              value={formData[formKeys.LAST_NAME]}
-              name={formKeys.LAST_NAME}
-            />
-          </div>
-          <div className={styles["input-container"]}>
-            <label htmlFor={formKeys.CURRENT_PASSWORD}>Current Password</label>
-            <input
-              type="password"
-              onChange={onChange}
-              value={formData[formKeys.CURRENT_PASSWORD]}
-              name={formKeys.CURRENT_PASSWORD}
-            />
-          </div>
-          <div className={styles["input-container"]}>
-            <label htmlFor={formKeys.NEW_PASSWORD}>New Password</label>
-            <input
-              type="password"
-              onChange={onChange}
-              value={formData[formKeys.NEW_PASSWORD]}
-              name={formKeys.NEW_PASSWORD}
-            />
-          </div>
-          <div className={styles["input-container"]}>
-            <label htmlFor={formKeys.REPEAT_PASSWORD}>
-              Repeat New Password
-            </label>
-            <input
-              type="password"
-              onChange={onChange}
-              value={formData[formKeys.REPEAT_PASSWORD]}
-              name={formKeys.REPEAT_PASSWORD}
-            />
-          </div>
-          <button className={styles["submit-btn"]}>Update Details</button>
-        </form>
-      </div>
+      {loginModal && (
+        <Modal changeState={toggleLoginModal} customStyles={modalStyles}>
+          <LoginModal setDeleteConfirmation={setDeleteConfirmation} />
+        </Modal>
+      )}
+      <section className={styles["page-container"]}>
+        <h2>
+          {" "}
+          Update your details seamlessly to ensure everything reflects your
+          latest information accurately.
+        </h2>
+        <div className={styles["account-container"]}>
+          <form onSubmit={onSubmit} className={styles["form"]}>
+            <div className={styles["input-container"]}>
+              <label htmlFor={formKeys.EMAIL}>Email</label>
+              <input
+                type="text"
+                onChange={onChange}
+                value={formData[formKeys.EMAIL]}
+                name={formKeys.EMAIL}
+              />
+            </div>
+            <div className={styles["input-container"]}>
+              <label htmlFor={formKeys.FIRST_NAME}>First Name</label>
+              <input
+                type="text"
+                onChange={onChange}
+                value={formData[formKeys.FIRST_NAME]}
+                name={formKeys.FIRST_NAME}
+              />
+            </div>
+            <div className={styles["input-container"]}>
+              <label htmlFor={formKeys.LAST_NAME}>Last Name</label>
+              <input
+                type="text"
+                onChange={onChange}
+                value={formData[formKeys.LAST_NAME]}
+                name={formKeys.LAST_NAME}
+              />
+            </div>
+            <div className={styles["input-container"]}>
+              <label htmlFor={formKeys.CURRENT_PASSWORD}>
+                Current Password
+              </label>
+              <input
+                type="password"
+                onChange={onChange}
+                value={formData[formKeys.CURRENT_PASSWORD]}
+                name={formKeys.CURRENT_PASSWORD}
+              />
+            </div>
+            <div className={styles["input-container"]}>
+              <label htmlFor={formKeys.NEW_PASSWORD}>New Password</label>
+              <input
+                type="password"
+                onChange={onChange}
+                value={formData[formKeys.NEW_PASSWORD]}
+                name={formKeys.NEW_PASSWORD}
+              />
+            </div>
+            <div className={styles["input-container"]}>
+              <label htmlFor={formKeys.REPEAT_PASSWORD}>
+                Repeat New Password
+              </label>
+              <input
+                type="password"
+                onChange={onChange}
+                value={formData[formKeys.REPEAT_PASSWORD]}
+                name={formKeys.REPEAT_PASSWORD}
+              />
+            </div>
+            <button className={styles["submit-btn"]}>Update Details</button>
+          </form>
+        </div>
+
+        <div className={styles["delete-account-container"]}>
+          <p>
+            "Hey, if you're ready to part ways with your account, just hit the
+            button below to bid it farewell. We'll handle the rest! 🚀"
+          </p>
+          <button
+            onClick={toggleLoginModal}
+            className={styles["delete-account-btn"]}
+          >
+            Delete Account
+          </button>
+        </div>
+      </section>
     </>
   );
 }

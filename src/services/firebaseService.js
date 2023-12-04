@@ -17,7 +17,8 @@ import {
   updateEmail,
   signOut,
   reauthenticateWithCredential,
-  EmailAuthProvider
+  EmailAuthProvider,
+  deleteUser,
 } from "firebase/auth";
 import isEqual from "lodash.isequal";
 
@@ -48,13 +49,14 @@ export default class FirebaseService {
     return createUserWithEmailAndPassword(this.auth, email, password);
   }
 
-  async reAuthenticate (password) {
-    const credential = EmailAuthProvider.credential(this.auth.currentUser.email, password);
+  async reAuthenticate(password, email) {
+    let emailData = email ? email : this.auth.currentUser.email;
+    const credential = EmailAuthProvider.credential(emailData, password);
     try {
-      await reauthenticateWithCredential(this.auth.currentUser, credential)
-    }catch(err) {
-      console.log('Re-authentication Error: ', err);
-      throw err
+      await reauthenticateWithCredential(this.auth.currentUser, credential);
+    } catch (err) {
+      console.log("Re-authentication Error: ", err);
+      throw err;
     }
     return true;
   }
@@ -68,6 +70,14 @@ export default class FirebaseService {
 
   updatePassword(newPassword) {
     return updatePassword(this.auth.currentUser, newPassword);
+  }
+
+  async deleteAccount() {
+    try {
+      await deleteUser(this.auth.currentUser);
+    } catch (err) {
+      throw err;
+    }
   }
 
   async addDoc(collectionName, data) {
