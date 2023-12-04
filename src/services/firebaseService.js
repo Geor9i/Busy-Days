@@ -13,7 +13,11 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
-  updatePassword
+  updatePassword,
+  updateEmail,
+  signOut,
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from "firebase/auth";
 import isEqual from "lodash.isequal";
 
@@ -36,19 +40,32 @@ export default class FirebaseService {
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
+  logout() {
+    return signOut(this.auth);
+  }
+
   register(email, password) {
     return createUserWithEmailAndPassword(this.auth, email, password);
   }
 
-  reAuthenticate(password) {
-    const email = this.auth.currentUser.email;
-    return signInWithEmailAndPassword(this.auth, email, password);
+  async reAuthenticate (password) {
+    const credential = EmailAuthProvider.credential(this.auth.currentUser.email, password);
+    try {
+      await reauthenticateWithCredential(this.auth.currentUser, credential)
+    }catch(err) {
+      console.log('Re-authentication Error: ', err);
+      throw err
+    }
+    return true;
   }
 
   updateProfile(newData) {
     return updateProfile(this.auth.currentUser, newData);
   }
-  
+  updateEmail(email) {
+    return updateEmail(this.auth.currentUser, email);
+  }
+
   updatePassword(newPassword) {
     return updatePassword(this.auth.currentUser, newPassword);
   }

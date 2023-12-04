@@ -3,9 +3,11 @@ import styles from "./account.module.css";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import useForm from "../../hooks/useForm.js";
 import FormUtil from "../../utils/formUtil.js";
+import { useNavigate } from "react-router-dom";
 
 export default function Account() {
   const { fireService } = useContext(GlobalCtx);
+  const navigate = useNavigate();
   const formUtil = new FormUtil();
   const user = fireService.auth.currentUser;
   const email = user.email;
@@ -38,13 +40,14 @@ export default function Account() {
         formData.currentPassword
       );
       if (authenticatedUser) {
+        await fireService.updateEmail(formData[formKeys.EMAIL].trim());
         await fireService.updateProfile({
-          email,
           displayName: `${formData[formKeys.FIRST_NAME].trim()} ${formData[
             formKeys.LAST_NAME
           ].trim()}`,
         });
         await fireService.updatePassword(formData[formKeys.NEW_PASSWORD]);
+        navigate("/");
       }
     } catch (err) {
       console.log(err);
