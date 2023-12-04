@@ -35,7 +35,9 @@ export default function Scheduler() {
     position: "absolute",
     borderRadius: "23px",
   };
-  const [shiftModalStyle, setShiftModalStyle] = useState(initialShiftModalStyles);
+  const [shiftModalStyle, setShiftModalStyle] = useState(
+    initialShiftModalStyles
+  );
   let today = new Date();
   let todaysDate = dateUtil.op(today).getMonday();
   const [startDate, setStartDate] = useState(todaysDate);
@@ -50,9 +52,12 @@ export default function Scheduler() {
     managers: [],
     staff: [],
     openDays: [],
-    trStyles: {}
+    weekdayHeaders: [],
+    trStyles: {},
   });
-  
+
+  console.log(rota);
+
   useEffect(() => {
     fireService
       .fetchData(userData)
@@ -69,10 +74,14 @@ export default function Scheduler() {
   useEffect(() => {
     if (rotaTools) {
       let [managers, staff] = rotaTools.getRotaTemplate();
-      let openDays = rotaTools.getOpenDays();
-      openDays = openDays.map((day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`);
-      const trStyles = {gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`}
-      setRota({ managers, staff, openDays, trStyles });
+      const openDays = rotaTools.getOpenDays();
+      const weekdayHeaders = openDays.map(
+        (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
+      );
+      const trStyles = {
+        gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`,
+      };
+      setRota({ managers, staff, openDays, trStyles, weekdayHeaders });
     }
   }, [rotaTools]);
 
@@ -102,8 +111,6 @@ export default function Scheduler() {
       (date) => `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
     );
 
-  
-
   function shiftHandler({ e, shiftData, weekday, formData, empData }) {
     setShiftModalStyle({
       width: "12vw",
@@ -114,8 +121,6 @@ export default function Scheduler() {
       top: e.clientY - ((window.innerHeight / 100) * 16) / 2 + "px",
     });
 
-    console.log({ empData, shiftData });
-
     if (formData) {
       if (
         (formData.startTime && !formData.endTime) ||
@@ -124,13 +129,15 @@ export default function Scheduler() {
         throw new Error("Please provide a start time and an end time!");
       }
 
-      const startAfterEnd = timeUtil.relativeTime(formData.startTime).isBiggerThan(formData.endTime);
-      console.log(startAfterEnd);
+      const startAfterEnd = timeUtil
+        .relativeTime(formData.startTime)
+        .isBiggerThan(formData.endTime);
       if (startAfterEnd) {
         throw new Error("Start time must always be before the end time!");
       }
 
-      const adjustedEndTime = formData.endTime === '00:00' ? '24:00' : formData.endTime;
+      const adjustedEndTime =
+        formData.endTime === "00:00" ? "24:00" : formData.endTime;
       const timeDifference = timeUtil
         .math()
         .deduct(adjustedEndTime, formData.startTime);
@@ -138,14 +145,13 @@ export default function Scheduler() {
       if (minutes < 90) {
         throw new Error("Minimum shift length must be 01:30 hours!");
       }
-      console.log(minutes);
 
       const id = empData.id;
       const staffCollection = empData.manager ? "managers" : "staff";
       const employeeIndex = rota[staffCollection].findIndex(
         (employee) => employee.id === id
       );
-      const shiftIndex = dateUtil.getWeekdays([]).indexOf(weekday);
+      const shiftIndex = rota.openDays.indexOf(weekday);
       const newRotaState = {
         ...rota,
         [staffCollection]: [
@@ -212,7 +218,7 @@ export default function Scheduler() {
                 <div className={styles["table-header"]}>
                   <div style={rota.trStyles} className={styles["tr"]}>
                     <div className={styles["th-empty"]}></div>
-                    {rota.openDays.map((day) => (
+                    {rota.weekdayHeaders.map((day) => (
                       <div key={day} className={styles["th"]}>
                         {day}
                       </div>
@@ -222,11 +228,14 @@ export default function Scheduler() {
                     <div className={styles["th-empty"]}></div>
                   </div>
                   {/* Sub-Header */}
-                  <div style={rota.trStyles} className={`${styles["tr"]} ${styles["light"]}`}>
+                  <div
+                    style={rota.trStyles}
+                    className={`${styles["tr"]} ${styles["light"]}`}
+                  >
                     <div className={styles["th"]}>
                       <p className={styles["table-large-text"]}>Managers</p>
                     </div>
-                    {rota.openDays.map((day) => (
+                    {rota.weekdayHeaders.map((day) => (
                       <div key={day} className={styles["th"]}></div>
                     ))}
                     <div className={styles["th"]}>
@@ -261,7 +270,7 @@ export default function Scheduler() {
                 <div className={styles["table-header"]}>
                   <div style={rota.trStyles} className={styles["tr"]}>
                     <div className={styles["th-empty"]}></div>
-                    {rota.openDays.map((day) => (
+                    {rota.weekdayHeaders.map((day) => (
                       <div key={day} className={styles["th"]}>
                         {day}
                       </div>
@@ -271,11 +280,14 @@ export default function Scheduler() {
                     <div className={styles["th-empty"]}></div>
                   </div>
                   {/* Sub-Header */}
-                  <div style={rota.trStyles} className={`${styles["tr"]} ${styles["light"]}`}>
+                  <div
+                    style={rota.trStyles}
+                    className={`${styles["tr"]} ${styles["light"]}`}
+                  >
                     <div className={styles["th"]}>
                       <p className={styles["table-large-text"]}>Staff</p>
                     </div>
-                    {rota.openDays.map((day) => (
+                    {rota.weekdayHeaders.map((day) => (
                       <div key={day} className={styles["th"]}></div>
                     ))}
                     <div className={styles["th"]}>

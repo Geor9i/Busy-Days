@@ -8,11 +8,6 @@ export default function ShiftItem({ data, shiftHandler, trStyles }) {
     return "";
   }
 
-  if (data.name === 'Rita Sunuwar') {
-    console.log(data);
-
-  }
-
   return (
     <div style={trStyles} className={styles["tr"]}>
       <div className={styles["td"]}>{data.name}</div>
