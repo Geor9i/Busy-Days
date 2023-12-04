@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DateUtil from "../../utils/dateUtil.js";
 import StringUtil from "../../utils/stringUtil.js";
 import ShiftItem from "./ShiftItem/ShiftItem.jsx";
@@ -8,9 +8,14 @@ import ObjectUtil from "../../utils/objectUtil.js";
 import MessageListItem from "./MessageListItem/MessageListItem.jsx";
 import Modal from "../misc/modal/Modal.jsx";
 import ShiftModal from "./modals/ShiftModal.jsx";
-import { BUSINESS_KEY } from "../../../config/constants.js";
+import {
+  BUSINESS_KEY,
+  EVENTS_KEY,
+  ROSTER_KEY,
+} from "../../../config/constants.js";
 import Rota from "../../lib/rota.js";
 import TimeUtil from "../../utils/timeUtil.js";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Scheduler() {
   const { userData, fireService } = useContext(GlobalCtx);
@@ -18,14 +23,21 @@ export default function Scheduler() {
   const objUtil = new ObjectUtil();
   const dateUtil = new DateUtil();
   const timeUtil = new TimeUtil();
-  let rotaTools = new Rota(userData);
-  let today = new Date();
-  let [managerTemplate, staffTemplate] = rotaTools.getRotaTemplate();
-  let todaysDate = dateUtil.op(today).getMonday();
-  const [rota, setRota] = useState({
-    managers: managerTemplate,
-    staff: staffTemplate,
+  const navigate = useNavigate();
+  const [businessData, setBusinessData] = useState({
+    [ROSTER_KEY]: {},
+    [BUSINESS_KEY]: {},
+    [EVENTS_KEY]: {},
   });
+  const initialShiftModalStyles = {
+    width: "12vw",
+    height: "16vh",
+    position: "absolute",
+    borderRadius: "23px",
+  };
+  const [shiftModalStyle, setShiftModalStyle] = useState(initialShiftModalStyles);
+  let today = new Date();
+  let todaysDate = dateUtil.op(today).getMonday();
   const [startDate, setStartDate] = useState(todaysDate);
   const [shiftModalState, setShiftModalState] = useState({
     on: false,
@@ -33,13 +45,56 @@ export default function Scheduler() {
     shiftData: {},
     weekday: "",
   });
-  const initialShiftStyles = {
-    width: "12vw",
-    height: "16vh",
-    position: "absolute",
-    borderRadius: "23px",
-  };
-  const [shiftModalStyle, setShiftModalStyle] = useState(initialShiftStyles);
+  const [rotaTools, setRotaTools] = useState(null);
+  const [rota, setRota] = useState({
+    managers: [],
+    staff: [],
+    openDays: [],
+    trStyles: {}
+  });
+  
+  useEffect(() => {
+    fireService
+      .fetchData(userData)
+      .then((response) => setBusinessData(response))
+      .catch((err) => console.log("DB error: ", err));
+  }, []);
+
+  useEffect(() => {
+    if (!objUtil.isEmpty(businessData)) {
+      setRotaTools(new Rota(businessData));
+    }
+  }, [businessData]);
+
+  useEffect(() => {
+    if (rotaTools) {
+      let [managers, staff] = rotaTools.getRotaTemplate();
+      let openDays = rotaTools.getOpenDays();
+      openDays = openDays.map((day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`);
+      const trStyles = {gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`}
+      setRota({ managers, staff, openDays, trStyles });
+    }
+  }, [rotaTools]);
+
+  if (objUtil.isEmpty(userData)) {
+    return (
+      <div>
+        <h1>
+          Please configure your Business, Roster and events before proceeding!
+        </h1>
+      </div>
+    );
+  } else if (objUtil.isEmpty(businessData[ROSTER_KEY])) {
+    return (
+      <div>
+        <h1>
+          Please configure your Roster before proceeding!{" "}
+          <Link to={"/employee-view"}>here</Link>
+        </h1>
+      </div>
+    );
+  }
+
   let weekDates = dateUtil
     .op(startDate)
     .getWeekSpread()
@@ -47,9 +102,7 @@ export default function Scheduler() {
       (date) => `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
     );
 
-  const weekdays = dateUtil
-    .getWeekdays([])
-    .map((day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`);
+  
 
   function shiftHandler({ e, shiftData, weekday, formData, empData }) {
     setShiftModalStyle({
@@ -71,13 +124,16 @@ export default function Scheduler() {
         throw new Error("Please provide a start time and an end time!");
       }
 
-      if (timeUtil.time(formData.startTime).isBiggerEqThan(formData.endTime)) {
+      const startAfterEnd = timeUtil.relativeTime(formData.startTime).isBiggerThan(formData.endTime);
+      console.log(startAfterEnd);
+      if (startAfterEnd) {
         throw new Error("Start time must always be before the end time!");
       }
 
+      const adjustedEndTime = formData.endTime === '00:00' ? '24:00' : formData.endTime;
       const timeDifference = timeUtil
         .math()
-        .deduct(formData.endTime, formData.startTime);
+        .deduct(adjustedEndTime, formData.startTime);
       let minutes = timeUtil.time().toMinutes(timeDifference);
       if (minutes < 90) {
         throw new Error("Minimum shift length must be 01:30 hours!");
@@ -135,7 +191,7 @@ export default function Scheduler() {
             shiftData={shiftModalState.shiftData}
             weekday={shiftModalState.weekday}
             handler={shiftHandler}
-            positionHierarchy={userData[BUSINESS_KEY].positionHierarchy}
+            positionHierarchy={businessData[BUSINESS_KEY].positionHierarchy}
           />
         </Modal>
       )}
@@ -151,12 +207,12 @@ export default function Scheduler() {
                 {today.getFullYear()}
               </p>
             </div>
-            {managerTemplate && (
+            {rota.managers.length > 0 && (
               <div className={styles["shift-table"]}>
                 <div className={styles["table-header"]}>
-                  <div className={styles["tr"]}>
+                  <div style={rota.trStyles} className={styles["tr"]}>
                     <div className={styles["th-empty"]}></div>
-                    {weekdays.map((day) => (
+                    {rota.openDays.map((day) => (
                       <div key={day} className={styles["th"]}>
                         {day}
                       </div>
@@ -166,11 +222,11 @@ export default function Scheduler() {
                     <div className={styles["th-empty"]}></div>
                   </div>
                   {/* Sub-Header */}
-                  <div className={`${styles["tr"]} ${styles["light"]}`}>
+                  <div style={rota.trStyles} className={`${styles["tr"]} ${styles["light"]}`}>
                     <div className={styles["th"]}>
                       <p className={styles["table-large-text"]}>Managers</p>
                     </div>
-                    {weekdays.map((day) => (
+                    {rota.openDays.map((day) => (
                       <div key={day} className={styles["th"]}></div>
                     ))}
                     <div className={styles["th"]}>
@@ -191,6 +247,7 @@ export default function Scheduler() {
                       key={employee.id}
                       data={employee}
                       shiftHandler={shiftHandler}
+                      trStyles={rota.trStyles}
                       // shifts={}
                     />
                   ))}
@@ -199,12 +256,12 @@ export default function Scheduler() {
             )}
 
             {/* Staff table */}
-            {staffTemplate && (
+            {rota.staff.length > 0 && (
               <div className={styles["shift-table"]}>
                 <div className={styles["table-header"]}>
-                  <div className={styles["tr"]}>
+                  <div style={rota.trStyles} className={styles["tr"]}>
                     <div className={styles["th-empty"]}></div>
-                    {weekdays.map((day) => (
+                    {rota.openDays.map((day) => (
                       <div key={day} className={styles["th"]}>
                         {day}
                       </div>
@@ -214,11 +271,11 @@ export default function Scheduler() {
                     <div className={styles["th-empty"]}></div>
                   </div>
                   {/* Sub-Header */}
-                  <div className={`${styles["tr"]} ${styles["light"]}`}>
+                  <div style={rota.trStyles} className={`${styles["tr"]} ${styles["light"]}`}>
                     <div className={styles["th"]}>
                       <p className={styles["table-large-text"]}>Staff</p>
                     </div>
-                    {weekdays.map((day) => (
+                    {rota.openDays.map((day) => (
                       <div key={day} className={styles["th"]}></div>
                     ))}
                     <div className={styles["th"]}>
@@ -239,6 +296,7 @@ export default function Scheduler() {
                       key={employee.id}
                       data={employee}
                       shiftHandler={shiftHandler}
+                      trStyles={rota.trStyles}
                       // shifts={}
                     />
                   ))}

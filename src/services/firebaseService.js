@@ -1,3 +1,4 @@
+
 import {
   doc,
   getDoc,
@@ -21,6 +22,7 @@ import {
   deleteUser,
 } from "firebase/auth";
 import isEqual from "lodash.isequal";
+import { CLIENTS_KEY, GUEST_KEY } from "../../config/constants.js";
 
 export default class FirebaseService {
   constructor(app) {
@@ -204,6 +206,13 @@ export default class FirebaseService {
 
     await updateDoc(ref, {
       [id]: deleteField(),
+    });
+  }
+  async deletePublicField(publicId) {
+    const ref = doc(this.db, GUEST_KEY, CLIENTS_KEY);
+
+    await updateDoc(ref, {
+      [publicId]: deleteField(),
     });
   }
 }

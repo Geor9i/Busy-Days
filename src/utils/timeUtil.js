@@ -273,7 +273,7 @@ export default class TimeUtil {
       }
     }
   
-    relativeTime(originTime, { hourLength = 12 } = {}) {
+    relativeTime(originTime, { hourLength = 6 } = {}) {
       hourLength = hourLength > 24 ? 24 : hourLength;
       let timeSpread = Array(hourLength * 2).fill(0);
       let orgTime = this.time().toObj(originTime);
@@ -295,9 +295,9 @@ export default class TimeUtil {
         isBiggerThan: (compareTime) => {
           if (!originTime || !compareTime) return null;
           let compare = this.time().toObj(compareTime);
-          let compareIndex = timeSpread.findLastIndex((obj) => obj.h === compare.h);
-          if (compareIndex !== -1) {
-            return orgIndex > compareIndex;
+          let compareTimeIndex = timeSpread.findLastIndex((obj) => obj.h === compare.h);
+          if (compareTimeIndex !== -1) {
+            return orgIndex > compareTimeIndex;
           }
           return false;
         },
@@ -310,6 +310,15 @@ export default class TimeUtil {
           }
           return false;
         },
+        deduct: (compareTime) => {
+          if (!originTime || !compareTime) return null;
+          let compare = this.time().toObj(compareTime);
+          let compareTimeIndex = timeSpread.findIndex((obj) => obj.h === compare.h);
+          if (compareTimeIndex !== -1) {
+            return compareTimeIndex - compareTimeIndex;
+          }
+          
+        }
       };
     }
   

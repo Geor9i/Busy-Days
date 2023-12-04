@@ -1,7 +1,7 @@
 import FormUtil from "../../utils/formUtil.js";
 import styles from "./signUp.module.css";
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import useForm from "../../hooks/useForm.js";
 
@@ -86,7 +86,8 @@ const SignUpPage = () => {
           />
         </div>
         <div className={styles["input-div"]}>
-          <input className={styles["submit"]} type="submit" value="Login" />
+          <input className={styles["submit"]} type="submit" value="Register" />
+          <p>Already have an account? Login <Link to={'/login'}>here</Link></p>
         </div>
       </form>
     </>

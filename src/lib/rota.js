@@ -29,7 +29,7 @@ export default class Rota {
     let substitutableRoles = this.positions
       .filter((pos) => pos.canSubstitute)
       .map((pos) => pos.title);
-      //Find all Roles which can substitute higher positions
+    //Find all Roles which can substitute higher positions
     const higherSubstitutePositions = this.positions.reduce((acc, curr) => {
       if (curr.substitutes.length > 0) {
         acc[curr.title] = curr.substitutes;
@@ -43,20 +43,32 @@ export default class Rota {
         result.push(...subPositions);
       }
       if (higherSubstitutePositions.hasOwnProperty(employeePosition)) {
-        result.push(...higherSubstitutePositions[employeePosition])
+        result.push(...higherSubstitutePositions[employeePosition]);
       }
     }
     result = result.filter((pos, i) => result.indexOf(pos) === i);
-    return result.sort((a, b) => allPositions.indexOf(a) - allPositions.indexOf(b))
+    return result.sort(
+      (a, b) => allPositions.indexOf(a) - allPositions.indexOf(b)
+    );
+  }
+
+  getOpenDays() {
+    let weekdays = this.date.getWeekdays([]);
+    return Object.keys(this.openTimes)
+    .filter(day => this.openTimes[day].isWorkday)
+    .sort(
+      (a, b) => weekdays.indexOf(a) - weekdays.indexOf(b)
+    );
   }
 
   getRotaTemplate() {
-    const scheduleObj = (staff, isManager) =>
+    console.log(this.openTimes);
+    const scheduleArr = (staff, isManager) =>
       Object.keys(staff).reduce((staffCollection, id) => {
         staffCollection.push({
           name: `${staff[id].firstName} ${staff[id].lastName}`,
           id,
-          shifts: this.date.getWeekdays([]).map((el) => [
+          shifts: this.getOpenDays().map((el) => [
             el,
             {
               startTime: "",
@@ -70,9 +82,9 @@ export default class Rota {
         return staffCollection;
       }, []);
     let managers = this.getStaff();
-    managers = managers ? scheduleObj(managers, true) : {};
+    managers = managers ? scheduleArr(managers, true) : [];
     let staff = this.getStaff("staff");
-    staff = staff ? scheduleObj(staff, false) : {};
+    staff = staff ? scheduleArr(staff, false) : [];
 
     return [managers, staff];
   }

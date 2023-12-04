@@ -323,6 +323,8 @@ export default class ObjectUtil {
   }
 
   isEmpty(target) {
+    if (!target) return true;
+
     const isEmptyObject = (object) => {
       for (let key in object) {
         let type = this.typeof(object[key]);

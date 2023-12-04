@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import useForm from "../../hooks/useForm.js";
@@ -21,9 +21,24 @@ import EditProfileModal from "./modals/EditProfileModal/EditProfileModal.jsx";
 
 export default function EmployeeView() {
   const { fireService, userData } = useContext(GlobalCtx);
+  const objUtil = new ObjectUtil();
+  if (objUtil.isEmpty(userData) || !userData[BUSINESS_KEY]) {
+    return (
+      <div>
+        <h1>Please configure your Business before proceeding! <Link to={'/business'}>here</Link></h1>
+      </div>
+    )
+  }
   const [roster, setRoster] = useState(
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
+  const [roles, setRoles] = useState([]);
+  useEffect(() => {
+    fireService.fetchOne(BUSINESS_KEY)
+    .then(data => setRoles(data.positionHierarchy.map(pos => pos.title)))
+    .catch(err => console.log(err))
+  }, [])
+  
   const [userProfileModalState, setUserProfileModalState] = useState(false);
   const [availabilityModalState, setAvailabilityModalState] = useState({
     data: null,
@@ -42,16 +57,6 @@ export default function EmployeeView() {
     reverse: false,
   });
 
-  // const confirmModalParams = {
-  //   content: {
-  //     title: "Are you sure",
-  //     confirm: "Yes",
-  //     cancel: "No",
-  //   },
-  //   handler: confirmModalHandler,
-  // };
-
-  const objUtil = new ObjectUtil();
   const formUtil = new FormUtil();
   const dateUtil = new DateUtil();
   const stringUtil = new StringUtil();
@@ -64,9 +69,7 @@ export default function EmployeeView() {
     return () => unsubscribe();
   }, []);
 
-  const roles = userData[BUSINESS_KEY].positionHierarchy.map(
-    (pos) => pos.title
-  );
+ 
 
   function rosterToArr(roster) {
     if (!objUtil.isEmpty(roster)) {
@@ -184,9 +187,10 @@ export default function EmployeeView() {
       formData;
     firstName = stringUtil.toPascalCase(firstName).trim();
     lastName = stringUtil.toPascalCase(lastName).trim();
-    positions = Object.keys(positions).filter((name) => positions[name]);
+    positions = Object.keys(positions).filter((name) => positions[name]).filter(pos => roles.includes(pos));
 
     const result = {
+      ...oldData,
       firstName,
       lastName,
       phoneNumber,
@@ -194,13 +198,6 @@ export default function EmployeeView() {
       contractType,
       positions,
     };
-
-    if (oldData.hasOwnProperty("availability")) {
-      result.availability = oldData.availability;
-    }
-    if (oldData.hasOwnProperty("daysOff")) {
-      result.daysOff = oldData.daysOff;
-    }
 
     return result;
   }

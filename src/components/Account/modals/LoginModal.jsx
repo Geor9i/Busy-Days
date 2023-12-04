@@ -29,6 +29,7 @@ export default function LoginModal({ setDeleteConfirmation }) {
   return (
     <>
       <form onSubmit={onSubmit} className={styles["form"]} method="POST">
+    <h3>We need to confirm it's you before we can continue!</h3>
         <div className={styles["input-div"]}>
           <label htmlFor="email">Email</label>
           <input

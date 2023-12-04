@@ -21,7 +21,7 @@ export default function useForm(initialValues, submitHandler, confirmHandler) {
     let { name, value } = e.target;
     if (key) {
       if (useProp) {
-        const customValue = e.target[useProp];
+        let customValue = e.target[useProp];
         customValue = applyCallbacks(callbackArr, customValue);
         setFormData((state) => ({
           ...state,

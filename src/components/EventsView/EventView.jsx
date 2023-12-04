@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import useForm from "../../hooks/useForm.js";
@@ -19,7 +19,21 @@ import EditEventModal from "./modals/EditEventModal/EditEventModal.jsx";
 import EventListItem from "./EventListItem.jsx";
 
 export default function EventsView() {
+  const formUtil = new FormUtil();
+  const dateUtil = new DateUtil();
+  const stringUtil = new StringUtil();
+  const timeUtil = new TimeUtil();
+  const navigate = useNavigate();
+  const weekdays = dateUtil.getWeekdays([]);
+  const objUtil = new ObjectUtil();
   const { fireService, userData } = useContext(GlobalCtx);
+  if (objUtil.isEmpty(userData) || !userData[BUSINESS_KEY]) {
+    return (
+      <div>
+        <h1>Please configure your Business before proceeding! <Link to={'/business'}>here</Link></h1>
+      </div>
+    )
+  }
   const [events, setEvents] = useState(
     userData[EVENTS_KEY] ? userData[EVENTS_KEY] : {}
   );
@@ -36,13 +50,7 @@ export default function EventsView() {
     reverse: false,
   });
 
-  const objUtil = new ObjectUtil();
-  const formUtil = new FormUtil();
-  const dateUtil = new DateUtil();
-  const stringUtil = new StringUtil();
-  const timeUtil = new TimeUtil();
-  const navigate = useNavigate();
-  const weekdays = dateUtil.getWeekdays([]);
+  
 
   useEffect(() => {
     const unsubscribe = fireService.onSnapShot(EVENTS_KEY, events, setEvents);

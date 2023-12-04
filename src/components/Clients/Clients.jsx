@@ -8,7 +8,10 @@ import ClientListItem from "./ClientListItem/ClientListItem.jsx";
 
 export default function Clients() {
   const { app } = useContext(GlobalCtx);
-  const [clients, setClients] = useState([]);
+  const [clients, setClients] = useState({
+    initial: false,
+    data:[]
+  });
   const db = getFirestore(app);
   const objUtil = new ObjectUtil();
   useEffect(() => {
@@ -17,13 +20,16 @@ export default function Clients() {
       .then((data) => {
         if (data.exists()) {
           let result = objUtil.reduceToArr(data.data(), { setId: true });
-          setClients(result);
+          setClients({
+            initial:true,
+            data: result
+          });
         }
       })
       .catch((err) => console.log("Public fetch Err: ", err));
   }, []);
 
-  if (clients.length < 1) {
+  if (clients.data.length < 1 && clients.initial) {
     return (
       <div className={styles["clients-container"]}>
         <h1>Our Client List is Empty! 😔</h1>
@@ -31,7 +37,6 @@ export default function Clients() {
     );
   }
 
-  console.log(clients);
   return (
     <>
       <div className={styles["clients-container"]}>
@@ -40,7 +45,7 @@ export default function Clients() {
         </div>
         <div className={styles["clients-content-container"]}>
           <div className={styles["clients-content"]}>
-            {clients.map((client) => (
+            {clients.data.length > 1 && clients.data.map((client) => (
               <ClientListItem key={client.id} {...client} />
             ))}
           </div>

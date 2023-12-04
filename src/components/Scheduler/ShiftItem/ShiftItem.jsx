@@ -1,6 +1,6 @@
 import styles from "./shiftItem.module.css";
 
-export default function ShiftItem({ data, shiftHandler }) {
+export default function ShiftItem({ data, shiftHandler, trStyles }) {
   function displayShift(shiftData) {
     if (shiftData.startTime !== "" && shiftData.endTime !== "") {
       return `${shiftData.startTime} - ${shiftData.endTime} | ${shiftData.position}`;
@@ -14,7 +14,7 @@ export default function ShiftItem({ data, shiftHandler }) {
   }
 
   return (
-    <div className={styles["tr"]}>
+    <div style={trStyles} className={styles["tr"]}>
       <div className={styles["td"]}>{data.name}</div>
       {data.shifts.map(([weekday, shiftData], i) => (
         <div
