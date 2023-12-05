@@ -1,8 +1,10 @@
 import ObjectUtil from "./objectUtil";
+import StringUtil from "./stringUtil.js";
 
 export default class DateUtil {
   constructor() {
-    this.util = new ObjectUtil();
+    this.objUtil = new ObjectUtil();
+    this.stringUtil = new StringUtil();
   }
 
   getWeekdays(data, options = {}) {
@@ -27,7 +29,7 @@ export default class DateUtil {
       }
       return Object.keys(syntaxVariations);
     } else if (typeof data === "object" && Object.keys(data).length === 0) {
-      return this.util.reduceToObj(this.getWeekdays([]), {});
+      return this.objUtil.reduceToObj(this.getWeekdays([]), {});
     }
 
     let string = String(data).toLowerCase();
@@ -121,18 +123,41 @@ export default class DateUtil {
           date = new Date(date.setDate(date.getDate() + step));
           day = date.getDay();
         }
-        return options.toString ? this.op(date).format() : date;
+        return options.toString ? date : this.op(date).format();
       },
-      getWeekSpread: (options = {}) => {
+
+      toCalendarInput: (date) => {
+        if (typeof date !== "object") {
+          date = this.op(date).format();
+        }
+        return `${date.getDate()}-${this.getMonth(
+          date.getMonth()
+        )}-${date.getFullYear()} - ${this.stringUtil.toPascalCase(
+          this.getWeekdays(date.getDay() + 1)
+        )}`;
+      },
+      getWeekSpread: ({ customWeek = null, string = false } = {}) => {
         if (typeof this.result !== "object") {
           this.result = this.op(this.result).format();
         }
+
+        if (customWeek) {
+          console.log(customWeek);
+          const weekdays = this.getWeekdays([]);
+          return customWeek.map(day => {
+            let newDate = new Date(this.result);
+            newDate.setDate(this.result.getDate() + weekdays.indexOf(day));
+            newDate = string ? this.op(newDate).format() : newDate;
+            return newDate;
+          })
+        }
+
         return Array(7)
           .fill(0)
           .map((_, index) => {
             let newDate = new Date(this.result);
             newDate.setDate(this.result.getDate() + index);
-            newDate = options.string ? this.op(newDate).format() : newDate;
+            newDate = string ? this.op(newDate).format() : newDate;
             return newDate;
           });
       },
@@ -153,7 +178,7 @@ export default class DateUtil {
     if (ordinals[number]) {
       return ordinals[number];
     } else if (num !== 0) {
-      return 'th';
+      return "th";
     }
     return null;
   }
@@ -165,12 +190,12 @@ export default class DateUtil {
     );
 
     for (let day of daysArr) {
-      let rotated = this.util.rotateArr(weekGuide, { element: day });
-      let backElement = this.util.rotateArr(rotated, {
+      let rotated = this.objUtil.rotateArr(weekGuide, { element: day });
+      let backElement = this.objUtil.rotateArr(rotated, {
         left: false,
         amount: 1,
       })[0];
-      let frontElement = this.util.rotateArr(rotated, { amount: 1 })[0];
+      let frontElement = this.objUtil.rotateArr(rotated, { amount: 1 })[0];
       if (!daysArr.includes(backElement) && !daysArr.includes(frontElement)) {
         return false;
       }

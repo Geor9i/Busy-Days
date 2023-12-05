@@ -62,7 +62,6 @@ export default class Rota {
   }
 
   getRotaTemplate() {
-    console.log(this.openTimes);
     const scheduleArr = (staff, isManager) =>
       Object.keys(staff).reduce((staffCollection, id) => {
         staffCollection.push({

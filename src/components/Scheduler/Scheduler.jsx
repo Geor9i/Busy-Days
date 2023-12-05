@@ -16,6 +16,7 @@ import {
 import Rota from "../../lib/rota.js";
 import TimeUtil from "../../utils/timeUtil.js";
 import { Link, useNavigate } from "react-router-dom";
+import Calendar from "../Calendar/Calendar.jsx";
 
 export default function Scheduler() {
   const { userData, fireService } = useContext(GlobalCtx);
@@ -40,7 +41,13 @@ export default function Scheduler() {
   );
   let today = new Date();
   let todaysDate = dateUtil.op(today).getMonday();
+  let calendarDate = dateUtil.op().toCalendarInput(todaysDate)
   const [startDate, setStartDate] = useState(todaysDate);
+  const [calendarState, setCalendarState] = useState({
+    on: false,
+    inputDate: calendarDate,
+    dateObj: todaysDate
+  });
   const [shiftModalState, setShiftModalState] = useState({
     on: false,
     empData: {},
@@ -56,13 +63,13 @@ export default function Scheduler() {
     trStyles: {},
   });
 
-  console.log(rota);
-
   useEffect(() => {
-    fireService
-      .fetchData(userData)
-      .then((response) => setBusinessData(response))
-      .catch((err) => console.log("DB error: ", err));
+    // TODO! Activate after completion
+    // fireService
+    //   .fetchData(userData)
+    //   .then((response) => setBusinessData(response))
+    //   .catch((err) => console.log("DB error: ", err));
+    setBusinessData(userData);
   }, []);
 
   useEffect(() => {
@@ -75,6 +82,10 @@ export default function Scheduler() {
     if (rotaTools) {
       let [managers, staff] = rotaTools.getRotaTemplate();
       const openDays = rotaTools.getOpenDays();
+      let weekDates = dateUtil
+        .op(calendarState.dateObj)
+        .getWeekSpread({customWeek: openDays})
+        .map(date => `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`)
       const weekdayHeaders = openDays.map(
         (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
       );
@@ -83,9 +94,9 @@ export default function Scheduler() {
       };
       setRota({ managers, staff, openDays, trStyles, weekdayHeaders });
     }
-  }, [rotaTools]);
+  }, [rotaTools, calendarState]);
 
-  if (objUtil.isEmpty(userData)) {
+         if (objUtil.isEmpty(userData)) {
     return (
       <div>
         <h1>
@@ -104,12 +115,18 @@ export default function Scheduler() {
     );
   }
 
-  let weekDates = dateUtil
-    .op(startDate)
-    .getWeekSpread()
-    .map(
-      (date) => `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
-    );
+  function calendarHandler(e) {
+    if (e.target.tagName === "TD") {
+      const data = JSON.parse(e.target.dataset.id);
+      console.log(data);
+      setCalendarState({
+        on: false,
+        inputDate: `${data.day}-${dateUtil.getMonth(data.month - 1)}-${data.year} - ${stringUtil.toPascalCase(data.weekday)}`
+      })
+    } else if (!["arrow-up", "arrow-down"].includes(e.target.id)) {
+      setCalendarState((state) => ({ ...state, on: !state.on }));
+    }
+  }
 
   function shiftHandler({ e, shiftData, weekday, formData, empData }) {
     setShiftModalStyle({
@@ -204,7 +221,40 @@ export default function Scheduler() {
       <div className={styles["page-container"]}>
         <div className={styles["content-container"]}>
           <div className={styles["table-container"]}>
-            <div className={styles["menu-container"]}></div>
+            <div className={styles["menu-container"]}>
+              <div className={styles["menu-btn-container"]}>
+                <div className={styles["menu-btn"]}>
+                  <p>Save</p>
+                </div>
+              </div>
+              <div className={styles["menu-btn-container"]}>
+                <div className={styles["menu-btn"]}>
+                  <p>Publish</p>
+                </div>
+              </div>
+              <div className={styles["menu-date-container"]}>
+                {calendarState.on && <Calendar handler={calendarHandler} />}
+                <input defaultValue={calendarState.inputDate} disabled type="text" />
+                <div
+                  onClick={calendarHandler}
+                  className={`${styles["menu-btn"]} ${styles["date-btn"]}`}
+                >
+                  <p>Date</p>
+                </div>
+              </div>
+              <div className={styles["group-menu-btn-container"]}>
+                <div className={styles["menu-btn-container"]}>
+                  <div className={styles["menu-btn"]}>
+                    <p>Generate</p>
+                  </div>
+                </div>
+                <div className={styles["menu-btn-container"]}>
+                  <div className={styles["menu-btn"]}>
+                    <p>Reset</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             {/* Manager table */}
             <div className={styles["title-header"]}>
               <p>

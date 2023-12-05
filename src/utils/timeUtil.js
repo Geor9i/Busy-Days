@@ -282,7 +282,6 @@ export default class TimeUtil {
       let backwardTime = { ...orgTime };
       for (let i = orgIndex; i >= 0; i--) {
         if (i === 2) {
-          console.log(i);
         }
         timeSpread.splice(i, 1, { ...backwardTime });
         backwardTime = this.math().calcClockTime(backwardTime, "-01:00");

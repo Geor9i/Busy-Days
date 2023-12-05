@@ -4,7 +4,7 @@ import { useState } from "react";
 import DateUtil from "../../utils/dateUtil.js";
 import StringUtil from "../../utils/stringUtil.js";
 
-export default function Calendar() {
+export default function Calendar({ handler }) {
   const dateUtil = new DateUtil();
   const stringUtil = new StringUtil();
   const core = new CalendarCore();
@@ -30,13 +30,19 @@ export default function Calendar() {
 
     let selectedMonth = [...core.calendarMonth(year, month)];
     let prevMonth = core.getRightDate(year, month, "back");
-    let prevMonthDays = [...core.calendarMonth(prevMonth.year, prevMonth.month - 1)];
+    let prevMonthDays = [
+      ...core.calendarMonth(prevMonth.year, prevMonth.month - 1),
+    ];
 
     let nextMonth = core.getRightDate(year, month, "next");
-    let nextMonthDays = [...core.calendarMonth(nextMonth.year, nextMonth.month - 1)];
+    let nextMonthDays = [
+      ...core.calendarMonth(nextMonth.year, nextMonth.month - 1),
+    ];
     let isCurrent = false;
 
-    let prevMonthIndex = prevMonthDays.findLastIndex((el) => el[1] === "monday");
+    let prevMonthIndex = prevMonthDays.findLastIndex(
+      (el) => el[1] === "monday"
+    );
     let currentMonthIndex = 0;
     let nextMonthIndex = 0;
     // calenderHeaderTextElement.innerText = `${year} ${this.util.getMonth(month)}`;
@@ -59,11 +65,11 @@ export default function Calendar() {
             value: prevMonthDays[prevMonthIndex][0],
             class: classNames.other,
             data: {
-                day: prevMonthDays[prevMonthIndex][0],
-                weekday: prevMonthDays[prevMonthIndex][1],
-                month: prevMonth.month + 1,
-                year: prevMonth.year,
-            }
+              day: prevMonthDays[prevMonthIndex][0],
+              weekday: prevMonthDays[prevMonthIndex][1],
+              month: prevMonth.month + 1,
+              year: prevMonth.year,
+            },
           };
           prevMonthIndex++;
         }
@@ -83,7 +89,7 @@ export default function Calendar() {
                 weekday: nextMonthDays[nextMonthIndex][1],
                 month: nextMonth.month + 1,
                 year: nextMonth.year,
-            }
+              },
             };
             nextMonthIndex++;
             continue;
@@ -100,11 +106,11 @@ export default function Calendar() {
                 value: selectedMonth[currentMonthIndex][0],
                 class: classNames.currentDay,
                 data: {
-                    day: selectedMonth[currentMonthIndex][0],
-                    weekday: selectedMonth[currentMonthIndex][1],
-                    month: month + 1,
-                    year,
-                }
+                  day: selectedMonth[currentMonthIndex][0],
+                  weekday: selectedMonth[currentMonthIndex][1],
+                  month: month + 1,
+                  year,
+                },
               };
               currentMonthIndex++;
               continue;
@@ -114,11 +120,11 @@ export default function Calendar() {
             value: selectedMonth[currentMonthIndex][0],
             class: classNames.current,
             data: {
-                day: selectedMonth[currentMonthIndex][0],
-                weekday: selectedMonth[currentMonthIndex][1],
-                month: month + 1,
-                year,
-            }
+              day: selectedMonth[currentMonthIndex][0],
+              weekday: selectedMonth[currentMonthIndex][1],
+              month: month + 1,
+              year,
+            },
           };
           currentMonthIndex++;
         }
@@ -128,7 +134,6 @@ export default function Calendar() {
   };
 
   const calendarArr = calendarData();
-  console.log(calendarArr);
 
   const upArrowClick = () => {
     if (calendarState.month + 1 < 12) {
@@ -155,42 +160,62 @@ export default function Calendar() {
   };
 
   return (
-    <div className={styles["calendar-container"]}>
-      <div className={styles["calendar-body"]}>
-        <div className={styles["calendar-header"]}>
-          <div className={styles["in-header-container"]}>
-            <h2 className={styles["calendar-header-text"]}>{calendarState.year} {dateUtil.getMonth(calendarState.month, {full: true})}</h2>
-          </div>
-          <div className={styles["in-header-container"]}>
-            <div className={styles["arrow-container"]}></div>
-            <div className={styles["arrow-container"]}>
-              <div className={styles["arrow-up"]} onClick={upArrowClick}></div>
+    <>
+      <div className={styles["calendar-container"]}>
+        <div onClick={handler} className={styles["calendar-body"]}>
+          <div className={styles["calendar-header"]}>
+            <div className={styles["in-header-container"]}>
+              <h2 className={styles["calendar-header-text"]}>
+                {calendarState.year}{" "}
+                {dateUtil.getMonth(calendarState.month, { full: true })}
+              </h2>
             </div>
-            <div className={styles["arrow-container"]}>
-              <div
-                className={styles["arrow-down"]}
-                onClick={downArrowClick}
-              ></div>
+            <div className={styles["in-header-container"]}>
+              <div className={styles["arrow-container"]}></div>
+              <div className={styles["arrow-container"]}>
+                <div
+                  id="arrow-up"
+                  className={styles["arrow-up"]}
+                  onClick={upArrowClick}
+                ></div>
+              </div>
+              <div className={styles["arrow-container"]}>
+                <div
+                  id="arrow-down"
+                  className={styles["arrow-down"]}
+                  onClick={downArrowClick}
+                ></div>
+              </div>
             </div>
           </div>
-        </div>
-        <table className={styles["day-table"]}>
-          <tbody onClick={core.clickDate} className={styles["day-table-tbody"]}>
-            <tr>
-              {dateUtil.getWeekdays([]).map((day) => (
-                <th key={day}>{stringUtil.toPascalCase(day).slice(0, 3)}</th>
-              ))}
-            </tr>
-            {calendarArr.map((row, iR) => (
-              <tr key={iR}>
-                {row.map((day, iC) => (
-                  <td key={`${iR}${iC}`} data-id={JSON.stringify(day.data)} className={styles[day.class]}>{day.value}</td>
+          <table className={styles["day-table"]}>
+            <tbody
+              onClick={core.clickDate}
+              className={styles["day-table-tbody"]}
+            >
+              <tr>
+                {dateUtil.getWeekdays([]).map((day) => (
+                  <th key={day}>{stringUtil.toPascalCase(day).slice(0, 3)}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+              {calendarArr.map((row, iR) => (
+                <tr key={iR}>
+                  {row.map((day, iC) => (
+                    <td
+                      key={`${iR}${iC}`}
+                      data-id={JSON.stringify(day.data)}
+                      className={styles[day.class]}
+                    >
+                      {day.value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+      <div onClick={handler} className={styles["modal-backdrop"]}></div>
+    </>
   );
 }

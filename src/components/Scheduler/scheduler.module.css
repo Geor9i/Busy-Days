@@ -1,250 +1,324 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
+  user-select: none;
 }
 
 :root {
-    --border-prop: 1px solid black;
-    --table-darks: rgb(54, 54, 54);
-    --table-lights: rgb(175, 175, 175);
-    --table-small-text: 1rem;
-    --table-large-text: 1.5rem;
+  --border-prop: 1px solid black;
+  --table-darks: rgb(54, 54, 54);
+  --table-lights: rgb(175, 175, 175);
+  --table-small-text: 1rem;
+  --table-large-text: 1.5rem;
 }
 
 .page-container {
-    padding: 0 1vw;
-    margin-top: 5vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
+  padding: 0 1vw;
+  margin-top: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .menu-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 5vh;
-    background-color: gray;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 2.5vh;
+  background-color: gray;
+}
+
+.menu-btn-container {
+  width: 15%;
+  min-width: 10vw;
+  height: 100%;
+}
+.group-menu-btn-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 40%;
+  height: 100%;
+}
+
+.menu-btn-container:nth-child(even) {
+  border-left: 2px solid white;
+  border-right: 2px solid white;
+}
+
+.menu-date-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30%;
+  height: 100%;
+}
+.menu-date-container input {
+  height: 100%;
+  width: 80%;
+  background-color: white;
+  color: black;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.date-btn {
+  width: 20%;
+}
+
+.menu-btn {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  /* background-color: rgb(216, 216, 216); */
+  background: linear-gradient(
+    to top,
+    rgba(66, 66, 66, 0.322) 0% 10%,
+    rgba(255, 255, 255, 0.226) 40% 70%,
+    rgb(131, 131, 131) 90% 100%
+  );
+  border-top: 1px solid rgb(138, 138, 138);
+  border-bottom: 1px solid rgb(0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-btn {
+  width: 20%;
+}
+
+.menu-btn p {
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 4px;
+}
+
+.menu-btn:hover {
+  background: white;
+}
+
+.menu-btn:active {
+  background-color: rgb(0, 217, 255);
 }
 
 .content-container {
-    display: grid;
-    align-items: start;
-    grid-template-columns: 70% 1fr;
-    justify-items: center;
-    width: 100%;
-    height: 100%;
-    max-height: 80vh;
+  display: grid;
+  align-items: start;
+  grid-template-columns: 70% 1fr;
+  justify-items: center;
+  width: 100%;
+  height: 100%;
+  max-height: 80vh;
 }
 
 .control-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 100%;
-    height: 60%;
-    background-color: rgb(202, 202, 202);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  height: 60%;
+  background-color: rgb(202, 202, 202);
 }
 
-
 .control-title-container {
-    width: 100%;
-    height: 15%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    border-bottom: 3px solid black;
-    background-color: black;
+  width: 100%;
+  height: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-bottom: 3px solid black;
+  background-color: black;
 }
 
 .message-screen {
-    width: 100%;
-    height: 30%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background-color: rgb(231, 231, 231);
+  width: 100%;
+  height: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgb(231, 231, 231);
 }
 
 .message-screen p {
-    font-size: 1.5rem;
-    text-align: center;
+  font-size: 1.5rem;
+  text-align: center;
 }
 
 .message-screen strong {
-    color: red;
-    font-size: 1.5rem;
+  color: red;
+  font-size: 1.5rem;
 }
 
 .message-stack {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    min-height: 20vh;
-    background-color: rgb(255, 255, 255);
-    border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 20vh;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid black;
 }
 
 .message-header-container {
-    width: 100%;
-    height: 40px;
-    background-color: rgb(54, 54, 54);
-    display: grid;
-    grid-template-columns: 25% 25% 50%;
-    align-items: center;
-    justify-items: center;
-    flex-direction: column;
+  width: 100%;
+  height: 40px;
+  background-color: rgb(54, 54, 54);
+  display: grid;
+  grid-template-columns: 25% 25% 50%;
+  align-items: center;
+  justify-items: center;
+  flex-direction: column;
 }
 
 .message-th {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
 }
 
 .message-th:nth-child(even) {
-    border: 1px dotted white;
+  border: 1px dotted white;
 }
 
 .message-content-container {
-    width: 100%;
-    height: 100%;
-    overflow: auto;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
 }
 
 .control-title-container p {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
-    letter-spacing: 2px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 2px;
 }
 
 .schedule-container {
-    display: flex;
-    align-items: start;
-    justify-content: flex-start;
-    width: 70%;
-    max-width: 70vw;
-    height: auto;
-    padding: 0 2vw;
-    background-color: blue;
+  display: flex;
+  align-items: start;
+  justify-content: flex-start;
+  width: 70%;
+  max-width: 70vw;
+  height: auto;
+  padding: 0 2vw;
+  background-color: blue;
 }
 .title-header {
-    width: 100%;
-    height: 5vh;
-    background-color: var(--table-darks);
-    border-bottom: 2px solid black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    letter-spacing: 5px;
+  width: 100%;
+  height: 5vh;
+  background-color: var(--table-darks);
+  border-bottom: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 5px;
 }
 
 .title-header p {
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: white;
 }
 
 .table-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
 }
 
 .shift-table {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
 }
 
 .table-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
 }
 
 .tr {
-    display: grid;
-    grid-template-columns: 15% repeat(7, 1fr)  repeat(3, 5%);
-    align-items: center;
-    justify-items: center;
-    background-color: var(--table-darks);
-    width: 100%;
-    height: auto;
-    border-bottom: var(--border-prop);
+  display: grid;
+  grid-template-columns: 15% repeat(7, 1fr) repeat(3, 5%);
+  align-items: center;
+  justify-items: center;
+  background-color: var(--table-darks);
+  width: 100%;
+  height: auto;
+  border-bottom: var(--border-prop);
 }
 
-
 .th {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    padding: 0.25vh 0;
-    color: white;
-    text-align: center;
-    font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.25vh 0;
+  color: white;
+  text-align: center;
+  font-size: 1.1rem;
 }
 
 .light {
-    background-color: var(--table-lights);
+  background-color: var(--table-lights);
 }
 .tr.light .th {
-    color: black;
+  color: black;
 }
 .th-empty {
-    width: 100%;
-    height: 100%;
-    background-color: var(--table-darks);
+  width: 100%;
+  height: 100%;
+  background-color: var(--table-darks);
 }
 .th:nth-child(even) {
-     border-left: 1px solid black; 
-    border-right: 1px solid black; 
+  border-left: 1px solid black;
+  border-right: 1px solid black;
 }
 
 .table-body {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    max-height: 100%;
-    overflow: auto;
-    max-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  overflow: auto;
+  max-height: 50vh;
 }
 
 .table-small-text {
-    font-size: var(--table-small-text);
-    text-align: center;
+  font-size: var(--table-small-text);
+  text-align: center;
 }
 
 .table-large-text {
-    font-size: var(--table-large-text);
-    font-weight: bold;
-    text-align: center;
+  font-size: var(--table-large-text);
+  font-weight: bold;
+  text-align: center;
 }
