@@ -12,7 +12,7 @@ import TimeUtil from "../../utils/timeUtil.js/";
 import ObjectUtil from "../../utils/objectUtil.js";
 import { BUSINESS_KEY, ROSTER_KEY } from "../../../config/constants.js";
 
-import EmployeeListItem from "./employeeListItem.jsx";
+import EmployeeListItem from "./EmployeeListItem.jsx";
 import Modal from "../misc/modal/Modal.jsx";
 import ProfileModal from "./modals/ProfileModal/ProfileModal.jsx";
 import AvailabilityModal from "./modals/AvailabilityModal/AvailabilityModal.jsx";

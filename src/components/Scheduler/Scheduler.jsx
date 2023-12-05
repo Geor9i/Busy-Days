@@ -42,7 +42,6 @@ export default function Scheduler() {
   let today = new Date();
   let todaysDate = dateUtil.op(today).getMonday();
   let calendarDate = dateUtil.op().toCalendarInput(todaysDate)
-  const [startDate, setStartDate] = useState(todaysDate);
   const [calendarState, setCalendarState] = useState({
     on: false,
     inputDate: calendarDate,
@@ -118,11 +117,14 @@ export default function Scheduler() {
   function calendarHandler(e) {
     if (e.target.tagName === "TD") {
       const data = JSON.parse(e.target.dataset.id);
-      console.log(data);
-      setCalendarState({
+      let selectedDate = new Date(`${data.year}/${data.month}/${data.day}`);
+      let mondayDate = dateUtil.op(selectedDate).getMonday({string: true})
+      setCalendarState(state => ({
+        ...state,
+        dateObj: new Date(mondayDate),
         on: false,
         inputDate: `${data.day}-${dateUtil.getMonth(data.month - 1)}-${data.year} - ${stringUtil.toPascalCase(data.weekday)}`
-      })
+      }))
     } else if (!["arrow-up", "arrow-down"].includes(e.target.id)) {
       setCalendarState((state) => ({ ...state, on: !state.on }));
     }
@@ -234,7 +236,7 @@ export default function Scheduler() {
               </div>
               <div className={styles["menu-date-container"]}>
                 {calendarState.on && <Calendar handler={calendarHandler} />}
-                <input defaultValue={calendarState.inputDate} disabled type="text" />
+                <input value={calendarState.inputDate} disabled type="text" />
                 <div
                   onClick={calendarHandler}
                   className={`${styles["menu-btn"]} ${styles["date-btn"]}`}

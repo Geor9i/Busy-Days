@@ -123,7 +123,7 @@ export default class DateUtil {
           date = new Date(date.setDate(date.getDate() + step));
           day = date.getDay();
         }
-        return options.toString ? date : this.op(date).format();
+        return options.string ? date : this.op(date).format();
       },
 
       toCalendarInput: (date) => {

@@ -1,4 +1,4 @@
-import styles from "./messageListItem.module.css";
+import styles from "./messageListitem.module.css";
 
 export default function MessageListItem() {
   return (
