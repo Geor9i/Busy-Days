@@ -38,8 +38,7 @@ export default function Calendar({ handler }) {
     let nextMonthDays = [
       ...core.calendarMonth(nextMonth.year, nextMonth.month - 1),
     ];
-    let isCurrent = false;
-
+    let isCurrentMonth = false;
     let prevMonthIndex = prevMonthDays.findLastIndex(
       (el) => el[1] === "monday"
     );
@@ -60,14 +59,14 @@ export default function Calendar({ handler }) {
       let colCollection = matrix[row];
       for (let col = 0; col < colCollection.length; col++) {
         //if the current date's weekday calender mapping does not match the first weekday of the selected month
-        if (!isCurrent && prevMonthDays.length > prevMonthIndex) {
+        if (!isCurrentMonth && prevMonthDays.length > prevMonthIndex) {
           colCollection[col] = {
             value: prevMonthDays[prevMonthIndex][0],
             class: classNames.other,
             data: {
               day: prevMonthDays[prevMonthIndex][0],
               weekday: prevMonthDays[prevMonthIndex][1],
-              month: prevMonth.month + 1,
+              month: prevMonth.month,
               year: prevMonth.year,
             },
           };
@@ -75,10 +74,10 @@ export default function Calendar({ handler }) {
         }
         //if the two weekdays match confirm in boolean
         if (dateUtil.getWeekdays(col + 1) === selectedMonth[0][1]) {
-          isCurrent = true;
+          isCurrentMonth = true;
         }
         //begin printing current month
-        if (isCurrent) {
+        if (isCurrentMonth) {
           //if there are no more days in the current month begin printing next month
           if (currentMonthIndex > selectedMonth.length - 1) {
             colCollection[col] = {
@@ -87,7 +86,7 @@ export default function Calendar({ handler }) {
               data: {
                 day: nextMonthDays[nextMonthIndex][0],
                 weekday: nextMonthDays[nextMonthIndex][1],
-                month: nextMonth.month + 1,
+                month: nextMonth.month,
                 year: nextMonth.year,
               },
             };
@@ -134,7 +133,6 @@ export default function Calendar({ handler }) {
   };
 
   const calendarArr = calendarData();
-
   const upArrowClick = () => {
     if (calendarState.month + 1 < 12) {
       setCalendarState((state) => ({ ...state, month: state.month + 1 }));

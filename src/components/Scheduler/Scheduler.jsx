@@ -40,13 +40,15 @@ export default function Scheduler() {
     initialShiftModalStyles
   );
   let today = new Date();
-  let todaysDate = dateUtil.op(today).getMonday();
-  let calendarDate = dateUtil.op().toCalendarInput(todaysDate)
+  let mondayDate = dateUtil.op(today).getMonday();
+  console.log({mondayDate});
+  let calendarDate = dateUtil.op().toCalendarInput(mondayDate)
   const [calendarState, setCalendarState] = useState({
     on: false,
     inputDate: calendarDate,
-    dateObj: todaysDate
+    dateObj: mondayDate
   });
+  console.log(calendarState);
   const [shiftModalState, setShiftModalState] = useState({
     on: false,
     empData: {},
@@ -118,10 +120,12 @@ export default function Scheduler() {
     if (e.target.tagName === "TD") {
       const data = JSON.parse(e.target.dataset.id);
       let selectedDate = new Date(`${data.year}/${data.month}/${data.day}`);
-      let mondayDate = dateUtil.op(selectedDate).getMonday({string: true})
+      let mondayDate = dateUtil.op(selectedDate).getMonday({string: true});
+      let mondayDateObj = new Date(mondayDate);
+      console.log({mondayDateObj});
       setCalendarState(state => ({
         ...state,
-        dateObj: new Date(mondayDate),
+        dateObj: mondayDateObj,
         on: false,
         inputDate: `${data.day}-${dateUtil.getMonth(data.month - 1)}-${data.year} - ${stringUtil.toPascalCase(data.weekday)}`
       }))
@@ -260,9 +264,9 @@ export default function Scheduler() {
             {/* Manager table */}
             <div className={styles["title-header"]}>
               <p>
-                Schedule for{" "}
-                {dateUtil.getMonth(today.getMonth(), { full: true })}{" "}
-                {today.getFullYear()}
+                Schedule for {" "}
+                {dateUtil.getMonth(calendarState.dateObj.getMonth(), { full: true })}{" "}
+                {calendarState.dateObj.getFullYear()}
               </p>
             </div>
             {rota.managers.length > 0 && (

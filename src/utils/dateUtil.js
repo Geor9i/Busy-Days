@@ -123,7 +123,7 @@ export default class DateUtil {
           date = new Date(date.setDate(date.getDate() + step));
           day = date.getDay();
         }
-        return options.string ? date : this.op(date).format();
+        return options.string ? this.op(date).format() : date;
       },
 
       toCalendarInput: (date) => {
@@ -142,7 +142,6 @@ export default class DateUtil {
         }
 
         if (customWeek) {
-          console.log(customWeek);
           const weekdays = this.getWeekdays([]);
           return customWeek.map(day => {
             let newDate = new Date(this.result);
