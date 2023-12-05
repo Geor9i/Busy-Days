@@ -41,14 +41,12 @@ export default function Scheduler() {
   );
   let today = new Date();
   let mondayDate = dateUtil.op(today).getMonday();
-  console.log({mondayDate});
   let calendarDate = dateUtil.op().toCalendarInput(mondayDate)
   const [calendarState, setCalendarState] = useState({
     on: false,
     inputDate: calendarDate,
     dateObj: mondayDate
   });
-  console.log(calendarState);
   const [shiftModalState, setShiftModalState] = useState({
     on: false,
     empData: {},
@@ -82,10 +80,11 @@ export default function Scheduler() {
   useEffect(() => {
     if (rotaTools) {
       let [managers, staff] = rotaTools.getRotaTemplate();
+      console.log({managers, staff});
       const openDays = rotaTools.getOpenDays();
       let weekDates = dateUtil
         .op(calendarState.dateObj)
-        .getWeekSpread({customWeek: openDays})
+        .getWeekSpread({ customWeek: openDays })
         .map(date => `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`)
       const weekdayHeaders = openDays.map(
         (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
@@ -93,11 +92,20 @@ export default function Scheduler() {
       const trStyles = {
         gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`,
       };
-      setRota({ managers, staff, openDays, trStyles, weekdayHeaders });
+
+      const newState = 
+      setRota(state => ({
+        ...state,
+        managers,
+        staff,
+        openDays,
+        trStyles,
+        weekdayHeaders,
+      }));
     }
   }, [rotaTools, calendarState]);
 
-         if (objUtil.isEmpty(userData)) {
+  if (objUtil.isEmpty(userData)) {
     return (
       <div>
         <h1>
@@ -120,9 +128,9 @@ export default function Scheduler() {
     if (e.target.tagName === "TD") {
       const data = JSON.parse(e.target.dataset.id);
       let selectedDate = new Date(`${data.year}/${data.month}/${data.day}`);
-      let mondayDate = dateUtil.op(selectedDate).getMonday({string: true});
+      let mondayDate = dateUtil.op(selectedDate).getMonday({ string: true });
       let mondayDateObj = new Date(mondayDate);
-      console.log({mondayDateObj});
+      console.log({ mondayDateObj });
       setCalendarState(state => ({
         ...state,
         dateObj: mondayDateObj,
@@ -313,7 +321,7 @@ export default function Scheduler() {
                       data={employee}
                       shiftHandler={shiftHandler}
                       trStyles={rota.trStyles}
-                      // shifts={}
+                    // shifts={}
                     />
                   ))}
                 </div>
@@ -365,7 +373,7 @@ export default function Scheduler() {
                       data={employee}
                       shiftHandler={shiftHandler}
                       trStyles={rota.trStyles}
-                      // shifts={}
+                    // shifts={}
                     />
                   ))}
                 </div>
