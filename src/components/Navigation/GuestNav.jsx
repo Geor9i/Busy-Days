@@ -1,5 +1,6 @@
 import styles from "./guestNav.module.css";
 import { Routes, Route, Link } from "react-router-dom";
+import logo from '../../assets/logo.png'
 
 const GuestNav = () => {
   return (
@@ -7,6 +8,7 @@ const GuestNav = () => {
       <nav className={styles["home-nav"]}>
           <div className={styles["home-btn-container"]}>
               <Link className={styles["link-home"]} to="/">
+                {/* <img className={styles['logo']} src={logo} alt="logo" /> */}
                 Busy Days
               </Link>
           </div>
