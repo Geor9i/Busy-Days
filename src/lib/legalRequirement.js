@@ -1,7 +1,7 @@
 export default class LegalRequirements{
     constructor() {
         this.dailyHours = {
-            min: '01:00',
+            min: '01:30',
             max: '12:00'
         }
         this.breakLength = {
@@ -13,13 +13,17 @@ export default class LegalRequirements{
             min: '08:00',
             max: {
                 'student': '20:00',
-                'parttime': '35:00',
-                'fulltime': '48:00',
-                'overtime': '60:00',
+                'partTime': '35:00',
+                'fullTime': '48:00',
+                'overTime': '60:00',
             }
         },
         this.daysOff = {
             min: 1
         }
+    }
+
+    getMaxHours(employeeObject) {
+        return this.weeklyHours.max[employeeObject.contractType]
     }
 }

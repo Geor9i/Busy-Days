@@ -2,7 +2,6 @@ import { useState } from "react";
 import ObjectUtil from "../utils/objectUtil.js";
 
 export default function useForm(initialValues, submitHandler, confirmHandler) {
-  const [resetValues, setResetValues] = useState(initialValues);
   const [formData, setFormData] = useState(initialValues);
   const objUtil = new ObjectUtil();
 

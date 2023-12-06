@@ -64,10 +64,10 @@ export default function Scheduler() {
 
   useEffect(() => {
     // TODO! Activate after completion
-    // fireService
-    //   .fetchData(userData)
-    //   .then((response) => setBusinessData(response))
-    //   .catch((err) => console.log("DB error: ", err));
+    fireService
+      .fetchData(userData)
+      .then((response) => setBusinessData(response))
+      .catch((err) => console.log("DB error: ", err));
     setBusinessData(userData);
   }, []);
 

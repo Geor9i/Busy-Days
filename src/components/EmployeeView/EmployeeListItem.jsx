@@ -13,7 +13,6 @@ export default function EmployeeListItem({
 }) {
   const dateUtil = new DateUtil();
   const empTools = new EmployeeTools();
-  const weekdays = dateUtil.getWeekdays([]);
   const [onDisplay, setDisplay] = useState(false);
   const [style, setStyle] = useState({
     backgroundColor: "",
@@ -27,7 +26,7 @@ export default function EmployeeListItem({
 
   useEffect(() => {
     
-    const availability = empTools.calcAvailabilityArr(data.availability)
+    const availability = empTools.calcAvailability(data)
     setAvailability({
       strict: availability?.strict ? availability.strict : null,
       important: availability?.important ? availability.important : null,
@@ -44,21 +43,6 @@ export default function EmployeeListItem({
       setStyle({ backgroundColor: "" });
     }
   };
-  /**
-     * Rita: {
-    firstName: "Rita",
-    surname: "Sunuwar",
-    positions: ["SR"],
-    contractType: "overtime",
-    availability: {
-      "14:00 - close": { important: ["m", "t", "w", "th", "f", "su"] },
-      "12:00 - close": { strict: ["m", "t", "w", "th", "f", 's', "su"] },
-    },
-    daysOff: { strict: ["s"] },
-    minHours: { strict: "53:00" },
-  },
-     */
-
  
   return (
     <>
@@ -157,29 +141,29 @@ export default function EmployeeListItem({
 
                   <tbody>
                     <tr>
-                      {availability.strict && availability.strict.map((day) => {
-                       if (day[1] !== "off") {
-                          return <td key={day[0]} className={styles["strict"]}>{day[1]}</td>;
+                      {availability.strict && availability.strict.map(([weekday, timeData]) => {
+                       if (weekday[1] !== "off") {
+                          return <td key={weekday} className={styles["strict"]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
                         } else {
-                          return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
+                          return <td key={weekday} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                    {availability.important && availability.important.map((day) => {
-                       if (day[1] !== "off") {
-                          return <td key={day[0]} className={styles["important"]}>{day[1]}</td>;
+                      {availability.important && availability.important.map(([weekday, timeData]) => {
+                       if (weekday[1] !== "off") {
+                          return <td key={weekday} className={styles["strict"]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
                         } else {
-                          return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
+                          return <td key={weekday} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                    {availability.optional && availability.optional.map((day) => {
-                        if (day[1] !== "off") {
-                          return <td key={day[0]} className={styles["optional"]}>{day[1]}</td>;
+                      {availability.optional && availability.optional.map(([weekday, timeData]) => {
+                       if (weekday[1] !== "off") {
+                          return <td key={weekday} className={styles["strict"]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
                         } else {
-                          return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
+                          return <td key={weekday} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>

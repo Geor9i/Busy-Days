@@ -53,11 +53,11 @@ export default class Rota {
   }
 
   getOpenDays() {
-    let weekdays = this.date.getWeekdays([]);
+    let weekdayGuide = this.date.getWeekdays([]);
     return Object.keys(this.openTimes)
     .filter(day => this.openTimes[day].isWorkday)
     .sort(
-      (a, b) => weekdays.indexOf(a) - weekdays.indexOf(b)
+      (a, b) => weekdayGuide.indexOf(a) - weekdayGuide.indexOf(b)
     );
   }
 

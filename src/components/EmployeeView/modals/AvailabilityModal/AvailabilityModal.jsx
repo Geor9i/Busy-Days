@@ -4,67 +4,87 @@ import DateUtil from "../../../../utils/dateUtil.js";
 import StringUtil from "../../../../utils/stringUtil.js";
 import { useEffect, useState } from "react";
 import TimeUtil from "../../../../utils/timeUtil.js";
-import { ROSTER_KEY } from "../../../../../config/constants.js";
+import EmployeeTools from "../../../../lib/employeeTools.js";
+import LegalRequirements from "../../../../lib/legalRequirement.js";
 
-export default function AvailabilityModal({ fireService, closeModal, id, data }) {
+export default function AvailabilityModal({ closeModal, id, employeeData }) {
   const objectUtil = new ObjectUtil();
   const stringUtil = new StringUtil();
   const dateUtil = new DateUtil();
   const timeUtil = new TimeUtil();
+  const empTools = new EmployeeTools();
   const weekdays = dateUtil.getWeekdays([]);
+  const legal = new LegalRequirements();
+  const availabilityTemplate = empTools.weeklyAvailabilityTemplate();
 
-  const [page, setPage] = useState("availability");
-  const [priority, setPriority] = useState("strict");
-  const [lastKey, setLastKey] = useState("");
-  const initAvailability = objectUtil.reduceToObj(weekdays, {
-    startTime: "",
-    endTime: "",
-  })
-  const initDaysOff =  {
-    days: objectUtil.reduceToObj(weekdays, false),
-    amount: "",
-    consecutive: false,
-  }
-  const initialValues = {
-    availability: data.availability?.[priority] ? data.availability[priority] : initAvailability ,
-    daysOff: {
-      days: data?.daysOff?.days?.[priority] ? data.daysOff.days[priority] : initDaysOff.days,
-      amount: data?.daysOff?.amount?.[priority] ? data.daysOff.amount[priority] : initDaysOff.amount,
-      consecutive: data?.daysOff?.consecutive?.[priority] ? data.daysOff.consecutive[priority] : initDaysOff.consecutive,
+  const [employeeDataState, setEmployeeDataState] = useState({
+    availability: employeeData.availability || { strict: availabilityTemplate },
+    daysOffAmount: employeeData.daysOffAmount || { strict: 1 },
+    daysOffConsecutive: employeeData.daysOffConsecutive || { strict: false },
+    minHours: employeeData.minHours || { strict: legal.weeklyHours.min },
+    maxHours: employeeData.maxHours || {
+      strict: legal.getMaxHours(employeeData),
     },
+  });
+  const [formPriority, setFormPriority] = useState("strict");
+  const [lastKey, setLastKey] = useState("");
+
+  const initialValues = {
+   availability: employeeDataState.availability?.[formPriority] || empTools.calcAvailability(employeeData)[formPriority],
+   daysOffAmount: employeeDataState.daysOffAmount?.[formPriority] ,
+   daysOffConsecutive: employeeDataState.daysOffConsecutive?.[formPriority] ,
+   minHours: employeeDataState.minHours?.[formPriority] || "",
+   maxHours: employeeDataState.maxHours?.[formPriority] || ""
   };
   const [formData, setFormData] = useState(initialValues);
+
   useEffect(() => {
     setFormData(initialValues);
-  }, [page, priority])
+  }, [formPriority]);
   console.log(initialValues);
+
+  // useEffect(() => {
+  //   let daysOff = Array
+  // }, [formData]);
+
+  function toggleWeekday(e) {
+    const weekday = e.target.id.split("-")[0];
+    setFormData((state) => ({
+      ...state,
+      availability: state.availability.map(([currentWeekday, data]) =>
+        currentWeekday === weekday
+          ? [currentWeekday, { ...data, isWorkday: !data.isWorkday }]
+          : [currentWeekday, data]
+      ),
+    }));
+  }
 
   async function submitHandler(e) {
     e.preventDefault();
     let employeeId = id[0];
-    const targetData = formData[page];
+    const targetData = formData;
     // const isEmpty = isEmptyFormData(formData, { [page]: true });
     // if (isEmpty) return;
 
     const goAhead = confirm("Save all changes ?");
     if (goAhead) {
       let finalData;
-      if (page === "availability") {
-        finalData = {
-          [employeeId]: { [page]: { [priority]: targetData } },
-        };
-      } else if (page === "daysOff") {
-        finalData = {
-          [employeeId]: {
-            [page]: {
-              days: { [priority]: targetData.days },
-              consecutive: { [priority]: targetData.consecutive },
-              amount: { [priority]: targetData.amount },
-            },
-          },
-        };
-      }
-      await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
+      // if (page === "availability") {
+      //   finalData = {
+      //     [employeeId]: { [page]: { [priority]: targetData } },
+      //   };
+      // } else if (page === "daysOff") {
+      //   finalData = {
+      //     [employeeId]: {
+      //       [page]: {
+      //         days: { [priority]: targetData.days },
+      //         consecutive: { [priority]: targetData.consecutive },
+      //         amount: { [priority]: targetData.amount },
+      //       },
+      //     },
+      //   };
+      // }
+      // await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
       closeModal();
     }
   }
@@ -148,22 +168,15 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
   }
 
   function switchMenu(e) {
-    const options = {
-      page: ["availability", "daysOff"],
-      priority: ["strict", "important", "optional"],
-    };
+    const priorities = ["strict", "important", "optional"];
     const id = e.currentTarget.id;
     const goAhead = checkFilled();
-    if (goAhead) {
-      if (options.page.includes(id)) {
-        setPage(id);
-      } else if (options.priority.includes(id)) {
-        setPriority(id);
-      }
+    if (goAhead && formPriority.includes(id)) {
+      setFormPriority(id);
     }
     //  !TODO: CheckFilled when Object is saved
     function checkFilled() {
-      if (page !== id && priority !== id) {
+      if (formPriority !== id) {
         if (!isEmptyFormData(formData, { all: true })) {
           return confirm("Lose all changes ?");
         }
@@ -195,9 +208,6 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
     return true;
   }
 
-  const highlightedPageStyle = {
-    backgroundColor: "rgb(0, 255, 255)",
-  };
   const highlightedPriorityStyle = {
     backgroundColor: "rgb(255, 255, 255)",
     border: "2px inset white",
@@ -208,32 +218,13 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
     optional: "#98fc03",
   };
   const priorityStyle = {
-    backgroundColor: priorityColorPicker[priority],
+    backgroundColor: priorityColorPicker[formPriority],
   };
 
   return (
     <div className={styles["modal-content"]}>
       <div className={styles["title-container"]}>
         <h2>Availability Manager</h2>
-      </div>
-
-      <div className={styles["category-setting-btn-container"]}>
-        <div
-          className={styles["category-setting-btn"]}
-          style={page === "availability" ? highlightedPageStyle : {}}
-          onClick={switchMenu}
-          id="availability"
-        >
-          <h4>Availability</h4>
-        </div>
-        <div
-          className={styles["category-setting-btn"]}
-          style={page === "daysOff" ? highlightedPageStyle : {}}
-          onClick={switchMenu}
-          id="daysOff"
-        >
-          <h4>Days Off</h4>
-        </div>
       </div>
 
       <div className={styles["main-content-container"]}>
@@ -244,7 +235,7 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
           <div className={styles["priority-setting-btn-container"]}>
             <div
               className={`${styles["priority-setting-btn"]} ${styles["strict"]}`}
-              style={priority === "strict" ? highlightedPriorityStyle : {}}
+              style={formPriority === "strict" ? highlightedPriorityStyle : {}}
               onClick={switchMenu}
               id="strict"
             >
@@ -252,7 +243,7 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
             </div>
             <div
               className={`${styles["priority-setting-btn"]} ${styles["important"]}`}
-              style={priority === "important" ? highlightedPriorityStyle : {}}
+              style={formPriority === "important" ? highlightedPriorityStyle : {}}
               onClick={switchMenu}
               id="important"
             >
@@ -260,112 +251,97 @@ export default function AvailabilityModal({ fireService, closeModal, id, data })
             </div>
             <div
               className={`${styles["priority-setting-btn"]} ${styles["optional"]}`}
-              style={priority === "optional" ? highlightedPriorityStyle : {}}
+              style={formPriority === "optional" ? highlightedPriorityStyle : {}}
               onClick={switchMenu}
               id="optional"
             >
               <h4>Optional</h4>
             </div>
           </div>
-          {page === "availability" ? (
-            <div className={styles["availability-table-container"]}>
-              <h4>Set availability time window</h4>
-              <div className={styles["availability-table"]}>
-                <div className={styles["availability-table-header"]}>
-                  {weekdays.map((day) => (
+          <div className={styles["availability-table-container"]}>
+            <h4>Set availability time window</h4>
+            <div className={styles["availability-table"]}>
+              <div className={styles["availability-table-header"]}>
+                {formData.availability.map(([weekday, data]) => (
+                  <div
+                    onClick={toggleWeekday}
+                    id={`${weekday}-header`}
+                    key={`${weekday}-header`}
+                    className={`${styles["header-weekday"]} ${
+                      !data.isWorkday ? styles["header-weekday-inactive"] : null
+                    }`}
+                  >
+                    {stringUtil.toPascalCase(weekday)}
+                  </div>
+                ))}
+              </div>
+              <div className={styles["availability-table-body"]}>
+                {formData.availability.map(([weekday, data]) =>
+                  data.isWorkday ? (
                     <div
-                      key={`${day}-header`}
-                      className={styles["header-weekday"]}
+                      key={`${weekday}-body`}
+                      className={styles["body-weekday"]}
                     >
-                      {stringUtil.toPascalCase(day)}
-                    </div>
-                  ))}
-                </div>
-                <div className={styles["availability-table-body"]}>
-                  {weekdays.map((day) => (
-                    <div key={`${day}-body`} className={styles["body-weekday"]}>
-                      <div className={styles["time-container"]}>
-                        <p>Start</p>
-                        <input
-                          style={
-                            formData.availability[day].startTime
-                              ? priorityStyle
-                              : {}
-                          }
-                          name={`${day}-startTime`}
-                          maxLength={5}
-                          type="text"
-                          onChange={onChange}
-                          onKeyDown={(e) => setLastKey(e.key)}
-                          onBlur={onBlurHandler}
-                          value={formData.availability[day].startTime}
-                        />
-                      </div>
-                      <div className={styles["time-container"]}>
-                        <p>End</p>
-                        <input
-                          style={
-                            formData.availability[day].endTime
-                              ? priorityStyle
-                              : {}
-                          }
-                          name={`${day}-endTime`}
-                          maxLength={5}
-                          type="text"
-                          onChange={onChange}
-                          onBlur={onBlurHandler}
-                          onKeyDown={(e) => setLastKey(e.key)}
-                          value={formData.availability[day].endTime}
-                        />
+                      <div className={styles["time-main-container"]}>
+                        <div className={styles["time-container"]}>
+                          <p>Start</p>
+                          <input
+                            style={data.startTime ? priorityStyle : {}}
+                            name={`${weekday}-startTime`}
+                            maxLength={5}
+                            type="text"
+                            onChange={onChange}
+                            onKeyDown={(e) => setLastKey(e.key)}
+                            onBlur={onBlurHandler}
+                            value={data.startTime}
+                          />
+                        </div>
+                        <div className={styles["time-container"]}>
+                          <p>End</p>
+                          <input
+                            style={data.endTime ? priorityStyle : {}}
+                            name={`${weekday}-endTime`}
+                            maxLength={5}
+                            type="text"
+                            onChange={onChange}
+                            onBlur={onBlurHandler}
+                            onKeyDown={(e) => setLastKey(e.key)}
+                            value={data.endTime}
+                          />
+                        </div>
                       </div>
                     </div>
+                  ) : (
+                    <div
+                      key={`${weekday}-body`}
+                      className={styles["body-weekday"]}
+                    >
+                      <h3>Day Off</h3>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+          <div className={styles["specifics-container"]}>
+            <div className={styles["specifics-inner-container"]}>
+              <h3>Total days off</h3>
+              <select defaultValue="none" className={styles["days-off-select"]} name="total">
+                <option value="none">
+                  Select total
+                </option>
+                {Array(6)
+                  .fill(0)
+                  .map((num, i) => (
+                    <option key={i} value={i + 1}>{i + 1}</option>
                   ))}
-                </div>
-              </div>
+              </select>
             </div>
-          ) : (
-            <div className={styles["days-off-content-container"]}>
-              <div className={styles["days-off-category-content-container"]}>
-                <div className={styles["days-off-select-content-container"]}>
-                  <div className={styles["days-off-select-container"]}>
-                    {weekdays.map((day) => (
-                      <div
-                        style={formData.daysOff.days[day] ? priorityStyle : {}}
-                        key={`${day}-day-off-selector`}
-                        className={styles["day-off-weekday"]}
-                        onClick={(e) => onChange(e)}
-                        id={`${day}-daysOff`}
-                      >
-                        {stringUtil.toPascalCase(day)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className={styles["days-off-specifics-content-container"]}>
-                  <div className={styles["days-off-specifics-content"]}>
-                    <p>Minimum required days off</p>
-                    <input
-                      type="text"
-                      className={styles["input-amount"]}
-                      onChange={onChange}
-                      value={formData.daysOff.amount}
-                      name="amount"
-                    />
-                  </div>
-                  <div className={styles["days-off-specifics-content"]}>
-                    <p>Give Consecutive days</p>
-                    <input
-                      className={styles["checkbox-consecutive"]}
-                      type="checkbox"
-                      onChange={onChange}
-                      checked={formData.daysOff.consecutive}
-                      name="consecutive"
-                    />
-                  </div>
-                </div>
-              </div>
+            <div className={styles["specifics-inner-container"]}>
+              <h3>Give consecutive days off</h3>
+              <input type="checkbox" />
             </div>
-          )}
+          </div>
           <div className={styles["save-btn-container"]}>
             <button>Save</button>
           </div>

@@ -21,6 +21,12 @@ import EditProfileModal from "./modals/EditProfileModal/EditProfileModal.jsx";
 
 export default function EmployeeView() {
   const { fireService, userData } = useContext(GlobalCtx);
+  const formUtil = new FormUtil();
+  const dateUtil = new DateUtil();
+  const stringUtil = new StringUtil();
+  const timeUtil = new TimeUtil();
+  const navigate = useNavigate();
+  const weekdayGuide = dateUtil.getWeekdays([]);
   const objUtil = new ObjectUtil();
   if (objUtil.isEmpty(userData) || !userData[BUSINESS_KEY]) {
     return (
@@ -33,11 +39,7 @@ export default function EmployeeView() {
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
   const [roles, setRoles] = useState([]);
-  useEffect(() => {
-    fireService.fetchOne(BUSINESS_KEY)
-    .then(data => setRoles(data.positionHierarchy.map(pos => pos.title)))
-    .catch(err => console.log(err))
-  }, [])
+  
   
   const [userProfileModalState, setUserProfileModalState] = useState(false);
   const [availabilityModalState, setAvailabilityModalState] = useState({
@@ -57,29 +59,17 @@ export default function EmployeeView() {
     reverse: false,
   });
 
-  const formUtil = new FormUtil();
-  const dateUtil = new DateUtil();
-  const stringUtil = new StringUtil();
-  const timeUtil = new TimeUtil();
-  const navigate = useNavigate();
-  const weekdays = dateUtil.getWeekdays([]);
+  useEffect(() => {
+    fireService.fetchOne(BUSINESS_KEY)
+    .then(data => setRoles(data.positionHierarchy.map(pos => pos.title)))
+    .catch(err => console.log(err))
+  }, [])
 
   useEffect(() => {
     const unsubscribe = fireService.onSnapShot(ROSTER_KEY, roster, setRoster);
     return () => unsubscribe();
   }, []);
 
- 
-
-  function rosterToArr(roster) {
-    if (!objUtil.isEmpty(roster)) {
-      return Object.keys(roster).reduce((arr, id) => {
-        arr.push([[id], roster[id]]);
-        return arr;
-      }, []);
-    }
-    return [];
-  }
   useEffect(() => {
     let rosterArr = rosterToArr(roster);
 
@@ -99,7 +89,17 @@ export default function EmployeeView() {
     });
     setDisplayEmployees(filtered);
   }, [roster, filterData]);
-  // Load roster data if it exists
+ 
+  function rosterToArr(roster) {
+    if (!objUtil.isEmpty(roster)) {
+      return Object.keys(roster).reduce((arr, id) => {
+        arr.push([[id], roster[id]]);
+        return arr;
+      }, []);
+    }
+    return [];
+  }
+ 
 
   const editProfileModalAndSubmitHandler = async ({
     e,
@@ -264,11 +264,10 @@ export default function EmployeeView() {
     width: "60vw",
     maxWidth: "1000px",
     minWidth: "600px",
-    height: "40vh",
+    height: "45vh",
     borderRadius: "13px",
   };
 
-  //Search functionality
   const searchHandler = ({ formData }) => {
     if (formData.search === "") {
       setDisplayEmployees(rosterToArr(roster));
@@ -330,7 +329,7 @@ export default function EmployeeView() {
               fireService={fireService}
               closeModal={availabilityHandler}
               id={availabilityModalState.id}
-              data={availabilityModalState.data}
+              employeeData={availabilityModalState.data}
             />
           }
         />

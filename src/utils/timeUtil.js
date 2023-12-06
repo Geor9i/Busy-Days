@@ -273,16 +273,15 @@ export default class TimeUtil {
       }
     }
   
-    relativeTime(originTime, { hourLength = 6 } = {}) {
-      hourLength = hourLength > 24 ? 24 : hourLength;
+    relativeTime(originTime) {
+      if (!originTime) return null;
+      let hourLength = 12;
       let timeSpread = Array(hourLength * 2).fill(0);
       let orgTime = this.time().toObj(originTime);
-      let orgIndex = Math.round(timeSpread.length / 2);
+      let orgIndex = Math.round(timeSpread.length / 2) - 1;
       let forwardTime = { ...orgTime };
       let backwardTime = { ...orgTime };
       for (let i = orgIndex; i >= 0; i--) {
-        if (i === 2) {
-        }
         timeSpread.splice(i, 1, { ...backwardTime });
         backwardTime = this.math().calcClockTime(backwardTime, "-01:00");
       }
@@ -290,36 +289,56 @@ export default class TimeUtil {
         timeSpread.splice(i, 1, { ...forwardTime });
         forwardTime = this.math().calcClockTime(forwardTime, "01:00");
       }
+      let minuteSpread = Array(60)
+        .fill({})
+        .map((el, i) => ({
+          m: i,
+        }));
+      function spliceTimeSpread() {
+        let result = [];
+        for (let i = 0; i < timeSpread.length; i++) {
+          let currentTimeHour = timeSpread[i].h;
+          let minutesArr = [...minuteSpread].map((timeObj) => ({
+            ...timeObj,
+            h: currentTimeHour,
+          }));
+          result.push(...minutesArr);
+        }
+        return result;
+      }
+      timeSpread = spliceTimeSpread();
+      orgIndex = timeSpread.findIndex(timeObj => timeObj.h === orgTime.h && timeObj.m === orgTime.m)
+      function findClosestIndex(compareTimeObj) {
+        let foundIndexes = [];
+        timeSpread.forEach((timeObj, i) =>
+          timeObj.h === compareTimeObj.h && timeObj.m === compareTimeObj.m ? foundIndexes.push(i) : null
+        );
+        return foundIndexes.reduce((accIndex, currIndex) => {
+          let currentDistance = Math.abs(orgIndex - currIndex);
+          let accDistance = Math.abs(orgIndex - accIndex);
+          return accDistance < currentDistance ? accIndex : currIndex;
+        }, Number.MAX_SAFE_INTEGER);
+      }
       return {
         isBiggerThan: (compareTime) => {
-          if (!originTime || !compareTime) return null;
           let compare = this.time().toObj(compareTime);
-          let compareTimeIndex = timeSpread.findLastIndex((obj) => obj.h === compare.h);
-          if (compareTimeIndex !== -1) {
-            return orgIndex > compareTimeIndex;
+          let compareIndex = findClosestIndex(compare);
+          if (compareIndex !== -1) {
+            return orgIndex > compareIndex;
           }
           return false;
         },
         isLessThan: (compareTime) => {
-          if (!originTime || !compareTime) return null;
           let compare = this.time().toObj(compareTime);
-          let compareIndex = timeSpread.findIndex((obj) => obj.h === compare.h);
+          let compareIndex = findClosestIndex(compare);
           if (compareIndex !== -1) {
             return orgIndex < compareIndex;
           }
           return false;
         },
-        deduct: (compareTime) => {
-          if (!originTime || !compareTime) return null;
-          let compare = this.time().toObj(compareTime);
-          let compareTimeIndex = timeSpread.findIndex((obj) => obj.h === compare.h);
-          if (compareTimeIndex !== -1) {
-            return compareTimeIndex - compareTimeIndex;
-          }
-          
-        }
       };
     }
+  
   
     sanitize(time) {
       if (!time) {

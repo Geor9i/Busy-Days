@@ -22,31 +22,8 @@
     margin: 0;
 }
 
-.category-setting-btn-container {
-    width: auto;
-    margin-top: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid black;
-}
-.category-setting-btn:nth-child(even) {
-    border-left: 3px solid black;
-}
-
-.category-setting-btn {
-   padding: 0 40px;
-   background-color: rgb(146, 146, 146);
-
-}
-
-.category-setting-btn:hover {
-    background-color: rgb(199, 199, 199);
-    cursor: pointer;
-}
-
 .main-content-container {
-    margin-top: 5%;
+    margin-top: 2%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -94,11 +71,10 @@
  }
 
  .availability-table-container {
-    margin-top: 3%;
     display: flex;
     align-items: center;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     width: 100%;
     height: 50%;
  }
@@ -128,11 +104,23 @@
     font-size: 1.1rem;
     background-color: rgb(78, 78, 78);
     color: white;
+    cursor: pointer;
+ }
+
+ .header-weekday:hover {
+
+   background-color: rgb(111, 238, 255)
  }
 
  .header-weekday:nth-child(odd) {
     border-left: 1px solid black;
     border-right: 1px solid black;
+ }
+
+ .header-weekday-inactive {
+   text-decoration: line-through;
+   text-decoration-thickness: 3px;
+   background-color: rgb(199, 199, 199);
  }
 
  .availability-table-body {
@@ -146,6 +134,15 @@
 
  .body-weekday {
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+ }
+
+ .time-main-container {
+   width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
@@ -177,115 +174,51 @@
     border-right: 1px solid black;
  }
 
+ .specifics-container {
+   width: 100%;
+   height: 20%;
+   min-height: 3rem;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+ }
+
+ .specifics-inner-container {
+   width: 50%;
+   height: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+ }
+
+ .days-off-select {
+   width: auto;
+   text-align: center;
+   font-size: 1.2rem;
+   margin-left: 3%;
+ }
+
+ .specifics-inner-container input {
+   margin: 10px;
+   height: 50%;
+   width: 10%;
+   font-size: 1.5rem;
+   font-weight: bold;
+   text-align: center;
+ }
 
  .save-btn-container {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 30%;
+    height: 10%;
  }
 
  .save-btn-container button {
     margin-top: 20px;
     width: 50%;
-    height: 50%;
+    height: 100%;
     cursor: pointer;
  }
 
-  /* Days off content*/
-
-  .days-off-content-container {
-    margin-top: 2%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: flex-start;
-    width: 100%;
-    height: 100%;
-  }
-
-  .days-off-category-content-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-  }
-
-  .days-off-select-content-container {
-    width: 90%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .days-off-select-container{
-    display: grid;
-    width: 100%;
-    height: 60%;
-    grid-template-columns: repeat(7, 1fr);
-    justify-items: center;
-    background-color: rgb(218, 218, 218);
-  }
-
-  .day-off-weekday {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: 1px solid black;
-    border-top: 1px solid black;
-    background-color: rgb(110, 110, 110);
-  }
-
-  .day-off-weekday:hover {
-    cursor: pointer;
-    background-color: rgb(167, 167, 167);
-    
-  }
-
-  .day-off-weekday:nth-child(odd) {
-    border-left: 1px solid black;
-    border-right: 1px solid black;
- }
-
- .days-off-specifics-content-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-.days-off-specifics-content {
-    width: 50%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.days-off-specifics-content input {
-    margin-left: 15px;
-}
-
-.days-off-specifics-content p {
-    font-size: 1.2rem;
-}
- 
-.input-amount {
-    width: 20px;
-    height: 20px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    text-align: center;
-}
-
-.checkbox-consecutive {
-    width: 20px;
-    height: 20px;
-}

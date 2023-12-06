@@ -7,115 +7,153 @@ export default class EmployeeTools {
     this.dateUtil = new DateUtil();
     this.timeUtil = new TimeUtil();
     this.objUtil = new ObjectUtil();
+    this.priorityLevels = ["strict", "important", "optional"];
   }
 
-  calcAvailability(data) {
-    if (!data) return null;
-    const priorityLevels = ["strict", "important", "optional"];
-    const priorityData = {
-      strict: data.strict ? data.strict : null,
-      important: data.important ? data.important : null,
-      optional: data.optional ? data.optional : null,
+  weeklyAvailabilityTemplate() {
+    const weekdayGuide = this.dateUtil.getWeekdays([]);
+    return weekdayGuide.map((weekday) => [
+      weekday,
+      {
+        startTime: "",
+        endTime: "",
+        isWorkday: true,
+      },
+    ]);
+  }
+
+ 
+  calcDaysOffAmount(employeeData) {
+    if (!employeeData || typeof employeeData !== "object") return null;
+
+    
+    let daysOffDaysOffAmount = employeeData.daysOffAmountData || {
+      strict: 1,
     };
-    for (let priority in priorityData) {
-      let currentData = priorityData[priority];
-      if (currentData) {
-        let priorityIndex = priorityLevels.indexOf(priority);
-        for (let i = priorityLevels.length; i >= 0; i--) {
-          if (i === priorityIndex) {
-            for (let day in currentData) {
-              let currentTimeWindow = currentData[day];
-              let blankWindow = { startTime: "", endTime: "" };
-              if (!currentTimeWindow.startTime || !currentTimeWindow.endTime) {
-                priorityData[priority][day] = blankWindow;
-              }
-            }
-          } else if (i <= priorityIndex) {
-            let lowerLevelData = priorityData[priorityLevels[i]];
-            // console.log(lowerLevelData);
-            if (lowerLevelData && !this.objUtil.isEmpty(lowerLevelData)) {
-              for (let day in currentData) {
-                let currentTimeWindow = currentData[day];
-                let lowerLevelTimeWindow = lowerLevelData[day];
-                let blankWindow = { startTime: "", endTime: "" };
-                if (
-                  !lowerLevelTimeWindow.startTime ||
-                  !lowerLevelTimeWindow.endTime ||
-                  !currentTimeWindow.startTime ||
-                  !currentTimeWindow.endTime
-                ) {
-                  priorityData[priority][day] = blankWindow;
-                } else {
-                  let withinStartTime = this.timeUtil
-                    .time(lowerLevelTimeWindow.startTime)
-                    .isLessEqThan(currentTimeWindow.startTime);
-                  let withinEndTime = this.timeUtil
-                    .time(lowerLevelTimeWindow.endTime)
-                    .isBiggerEqThan(currentTimeWindow.endTime);
-                  if (!withinStartTime) {
-                    priorityData[priority][day].startTime =
-                      lowerLevelTimeWindow.startTime;
-                  }
-                  if (!withinEndTime) {
-                    priorityData[priority][day].endTime =
-                      lowerLevelTimeWindow.endTime;
-                  }
+
+    const workDaysData = this.getWorkdaysData(employeeData);
+    console.log(workDaysData);
+
+    for (let i = 0; i < this.priorityLevels.length; i++) {
+      if (daysOffDaysOffAmount.hasOwnProperty(this.priorityLevels[i])) {
+        let priorityDaysOffAmount = daysOffDaysOffAmount[this.priorityLevels[i]];
+        for (let lesserIndex = i + 1; lesserIndex < this.priorityLevels.length; lesserIndex++) {
+          let lesserPriorityDaysOffAmount =
+          daysOffDaysOffAmount[this.priorityLevels[lesserIndex]];
+          let hasLesser = !!lesserPriorityDaysOffAmount;
+          
+        }
+      }
+    }
+
+    
+  }
+
+  getWorkdaysData(employeeData) {
+    let availabilityData = employeeData.availability || {
+      strict: this.weeklyAvailabilityTemplate(),
+    };
+    let result = {
+      strict: {
+        workdays: 0,
+        daysOff: 0,
+      },
+      important: {
+        workdays: 0,
+        daysOff: 0,
+      },
+      optional: {
+        workdays: 0,
+        daysOff: 0,
+      },
+    };
+    for (let priorityLevel of this.priorityLevels) {
+      if (availabilityData[priorityLevel]) {
+        for (let d = 0; d < availabilityData[priorityLevel].length;d++) {
+          let dayData = availabilityData[priorityLevel][d][1];
+          result[priorityLevel].workdays = dayData.isWorkday ? result[priorityLevel].workdays + 1 : result[priorityLevel].workdays;
+          result[priorityLevel].daysOff = !dayData.isWorkday ? result[priorityLevel].daysOff + 1 : result[priorityLevel].daysOff;
+        }
+      }
+    }
+    return result
+  }
+
+  calcAvailability(employeeData) {
+    if (!employeeData || typeof employeeData !== "object") return null;
+
+    let availabilityData = employeeData.availability || {
+      strict: this.weeklyAvailabilityTemplate(),
+    };
+
+    function checkTimeObj(timeObj) {
+      if (!timeObj.startTime || !timeObj.endTime || !timeObj.isWorkday) {
+        return {
+          ...timeObj,
+          startTime: "",
+          endTime: "",
+        };
+      }
+      return { ...timeObj };
+    }
+
+    for (let i = 0; i < this.priorityLevels.length; i++) {
+      if (availabilityData.hasOwnProperty(this.priorityLevels[i])) {
+        let priorityAvailability = availabilityData[this.priorityLevels[i]];
+        for (let lesserIndex = i + 1; lesserIndex < this.priorityLevels.length; lesserIndex++) {
+          let lesserPriorityAvailability =
+            availabilityData[this.priorityLevels[lesserIndex]];
+          let hasLesser = !!lesserPriorityAvailability;
+          let priorityTotalDaysOff = 0;
+          for (let d = 0; d < priorityAvailability.length; d++) {
+            let priorityDay = priorityAvailability[d][1];
+            let lesserPriorityDay = hasLesser
+              ? lesserPriorityAvailability[d][1]
+              : null;
+            priorityDay = checkTimeObj(priorityDay);
+            if (priorityDay.isWorkday && hasLesser) {
+              lesserPriorityDay = checkTimeObj(lesserPriorityDay);
+              if (
+                priorityDay.startTime &&
+                priorityDay.endTime &&
+                lesserPriorityDay.startTime &&
+                lesserPriorityDay.endTime
+              ) {
+                let startsCorrect = this.timeUtil
+                  .relativeTime(priorityDay.startTime)
+                  .isLessThan(lesserPriorityDay.startTime);
+                if (!startsCorrect) {
+                  lesserPriorityDay.startTime = priorityDay.startTime;
+                }
+                let endsCorrect = this.timeUtil
+                  .relativeTime(priorityDay.endTime)
+                  .isBiggerThan(lesserPriorityDay.endTime);
+                if (!endsCorrect) {
+                  lesserPriorityDay.endTime = priorityDay.endTime;
                 }
               }
-            }
-          }
-        }
-      }
-    }
-    return { ...priorityData };
-  }
-
-  calcAvailabilityArr(data) {
-    const priorityLevels = ["strict", "important", "optional"];
-    if (!data) return null;
-    const weekdays = this.dateUtil.getWeekdays([]);
-    const priorityData = this.calcAvailability(data);
-    let result = {
-      strict: [],
-      important: [],
-      optional: [],
-    };
-    for (let priority in priorityData) {
-      const priorityIndex = priorityLevels.indexOf(priority);
-      let lowerPriorityLevel = priorityLevels[priorityIndex - 1];
-      if (priorityData[priority]) {
-        for (let day in priorityData[priority]) {
-          const current = priorityData[priority][day];
-          if (current.startTime !== "" && current.endTime !== "") {
-            result[priority].push([
-              day,
-              `${current.startTime} - ${current.endTime}`,
-            ]);
-          } else {
-            if (priorityIndex === 0 || lowerPriorityLevel) {
-              result[priority].push([day, "off"]);
             } else {
-              result[priority].push([day, ""]);
+              priorityTotalDaysOff++;
+              if (hasLesser) {
+                lesserPriorityDay = {
+                  ...lesserPriorityDay,
+                  isWorkday: false,
+                  startTime: "",
+                  endTime: "",
+                };
+              }
+            }
+            availabilityData[this.priorityLevels[i]][d][1] = { ...priorityDay };
+            if (hasLesser) {
+              availabilityData[this.priorityLevels[lesserIndex]][d][1] = {
+                ...lesserPriorityDay,
+              };
             }
           }
         }
       }
-
-      let allOffDays =
-        result[priority] &&
-        result[priority].filter(([day, time]) => time === "" || time === "off")
-          .length > 6;
-      if (allOffDays) {
-        result[priority] = null;
-      }
-      if (result[priority]) {
-        result[priority] = result[priority].sort(
-          ([dayA, timeA], [dayB, timeB]) =>
-            weekdays.indexOf(dayA) - weekdays.indexOf(dayB)
-        );
-      }
     }
-    return result;
+    return { ...availabilityData };
   }
 
   contractTypeFormat(contractType) {
@@ -128,7 +166,16 @@ export default class EmployeeTools {
     return types[contractType];
   }
 
- 
-
-  
+  getAvailabilityArr(availabilityObj) {
+    const weekdayGuide = this.dateUtil.getWeekdays([]);
+    return Object.keys(availabilityObj)
+      .reduce((availabilityArr, weekday, i) => {
+        availabilityArr[i] = [weekday, availabilityObj[weekday]];
+        return availabilityArr;
+      }, [])
+      .sort(
+        ([weekdayA, dataA], [weekdayB, dataB]) =>
+          weekdayGuide.indexOf(weekdayA) - weekdayGuide.indexOf(weekdayB)
+      );
+  }
 }
