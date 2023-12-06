@@ -19,8 +19,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
 
   const [employeeDataState, setEmployeeDataState] = useState({
     availability: employeeData.availability || { strict: availabilityTemplate },
-    daysOffAmount: employeeData.daysOffAmount || { strict: 1 },
-    daysOffConsecutive: employeeData.daysOffConsecutive || { strict: false },
+    daysOff: employeeData.daysOffAmount || { strict: 1 },
     minHours: employeeData.minHours || { strict: legal.weeklyHours.min },
     maxHours: employeeData.maxHours || {
       strict: legal.getMaxHours(employeeData),
@@ -28,11 +27,12 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
   });
   const [formPriority, setFormPriority] = useState("strict");
   const [lastKey, setLastKey] = useState("");
+  console.log(empTools.calcDaysOff(employeeData));
+  // console.log(empTools.calcTotalWorkHours(employeeData));
 
   const initialValues = {
    availability: employeeDataState.availability?.[formPriority] || empTools.calcAvailability(employeeData)[formPriority],
-   daysOffAmount: employeeDataState.daysOffAmount?.[formPriority] ,
-   daysOffConsecutive: employeeDataState.daysOffConsecutive?.[formPriority] ,
+   daysOff: employeeDataState.daysOff?.[formPriority] ,
    minHours: employeeDataState.minHours?.[formPriority] || "",
    maxHours: employeeDataState.maxHours?.[formPriority] || ""
   };
@@ -41,7 +41,6 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
   useEffect(() => {
     setFormData(initialValues);
   }, [formPriority]);
-  console.log(initialValues);
 
   // useEffect(() => {
   //   let daysOff = Array

@@ -19,7 +19,8 @@ export default class LegalRequirements{
             }
         },
         this.daysOff = {
-            min: 1
+            min: 1,
+            max: 6
         }
     }
 
