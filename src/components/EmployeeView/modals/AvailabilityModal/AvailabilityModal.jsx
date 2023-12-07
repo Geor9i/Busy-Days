@@ -214,17 +214,19 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
 
   function onBlurHandler(e) {
     let { value, name } = e.currentTarget;
-    function fillTime() {
+    function fillTime({ hours = false } = {}) {
       let amount = timeUtil.time().fillTime(value);
-      amount = timeUtil.time().toClockFormat(amount);
+      amount = hours
+        ? timeUtil.time().toTimeFormat(amount)
+        : timeUtil.time().toClockFormat(amount);
       if (lastKey === "Backspace") {
         amount = amount.replace(":", "");
       }
       return amount;
     }
     if ([BUSINESS_DAY_START, BUSINESS_DAY_END].includes(value)) return;
-    let time = fillTime();
     if (["minHours", "maxHours"].includes(name)) {
+      let time = fillTime({ hours: true });
       name = name.replace("Hours", "");
       setFormData((state) => ({
         ...state,
@@ -234,6 +236,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
         },
       }));
     } else {
+      let time = fillTime();
       const [weekday, timeSetting] = name.split("-");
       setFormData((state) => ({
         ...state,
@@ -279,7 +282,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
     );
     setFormData((state) => ({
       ...state,
-      availability: result
+      availability: result,
     }));
   }
 

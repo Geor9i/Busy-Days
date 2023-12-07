@@ -5,7 +5,14 @@ import useForm from "../../hooks/useForm.js";
 import { useNavigate } from "react-router-dom";
 import LoginModal from "./modals/LoginModal.jsx";
 import Modal from "../misc/modal/Modal.jsx";
-import { BUSINESS_KEY, CLIENTS_KEY, MASTER_KEY, ROSTER_KEY, GUEST_KEY, EVENTS_KEY } from "../../../config/constants.js";
+import {
+  BUSINESS_KEY,
+  CLIENTS_KEY,
+  MASTER_KEY,
+  ROSTER_KEY,
+  GUEST_KEY,
+  EVENTS_KEY,
+} from "../../../config/constants.js";
 
 export default function Account() {
   const { fireService, setMainLoader, userData } = useContext(GlobalCtx);
@@ -71,15 +78,14 @@ export default function Account() {
   async function deleteAccount() {
     try {
       const publicId = userData?.[BUSINESS_KEY]?.publicId;
-      if (!publicId) {
-        throw new Error('Public Id is null!')
+      await fireService.deleteDoc(BUSINESS_KEY);
+      await fireService.deleteDoc(ROSTER_KEY);
+      await fireService.deleteDoc(EVENTS_KEY);
+      if (publicId) {
+        await fireService.deletePublicField(publicId);
       }
-      await fireService.deleteDoc(BUSINESS_KEY),
-      await fireService.deleteDoc(ROSTER_KEY),
-      await fireService.deleteDoc(EVENTS_KEY),
-      await fireService.deletePublicField(publicId),
-      await fireService.deleteAccount()
-    } catch(err) {
+      await fireService.deleteAccount();
+    } catch (err) {
       console.log(err);
     }
   }
@@ -90,10 +96,9 @@ export default function Account() {
       toggleLoginModal();
 
       deleteAccount()
-      .then(() => navigate('/'))
-      .catch(err => console.log(err))
-      .finally(() => setMainLoader(false))
-      
+        .then(() => navigate("/"))
+        .catch((err) => console.log(err))
+        .finally(() => setMainLoader(false));
     } else {
       console.log("Account information is not correct!");
     }

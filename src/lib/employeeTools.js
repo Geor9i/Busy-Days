@@ -43,7 +43,9 @@ export default class EmployeeTools {
     let adjustedAvailability = this.calcAvailability(workData);
     let adjustedDaysOff = this.calcDaysOff(workData);
     let adjustedWorkHours = this.calcTotalWorkHours(workData);
-    console.log(adjustedWorkHours);
+    let adjustedData = {...formData, availability: adjustedAvailability, daysOff: adjustedDaysOff, workHours: adjustedWorkHours};
+    let adjustedWorkData = setData(adjustedData, employeeData, prioritize)
+    console.log(adjustedWorkData);
   }
 
   weeklyAvailabilityTemplate({ fullAvailability = false } = {}) {
