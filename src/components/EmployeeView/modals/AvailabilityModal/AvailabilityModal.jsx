@@ -14,7 +14,6 @@ import {
   BUSINESS_DAY_END,
 } from "../../../../../config/constants.js";
 import isEqual from "lodash.isequal";
-import isEqual from "lodash.isequal";
 
 export default function AvailabilityModal({ closeModal, id, employeeData }) {
   const objectUtil = new ObjectUtil();
@@ -26,9 +25,8 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
   const availabilityTemplate = empTools.weeklyAvailabilityTemplate({
     fullAvailability: true,
   });
-  const [mount, setMount] = useState(false);
-  const focusedInput = useRef(null);
   const [employeeDataState, setEmployeeDataState] = useState({
+    ...employeeData,
     availability: employeeData.availability || {
       [HIGH_PRIORITY]: availabilityTemplate,
     },
@@ -70,7 +68,9 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
 
   useEffect(() => {
     let fullyAvailableDays = formData.availability.filter(
-      ([weekday, data]) => data.endTime === BUSINESS_DAY_END
+      ([weekday, data]) =>
+        data.endTime === BUSINESS_DAY_END &&
+        data.startTime === BUSINESS_DAY_START
     );
     let fullyAvailable = fullyAvailableDays.length === 7;
     if (fullyAvailable && !formData.fullAvailability) {
@@ -83,12 +83,19 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
         fullAvailability: true,
       }));
     } else if (!fullyAvailable && formData.fullAvailability) {
-      setFormData((state) => ({ ...state, fullAvailability: false }));
+      setFormData((state) => ({
+        ...state,
+        fullAvailability: !state.fullAvailability,
+      }));
     }
-  }, [employeeDataState.availability]);
+  }, [formData.availability]);
+
+  useEffect(() => {
+    empTools.syncPriorities(formData, employeeDataState, formPriority);
+  }, [formData]);
 
   function focus(e) {
-    e.target.select()
+    e.target.select();
   }
 
   function toggleWeekday(e) {
@@ -135,7 +142,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
 
   function onChange(e) {
     let { name, value, checked } = e.currentTarget;
-    function sanitizeTime() {
+    function sanitizeTime({ hours = false } = {}) {
       value =
         value === BUSINESS_DAY_START
           ? value.replace(BUSINESS_DAY_START, "")
@@ -151,7 +158,9 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
         regexSymbols: "d:",
         keep: true,
       });
-      return timeUtil.time().toTimeFormat(amount);
+      return hours
+        ? timeUtil.time().toTimeFormat(amount)
+        : timeUtil.time().toClockFormat(amount);
     }
     // console.log({ name, value, checked });
     if (name === "fullAvailability") {
@@ -192,7 +201,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
       }));
     } else if (["minHours", "maxHours"].includes.name) {
       name = name.replace("Hours", "");
-      let time = sanitizeTime();
+      let time = sanitizeTime({ hours: true });
       setFormData((state) => ({
         ...state,
         workHours: {
@@ -207,7 +216,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
     let { value, name } = e.currentTarget;
     function fillTime() {
       let amount = timeUtil.time().fillTime(value);
-      amount = timeUtil.time().toTimeFormat(amount);
+      amount = timeUtil.time().toClockFormat(amount);
       if (lastKey === "Backspace") {
         amount = amount.replace(":", "");
       }
@@ -224,16 +233,17 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
           [name]: time,
         },
       }));
+    } else {
+      const [weekday, timeSetting] = name.split("-");
+      setFormData((state) => ({
+        ...state,
+        availability: state.availability.map(([currWeekday, data]) =>
+          currWeekday === weekday
+            ? [currWeekday, { ...data, [timeSetting]: time }]
+            : [currWeekday, data]
+        ),
+      }));
     }
-    const [weekday, timeSetting] = name.split("-");
-    setFormData((state) => ({
-      ...state,
-      availability: state.availability.map(([currWeekday, data]) =>
-        currWeekday === weekday
-          ? [currWeekday, { ...data, [timeSetting]: time }]
-          : [currWeekday, data]
-      ),
-    }));
   }
 
   function switchMenu(e) {
@@ -261,13 +271,15 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
       endTime: BUSINESS_DAY_END,
     };
     value = value === timeRange[timePart] ? "" : timeRange[timePart];
+
+    let result = formData.availability.map(([currWeekday, currData]) =>
+      currWeekday === weekday
+        ? [currWeekday, { ...currData, [timePart]: value }]
+        : [currWeekday, currData]
+    );
     setFormData((state) => ({
       ...state,
-      availability: state.availability.map(([currWeekday, currData]) =>
-        currWeekday === weekday
-          ? [currWeekday, { ...currData, [timePart]: value }]
-          : [currWeekday, currData]
-      ),
+      availability: result
     }));
   }
 
@@ -350,8 +362,9 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                     onClick={toggleWeekday}
                     id={`${weekday}-header`}
                     key={`${weekday}-header`}
-                    className={`${styles["header-weekday"]} ${!data.isWorkday ? styles["header-weekday-inactive"] : null
-                      }`}
+                    className={`${styles["header-weekday"]} ${
+                      !data.isWorkday ? styles["header-weekday-inactive"] : null
+                    }`}
                   >
                     {stringUtil.toPascalCase(weekday)}
                   </div>
@@ -370,10 +383,11 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                             onClick={() =>
                               toggleTime(weekday, "startTime", data.startTime)
                             }
-                            className={`${styles["time-btn"]} ${data.startTime === BUSINESS_DAY_START
-                              ? styles["time-btn-active"]
-                              : ""
-                              }`}
+                            className={`${styles["time-btn"]} ${
+                              data.startTime === BUSINESS_DAY_START
+                                ? styles["time-btn-active"]
+                                : ""
+                            }`}
                           >
                             Start
                           </div>
@@ -395,10 +409,11 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                             onClick={() =>
                               toggleTime(weekday, "endTime", data.endTime)
                             }
-                            className={`${styles["time-btn"]} ${data.endTime === BUSINESS_DAY_END
-                              ? styles["time-btn-active"]
-                              : ""
-                              }`}
+                            className={`${styles["time-btn"]} ${
+                              data.endTime === BUSINESS_DAY_END
+                                ? styles["time-btn-active"]
+                                : ""
+                            }`}
                           >
                             End
                           </div>

@@ -57,6 +57,20 @@ export default class TimeUtil {
           }
           return clockHours;
         },
+        max: (...times) => {
+          return times.reduce((biggest, current) => {
+            let currentIsLess = this.time(biggest).isBiggerEqThan(current);
+            biggest = currentIsLess ? biggest : current;
+            return biggest;
+          }, `${Number.MIN_SAFE_INTEGER}:${Number.MIN_SAFE_INTEGER}`);
+        },
+        min: (...times) => {
+          return times.reduce((smallest, current) => {
+            let currentIsBigger = this.time(smallest).isLessEqThan(current);
+            smallest = currentIsBigger ? smallest : current;
+            return smallest;
+          }, `${Number.MAX_SAFE_INTEGER}:${Number.MAX_SAFE_INTEGER}`);
+        },
       };
     }
   
@@ -168,7 +182,7 @@ export default class TimeUtil {
         toThousands(time) {
           return Number(time.replace(":", ""));
         },
-        toTimeFormat(string){
+        toClockFormat(string){
           string = string.split(':').join('');
           let timeNumber = Number(string)
           if (isNaN(timeNumber)) {
@@ -193,6 +207,18 @@ export default class TimeUtil {
               string = `${hours}${tens}${units}`
             }
 
+            string = string.split(':').join('')
+            return `${string.slice(0,2)}:${string.slice(2, 4)}`
+          }
+          return string
+        },
+        toTimeFormat(string){
+          string = string.split(':').join('');
+          let timeNumber = Number(string)
+          if (isNaN(timeNumber)) {
+            throw new Error(`${string} is not in a valid time format`)
+          }
+          if (string.length >= 4) {
             string = string.split(':').join('')
             return `${string.slice(0,2)}:${string.slice(2, 4)}`
           }
