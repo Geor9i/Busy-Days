@@ -3,6 +3,7 @@ import styles from "./eventListItem.module.css";
 import icon from "../../assets/userIcon_transparent.png";
 import DateUtil from "../../utils/dateUtil.js";
 import EmployeeTools from "../../lib/employeeTools.js";
+import { HIGH_PRIORITY, LOW_PRIORITY, MID_PRIORITY } from "../../../config/constants.js";
 
 export default function EventListItem({
   data,
@@ -125,27 +126,27 @@ export default function EventListItem({
 
                   <tbody>
                     <tr>
-                      {availability.strict && availability.strict.map((day) => {
+                      {availability[HIGH_PRIORITY] && availability[HIGH_PRIORITY].map((day) => {
                        if (day[1] !== "off") {
-                          return <td key={day[0]} className={styles["strict"]}>{day[1]}</td>;
+                          return <td key={day[0]} className={styles[HIGH_PRIORITY]}>{day[1]}</td>;
                         } else {
                           return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                    {availability.important && availability.important.map((day) => {
+                    {availability[MID_PRIORITY] && availability[MID_PRIORITY].map((day) => {
                        if (day[1] !== "off") {
-                          return <td key={day[0]} className={styles["important"]}>{day[1]}</td>;
+                          return <td key={day[0]} className={styles[MID_PRIORITY]}>{day[1]}</td>;
                         } else {
                           return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                    {availability.optional && availability.optional.map((day) => {
+                    {availability[LOW_PRIORITY] && availability[LOW_PRIORITY].map((day) => {
                         if (day[1] !== "off") {
-                          return <td key={day[0]} className={styles["optional"]}>{day[1]}</td>;
+                          return <td key={day[0]} className={styles[LOW_PRIORITY]}>{day[1]}</td>;
                         } else {
                           return <td key={day[0]} className={styles["off-td"]}>Day off</td>;
                         }

@@ -1,3 +1,4 @@
+import { HIGH_PRIORITY, LOW_PRIORITY, MID_PRIORITY } from "../../config/constants.js";
 import StringUtil from "./stringUtil.js";
 
 export default class ObjectUtil {
@@ -111,12 +112,12 @@ export default class ObjectUtil {
       for (let entry in config) {
         let isValueConfig = this.hasOwnProperties(
           config[entry],
-          ["strict", "important", "optional"],
+          [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY],
           "||"
         );
         let isConfig = this.hasOwnProperties(
           config,
-          ["strict", "important", "optional"],
+          [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY],
           "||"
         );
         if (isValueConfig) {
@@ -170,17 +171,13 @@ export default class ObjectUtil {
 
     let globalPriority = targetObject.priority
       ? targetObject.priority
-      : "optional";
+      : LOW_PRIORITY;
     let targetValue = this.keyTools(targetObject, { extractKey: valueName });
     let setPriority = this.keyTools(targetValue, {
       immerseKey: globalPriority,
-      avoidKeys: ["strict", "important", "optional"],
+      avoidKeys: [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY],
     });
-    return this.merge(targetValue, setPriority, [
-      "strict",
-      "important",
-      "optional",
-    ]);
+    return this.merge(targetValue, setPriority, [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY]);
   }
 
   merge(objectA, objectB, priorityKeys) {

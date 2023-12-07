@@ -1,3 +1,4 @@
+import { HIGH_PRIORITY, LOW_PRIORITY, MID_PRIORITY } from "../../config/constants.js";
 import DateUtil from "../utils/dateUtil.js";
 import ObjectUtil from "../utils/objectUtil.js";
 import TimeUtil from "../utils/timeUtil.js";
@@ -43,9 +44,9 @@ export default class Evaluator {
       consecutiveDaysOff: null,
       withinAvailability: null,
       hasMinHours: null,
-      withinStrict: null,
-      withinImportant: null,
-      withinOptional: null,
+      withinHighPriority: null,
+      withinMidPriority: null,
+      withinLowPriority: null,
     };
 
     for (let weekday in currentRota) {
@@ -76,24 +77,24 @@ export default class Evaluator {
   getEmployeePotential(employeeConfig) {
     let report = {
       daysOffAmount: {
-        strict: this.legal.daysOff.min,
+        [HIGH_PRIORITY]: this.legal.daysOff.min,
       },
       minHours: {
-        strict: this.legal.weeklyHours.min,
-        important: 0,
-        optional: 0,
+        [HIGH_PRIORITY]: this.legal.weeklyHours.min,
+        MID_PRIORITY: 0,
+        LOW_PRIORITY: 0,
       },
       maxHours: {
-        strict: this.legal.weeklyHours.max[employeeConfig.contractType],
-        important: 0,
-        optional: 0,
+        [HIGH_PRIORITY]: this.legal.weeklyHours.max[employeeConfig.contractType],
+        MID_PRIORITY: 0,
+        LOW_PRIORITY: 0,
       },
       availableWorkTimes: {},
       daysOff: {},
       consecutiveDaysOff: {
-        strict: false,
-        important: false,
-        optional: false,
+        [HIGH_PRIORITY]: false,
+        [MID_PRIORITY]: false,
+        [LOW_PRIORITY]: false,
       },
     };
 
@@ -119,7 +120,7 @@ export default class Evaluator {
         } else {
           this.objUtil.setNestedProperty(
             report,
-            `${reportValueName}.optional`,
+            `${reportValueName}.${LOW_PRIORITY}`,
             value
           );
         }
@@ -141,17 +142,17 @@ export default class Evaluator {
       let updatedConfig = {...employeeConfig, availability}
       report.daysOff = this.findAvailableDaysOff(updatedConfig);
 
-      report.daysOffAmount.strict = report.daysOff.strict.length > 0
-      ? Math.max(this.legal.daysOff.min, report.daysOff.strict.length)
+      report.daysOffAmount[HIGH_PRIORITY] = report.daysOff[HIGH_PRIORITY].length > 0
+      ? Math.max(this.legal.daysOff.min, report.daysOff[HIGH_PRIORITY].length)
       : this.legal.daysOff.min
-      if (report.daysOffAmount.strict === 7) {
-        report.daysOffAmount.strict = this.legal.daysOff.min
+      if (report.daysOffAmount[HIGH_PRIORITY] === 7) {
+        report.daysOffAmount[HIGH_PRIORITY] = this.legal.daysOff.min
       }
       
       report.daysOffAmount = {
-        strict: report.daysOffAmount.strict,
-        important: report.daysOff.important.length > 0 ? report.daysOff.important.length : 0,
-        optional: report.daysOff.optional.length > 0 ? report.daysOff.optional.length : 0,
+        [HIGH_PRIORITY]: report.daysOffAmount[HIGH_PRIORITY],
+        [MID_PRIORITY]: report.daysOff[MID_PRIORITY].length > 0 ? report.daysOff[MID_PRIORITY].length : 0,
+        [LOW_PRIORITY]: report.daysOff[LOW_PRIORITY].length > 0 ? report.daysOff[LOW_PRIORITY].length : 0,
       };
     } catch (err) {
       console.log({ err: err.message, name: employeeConfig.firstName });
@@ -162,20 +163,20 @@ export default class Evaluator {
   findAvailableDaysOff(employee) {
     let weekGuide = this.date.getWeekdays([]);
     let result = {
-      strict: [],
-      important: [],
-      optional: [],
+      [HIGH_PRIORITY]: [],
+      [MID_PRIORITY]: [],
+      [LOW_PRIORITY]: [],
     };
    
     if (
       this.objUtil.hasOwnProperties(
         employee.availability,
-        ["strict", "optional", "important"],
+        [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY],
         "||"
       )
     ) {
       for (let priority in employee.availability) {
-        if (priority === "strict") {
+        if (priority === HIGH_PRIORITY) {
           let daysOff = weekGuide.filter(
             (day) => !Object.keys(employee.availability[priority]).includes(day)
           );
@@ -184,7 +185,7 @@ export default class Evaluator {
               .filter((day, index, arr) => arr.indexOf(day) === index)
               .sort((a, b) => weekGuide.indexOf(a) - weekGuide.indexOf(b));
           } else {
-            result.strict = weekGuide;
+            result[HIGH_PRIORITY] = weekGuide;
           }
         } else {
           let daysOff = weekGuide.filter(
@@ -194,9 +195,9 @@ export default class Evaluator {
             result[priority] = [...result[priority], ...daysOff].filter(
               (day, index, arr) => arr.indexOf(day) === index
             );
-            if (result.strict.length > 0) {
+            if (result[HIGH_PRIORITY].length > 0) {
               result[priority] = result[priority].filter((day) =>
-                result.strict.includes(day)
+                result[HIGH_PRIORITY].includes(day)
               );
             }
             result[priority] = result[priority].sort(
@@ -206,7 +207,7 @@ export default class Evaluator {
         }
       }
     } else {
-      result.strict = weekGuide;
+      result[HIGH_PRIORITY] = weekGuide;
     }
 
     if (employee.daysOff) {
@@ -214,7 +215,7 @@ export default class Evaluator {
       for (let priority in daysOffConfig) {
         let daysOff = daysOffConfig[priority]
         .filter((day, index, arr) => arr.indexOf(day) === index)
-        .filter((day) => result.strict.includes(day));
+        .filter((day) => result[HIGH_PRIORITY].includes(day));
 
         result[priority] = daysOff.sort(
           (a, b) => weekGuide.indexOf(a) - weekGuide.indexOf(b)

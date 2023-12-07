@@ -1,224 +1,271 @@
 :root {
-    --strict-color: #ff640a;
-    --important-color: #ffde0a;
-    --optional-color: #98fc03;
-  }
+  --strict-color: #ff640a;
+  --important-color: #ffde0a;
+  --optional-color: #98fc03;
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0 5px;
+}
 
 .modal-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
 }
 
 .title-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .title-container h2 {
-    margin: 0;
+  margin: 0;
 }
 
 .main-content-container {
-    margin-top: 2%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
+  margin-top: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .availability-content-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .priority-setting-btn-container {
-    width: auto;
-    margin-top: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: auto;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .priority-setting-btn {
-    padding: 0 20px;
-    background-color: rgb(146, 146, 146);
- 
- }
- 
- .priority-setting-btn:hover {
-     background-color: rgb(199, 199, 199);
-     cursor: pointer;
- }
+  padding: 0 20px;
+  background-color: rgb(146, 146, 146);
+}
 
- .strict {
-    background-color: var(--strict-color);
- }
- .important {
-    background-color: var(--important-color);
- }
- .optional {
-    background-color: var(--optional-color);
- }
+.priority-setting-btn:hover {
+  background-color: rgb(199, 199, 199);
+  cursor: pointer;
+}
 
- .availability-table-container {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    height: 50%;
- }
+.strict {
+  background-color: var(--strict-color);
+}
+.important {
+  background-color: var(--important-color);
+}
+.optional {
+  background-color: var(--optional-color);
+}
 
- .availability-table {
-    width: 95%;
-    height: 8vh;
-    background-color: green;
- }
+.availability-table-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 50%;
+}
 
- .availability-table-header {
-    display: grid;
-    height: 40%;
-    grid-template-columns: repeat(7, 1fr);
-    justify-items: center;
-    background-color: rgb(218, 218, 218);
-    border-bottom: 2px solid black;
- }
+.availability-table-container-header {
+  width: 100%;
+  height: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
- .header-weekday {
-    border-top: 1px solid black;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    background-color: rgb(78, 78, 78);
-    color: white;
-    cursor: pointer;
- }
+.availability-table-header-title {
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
 
- .header-weekday:hover {
+.availability-table {
+  width: 95%;
+  height: 8vh;
+  background-color: green;
+}
+.full-availability-container {
+  width: 40%;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
 
-   background-color: rgb(111, 238, 255)
- }
+.availability-table-header {
+  display: grid;
+  height: 40%;
+  grid-template-columns: repeat(7, 1fr);
+  justify-items: center;
+  background-color: rgb(218, 218, 218);
+  border-bottom: 2px solid black;
+}
 
- .header-weekday:nth-child(odd) {
-    border-left: 1px solid black;
-    border-right: 1px solid black;
- }
+.header-weekday {
+  border-top: 1px solid black;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background-color: rgb(78, 78, 78);
+  color: white;
+  cursor: pointer;
+}
 
- .header-weekday-inactive {
-   text-decoration: line-through;
-   text-decoration-thickness: 3px;
-   background-color: rgb(199, 199, 199);
- }
+.header-weekday:hover {
+  background-color: rgb(111, 238, 255);
+}
 
- .availability-table-body {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    justify-items: center;
-    background-color: rgb(218, 218, 218);
-    border-bottom: 2px solid black;
-    height: 100%;
- }
+.header-weekday:nth-child(odd) {
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+}
 
- .body-weekday {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
- }
+.header-weekday-inactive {
+  text-decoration: line-through;
+  text-decoration-thickness: 3px;
+  background-color: rgb(199, 199, 199);
+}
 
- .time-main-container {
-   width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
- }
- 
- .time-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    padding: 1px;
- }
- .time-container p {
-    font-weight: bold;
- }
+.availability-table-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  justify-items: center;
+  background-color: rgb(218, 218, 218);
+  border-bottom: 2px solid black;
+  height: 100%;
+}
 
- .time-container input {
-    width: 100%;
-    text-align: center;
-    font-size: 0.9rem;
-    height: 60%;
- }
+.body-weekday {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
- .body-weekday:nth-child(odd) {
-    border-left: 1px solid black;
-    border-right: 1px solid black;
- }
+.time-main-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
- .specifics-container {
-   width: 100%;
-   height: 20%;
-   min-height: 3rem;
-   display: flex;
-   align-items: center;
-   justify-content: center;
- }
+.time-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 1px;
+}
 
- .specifics-inner-container {
-   width: 50%;
-   height: 100%;
-   display: flex;
-   align-items: center;
-   justify-content: center;
- }
-
- .days-off-select {
-   width: auto;
+.time-btn {
+   cursor: pointer;
    text-align: center;
-   font-size: 1.2rem;
-   margin-left: 3%;
- }
+   background-color: rgb(88, 88, 88);
+   width: 100%;
+   color: rgb(214, 214, 214);
+   border: 1px solid rgb(204, 204, 204);
+}
 
- .specifics-inner-container input {
-   margin: 10px;
-   height: 50%;
-   width: 10%;
-   font-size: 1.5rem;
-   font-weight: bold;
-   text-align: center;
- }
+.time-btn-active {
+   background-color: rgb(48, 49, 49);
+}
 
- .save-btn-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 10%;
- }
+.time-btn:hover {
+   background-color: rgb(78, 78, 78);
+}
 
- .save-btn-container button {
-    margin-top: 20px;
-    width: 50%;
-    height: 100%;
-    cursor: pointer;
- }
+.time-container input {
+  width: 100%;
+  text-align: center;
+  font-size: 0.9rem;
+  height: 60%;
+}
 
+.body-weekday:nth-child(odd) {
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+}
+
+.specifics-container {
+  width: 100%;
+  height: 20%;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.specifics-inner-container {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.days-off-select {
+  width: auto;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-left: 3%;
+}
+
+.specifics-inner-container input[type="text"] {
+  margin: 10px;
+  height: 50%;
+  width: 20%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.specifics-input-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-btn-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 10%;
+}
+
+.save-btn-container button {
+  margin-top: 20px;
+  width: 50%;
+  height: 100%;
+  cursor: pointer;
+}

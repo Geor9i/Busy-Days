@@ -3,6 +3,7 @@ import styles from "./employeeListItem.module.css";
 import icon from "../../assets/userIcon_transparent.png";
 import DateUtil from "../../utils/dateUtil.js";
 import EmployeeTools from "../../lib/employeeTools.js";
+import { HIGH_PRIORITY, LOW_PRIORITY, MID_PRIORITY } from "../../../config/constants.js";
 
 export default function EmployeeListItem({
   data,
@@ -18,9 +19,9 @@ export default function EmployeeListItem({
     backgroundColor: "",
   });
   const [availability, setAvailability] = useState({
-    strict: [],
-    important: [],
-    optional: [],
+    [HIGH_PRIORITY]: [],
+    [MID_PRIORITY]: [],
+    [LOW_PRIORITY]: [],
 
   });
 
@@ -28,9 +29,9 @@ export default function EmployeeListItem({
     
     const availability = empTools.calcAvailability(data)
     setAvailability({
-      strict: availability?.strict ? availability.strict : null,
-      important: availability?.important ? availability.important : null,
-      optional: availability?.optional ? availability.optional : null,
+      [HIGH_PRIORITY]: availability?.[HIGH_PRIORITY] ? availability[HIGH_PRIORITY] : null,
+      [MID_PRIORITY]: availability?.[MID_PRIORITY] ? availability[MID_PRIORITY] : null,
+      [LOW_PRIORITY]: availability?.[LOW_PRIORITY] ? availability[LOW_PRIORITY] : null,
     });
   }, [data]);
 
@@ -141,27 +142,27 @@ export default function EmployeeListItem({
 
                   <tbody>
                     <tr>
-                      {availability.strict && availability.strict.map(([weekday, timeData]) => {
+                      {availability[HIGH_PRIORITY] && availability[HIGH_PRIORITY].map(([weekday, timeData]) => {
                        if (weekday[1] !== "off") {
-                          return <td key={weekday} className={styles["strict"]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
+                          return <td key={weekday} className={styles[HIGH_PRIORITY]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
                         } else {
                           return <td key={weekday} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                      {availability.important && availability.important.map(([weekday, timeData]) => {
+                      {availability[MID_PRIORITY] && availability[MID_PRIORITY].map(([weekday, timeData]) => {
                        if (weekday[1] !== "off") {
-                          return <td key={weekday} className={styles["strict"]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
+                          return <td key={weekday} className={styles[MID_PRIORITY]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
                         } else {
                           return <td key={weekday} className={styles["off-td"]}>Day off</td>;
                         }
                       })}
                     </tr>
                     <tr>
-                      {availability.optional && availability.optional.map(([weekday, timeData]) => {
+                      {availability[LOW_PRIORITY] && availability[LOW_PRIORITY].map(([weekday, timeData]) => {
                        if (weekday[1] !== "off") {
-                          return <td key={weekday} className={styles["strict"]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
+                          return <td key={weekday} className={styles[LOW_PRIORITY]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
                         } else {
                           return <td key={weekday} className={styles["off-td"]}>Day off</td>;
                         }

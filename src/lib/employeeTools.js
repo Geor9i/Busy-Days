@@ -1,4 +1,12 @@
-import { BUSINESS_KEY, ROSTER_KEY } from "../../config/constants.js";
+import {
+  BUSINESS_KEY,
+  HIGH_PRIORITY,
+  MID_PRIORITY,
+  LOW_PRIORITY,
+  ROSTER_KEY,
+  BUSINESS_DAY_START,
+  BUSINESS_DAY_END,
+} from "../../config/constants.js";
 import DateUtil from "../utils/dateUtil.js";
 import ObjectUtil from "../utils/objectUtil.js";
 import TimeUtil from "../utils/timeUtil.js";
@@ -10,15 +18,16 @@ export default class EmployeeTools {
     this.timeUtil = new TimeUtil();
     this.objUtil = new ObjectUtil();
     this.legal = new LegalRequirements();
-    this.priorityLevels = ["strict", "important", "optional"];
+    this.priorityLevels = [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY];
   }
 
-  weeklyAvailabilityTemplate() {
+  weeklyAvailabilityTemplate({fullAvailability = false} = {}) {
     const weekdayGuide = this.dateUtil.getWeekdays([]);
     return weekdayGuide.map((weekday) => [
-      weekday, {
-        startTime: "",
-        endTime: "",
+      weekday,
+      {
+        startTime: fullAvailability ? BUSINESS_DAY_START : '',
+        endTime: fullAvailability ? BUSINESS_DAY_END : '',
         isWorkday: true,
       },
     ]);
@@ -26,103 +35,123 @@ export default class EmployeeTools {
 
   calcTotalWorkHours(employeeData) {
     if (!employeeData || typeof employeeData !== "object") return null;
-    let workhoursData = employeeData.workhoursData || {
+    let workHoursData = employeeData.workHoursData || {
       min: this.legal.weeklyHours.min,
-      max: this.legal.weeklyHours.max[employeeData.contractType]
+      max: this.legal.weeklyHours.max[employeeData.contractType],
     };
 
-    const correctHours = (workhours) => {
-      let legalWorkhours = {
+    const correctHours = (workHours) => {
+      let legalWorkHours = {
         min: this.legal.weeklyHours.min,
-        max: this.legal.weeklyHours.max[employeeData.contractType]
+        max: this.legal.weeklyHours.max[employeeData.contractType],
       };
-      workhours.min = Math.max(workhours.min, legalWorkhours.min);
-      workhours.max = Math.min(workhours.max, legalWorkhours.max);
-      return workhours
-    }
+      workHours.min = Math.max(workHours.min, legalWorkHours.min);
+      workHours.max = Math.min(workHours.max, legalWorkHours.max);
+      return workHours;
+    };
 
     for (let i = 0; i < this.priorityLevels.length; i++) {
-      if (workhoursData.hasOwnProperty(this.priorityLevels[i])) {
-        let priorityWorkhours = workhoursData[this.priorityLevels[i]];
-        priorityWorkhours = correctHours(priorityWorkhours);
-        workhoursData[this.priorityLevels[i]] = priorityWorkhours;
-        for (let lesserIndex = i + 1; lesserIndex < this.priorityLevels.length; lesserIndex++) {
-          let lesserPriorityWorkhours =
-            workhoursData[this.priorityLevels[lesserIndex]];
-          let hasLesser = !!lesserPriorityWorkhours;
+      if (workHoursData.hasOwnProperty(this.priorityLevels[i])) {
+        let priorityWorkHours = workHoursData[this.priorityLevels[i]];
+        priorityWorkHours = correctHours(priorityWorkHours);
+        workHoursData[this.priorityLevels[i]] = priorityWorkHours;
+        for (
+          let lesserIndex = i + 1;
+          lesserIndex < this.priorityLevels.length;
+          lesserIndex++
+        ) {
+          let lesserPriorityWorkHours =
+            workHoursData[this.priorityLevels[lesserIndex]];
+          let hasLesser = !!lesserPriorityWorkHours;
           if (hasLesser) {
-            lesserPriorityWorkhours.min = Math.max(lesserPriorityWorkhours.min, priorityWorkhours.min);
-            lesserPriorityWorkhours.max = Math.min(lesserPriorityWorkhours.max, priorityWorkhours.max);
-            workhoursData[this.priorityLevels[lesserIndex]] = lesserPriorityWorkhours;
+            lesserPriorityWorkHours.min = Math.max(
+              lesserPriorityWorkHours.min,
+              priorityWorkHours.min
+            );
+            lesserPriorityWorkHours.max = Math.min(
+              lesserPriorityWorkHours.max,
+              priorityWorkHours.max
+            );
+            workHoursData[this.priorityLevels[lesserIndex]] =
+              lesserPriorityWorkHours;
           }
         }
       }
     }
-    return workhoursData
+    return workHoursData;
   }
-
 
   calcDaysOff(employeeData) {
     if (!employeeData || typeof employeeData !== "object") return null;
     let daysOffData = employeeData.daysOff || {
-      strict: { amount: 1, consecutive: false }
+      [HIGH_PRIORITY]: { amount: 1, consecutive: false },
     };
 
     const correctDaysOff = (daysOff) => {
-
       let { min, max } = this.legal.daysOff;
       daysOff.amount = Math.max(daysOff.amount, min);
       daysOff.amount = Math.min(daysOff.amount, max);
-      return daysOff
-    }
+      return daysOff;
+    };
 
     for (let i = 0; i < this.priorityLevels.length; i++) {
       if (daysOffData.hasOwnProperty(this.priorityLevels[i])) {
         let priorityDaysOff = daysOffData[this.priorityLevels[i]];
         priorityDaysOff = correctDaysOff(priorityDaysOff);
         daysOffData[this.priorityLevels[i]] = priorityDaysOff;
-        for (let lesserIndex = i + 1; lesserIndex < this.priorityLevels.length; lesserIndex++) {
+        for (
+          let lesserIndex = i + 1;
+          lesserIndex < this.priorityLevels.length;
+          lesserIndex++
+        ) {
           let lesserPriorityDaysOff =
             daysOffData[this.priorityLevels[lesserIndex]];
           let hasLesser = !!lesserPriorityDaysOff;
           if (hasLesser) {
-            lesserPriorityDaysOff.amount = Math.min(lesserPriorityDaysOff.amount, priorityDaysOff.amount);
-            daysOffData[this.priorityLevels[lesserIndex]] = lesserPriorityDaysOff;
+            lesserPriorityDaysOff.amount = Math.min(
+              lesserPriorityDaysOff.amount,
+              priorityDaysOff.amount
+            );
+            daysOffData[this.priorityLevels[lesserIndex]] =
+              lesserPriorityDaysOff;
           }
         }
       }
     }
-    return daysOffData
+    return daysOffData;
   }
 
   getWorkdaysData(employeeData) {
     let availabilityData = employeeData.availability || {
-      strict: this.weeklyAvailabilityTemplate(),
+      [HIGH_PRIORITY]: this.weeklyAvailabilityTemplate(),
     };
     let result = {};
     for (let priorityLevel of this.priorityLevels) {
-
       if (availabilityData.hasOwnProperty(priorityLevel)) {
         result[priorityLevel] = {
           workdays: 0,
           daysOff: 0,
-        }
+        };
 
         for (let d = 0; d < availabilityData[priorityLevel].length; d++) {
           let dayData = availabilityData[priorityLevel][d][1];
-          result[priorityLevel].workdays = dayData.isWorkday ? result[priorityLevel].workdays + 1 : result[priorityLevel].workdays;
-          result[priorityLevel].daysOff = !dayData.isWorkday ? result[priorityLevel].daysOff + 1 : result[priorityLevel].daysOff;
+          result[priorityLevel].workdays = dayData.isWorkday
+            ? result[priorityLevel].workdays + 1
+            : result[priorityLevel].workdays;
+          result[priorityLevel].daysOff = !dayData.isWorkday
+            ? result[priorityLevel].daysOff + 1
+            : result[priorityLevel].daysOff;
         }
       }
     }
-    return result
+    return result;
   }
 
   calcAvailability(employeeData) {
     if (!employeeData || typeof employeeData !== "object") return null;
 
     let availabilityData = employeeData.availability || {
-      strict: this.weeklyAvailabilityTemplate(),
+      [HIGH_PRIORITY]: this.weeklyAvailabilityTemplate(),
     };
 
     function checkTimeObj(timeObj) {
@@ -139,7 +168,11 @@ export default class EmployeeTools {
     for (let i = 0; i < this.priorityLevels.length; i++) {
       if (availabilityData.hasOwnProperty(this.priorityLevels[i])) {
         let priorityAvailability = availabilityData[this.priorityLevels[i]];
-        for (let lesserIndex = i + 1; lesserIndex < this.priorityLevels.length; lesserIndex++) {
+        for (
+          let lesserIndex = i + 1;
+          lesserIndex < this.priorityLevels.length;
+          lesserIndex++
+        ) {
           let lesserPriorityAvailability =
             availabilityData[this.priorityLevels[lesserIndex]];
           let hasLesser = !!lesserPriorityAvailability;
