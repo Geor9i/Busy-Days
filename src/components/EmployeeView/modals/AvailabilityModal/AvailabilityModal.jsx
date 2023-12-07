@@ -86,7 +86,9 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
     }
   }, [employeeDataState.availability]);
 
-  function focus() {}
+  function focus(e) {
+    e.target.select()
+  }
 
   function toggleWeekday(e) {
     const weekday = e.target.id.split("-")[0];
@@ -387,6 +389,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                             onKeyDown={(e) => setLastKey(e.key)}
                             onBlur={onBlurHandler}
                             value={data.startTime}
+                            onFocus={focus}
                           />
                         </div>
                         <div className={styles["time-container"]}>
@@ -412,6 +415,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                             onBlur={onBlurHandler}
                             onKeyDown={(e) => setLastKey(e.key)}
                             value={data.endTime}
+                            onFocus={focus}
                           />
                         </div>
                       </div>
@@ -467,6 +471,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                   value={formData.workHours.min}
                   onChange={onChange}
                   onBlur={onBlurHandler}
+                  onFocus={focus}
                 />
               </div>
               <div className={styles["specifics-input-container"]}>
@@ -477,6 +482,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                   value={formData.workHours.max}
                   onChange={onChange}
                   onBlur={onBlurHandler}
+                  onFocus={focus}
                 />
               </div>
             </div>
