@@ -13,6 +13,7 @@ import {
   BUSINESS_DAY_START,
   BUSINESS_DAY_END,
 } from "../../../../../config/constants.js";
+import isEqual from "lodash.isequal";
 
 export default function AvailabilityModal({ closeModal, id, employeeData }) {
   const objectUtil = new ObjectUtil();
@@ -24,7 +25,8 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
   const availabilityTemplate = empTools.weeklyAvailabilityTemplate({
     fullAvailability: true,
   });
-  const focusedInput = useRef(null)
+  const [mount, setMount] = useState(false);
+  const focusedInput = useRef(null);
   const [employeeDataState, setEmployeeDataState] = useState({
     availability: employeeData.availability || {
       [HIGH_PRIORITY]: availabilityTemplate,
@@ -43,21 +45,27 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
   const [lastKey, setLastKey] = useState("");
   // console.log(empTools.calcTotalWorkHours(employeeData));
 
-  const initialValues = {
-    availability:
-      employeeDataState.availability?.[formPriority] ||
-      empTools.weeklyAvailabilityTemplate(),
-    daysOff: employeeDataState.daysOff?.[formPriority] || {
-      amount: "",
-      consecutive: false,
-    },
-    workHours: employeeDataState.workHours?.[formPriority] || {
-      min: "",
-      max: "",
-    },
-    fullAvailability: true,
-  };
-  const [formData, setFormData] = useState(initialValues);
+  function setInitialValues() {
+    return {
+      availability:
+        employeeDataState.availability?.[formPriority] ||
+        empTools.weeklyAvailabilityTemplate(),
+      daysOff: employeeDataState.daysOff?.[formPriority] || {
+        amount: "",
+        consecutive: false,
+      },
+      workHours: employeeDataState.workHours?.[formPriority] || {
+        min: "",
+        max: "",
+      },
+      fullAvailability: false,
+    };
+  }
+  const [formData, setFormData] = useState(setInitialValues());
+
+  useEffect(() => {
+    setFormData(setInitialValues());
+  }, [formPriority]);
 
   useEffect(() => {
     let fullyAvailableDays = formData.availability.filter(
@@ -78,13 +86,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
     }
   }, [employeeDataState.availability]);
 
-  function focus () {
-    
-  }
-
-  // useEffect(() => {
-  //   setFormData(initialValues);
-  // }, [formPriority]);
+  function focus() {}
 
   function toggleWeekday(e) {
     const weekday = e.target.id.split("-")[0];
@@ -127,8 +129,6 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
       closeModal();
     }
   }
-
-  
 
   function onChange(e) {
     let { name, value, checked } = e.currentTarget;
@@ -236,11 +236,21 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
   function switchMenu(e) {
     const priorities = [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY];
     const id = e.currentTarget.id;
-    console.log(formPriority);
-    const goAhead = checkFilled();
-    if (goAhead && priorities.includes(id)) {
-      setFormPriority(id);
+    let savedData = setInitialValues();
+    delete savedData.fullAvailability;
+    let formDataCheck = { ...formData };
+    delete formDataCheck.fullAvailability;
+    const isSame = isEqual(savedData, formDataCheck);
+    if (!isSame) {
+      let save = confirm("Would you like to save your changes ?");
+      if (save) {
+        console.log("save");
+      }
     }
+    // const goAhead = checkFilled();
+    // if (goAhead && priorities.includes(id)) {
+    setFormPriority(id);
+    // }
     //  !TODO: CheckFilled when Object is saved
   }
   function toggleTime(weekday, timePart, value) {
@@ -428,7 +438,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
                   value={formData.daysOff.amount}
                   onChange={onChange}
                 >
-                  <option value="none">Select total</option>
+                  <option value="">Select total</option>
                   {Array(6)
                     .fill(0)
                     .map((num, i) => (
