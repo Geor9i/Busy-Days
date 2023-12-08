@@ -10,6 +10,7 @@ import DateUtil from "../utils/dateUtil.js";
 import ObjectUtil from "../utils/objectUtil.js";
 import TimeUtil from "../utils/timeUtil.js";
 import Evaluator from "./evaluator.js";
+import LegalRequirements from "./legalRequirement.js";
 
 export default class Rota {
   constructor(userData) {
@@ -17,12 +18,63 @@ export default class Rota {
     this.time = new TimeUtil();
     this.date = new DateUtil();
     this.evaluator = new Evaluator();
+    this.legal = new LegalRequirements();
     this.positions = userData[BUSINESS_KEY].positionHierarchy;
     this.staff = userData[ROSTER_KEY];
     this.events = userData[EVENTS_KEY];
     this.dayFrame = this.date.getWeekdays({});
     this.openTimes = userData[BUSINESS_KEY].openTimes;
     this.hourlyAvailability = {};
+  }
+
+  getScheduleStats(employeeData) {
+    let breakLengths = this.legal.breakLength;
+    const shifts = employeeData.shifts
+    let stats = {
+      totalHours: '00:00',
+      totalBreaksHours: '00:00',
+      totalPaidHours: '00:00',
+    }
+    shifts.forEach(([weekday, data]) => {
+      if (data.startTime && data.endTime) {
+        let shiftLength = this.time.time().timeSpanLength(data.startTime, data.endTime);
+        let breakLength = this.time.time().breakLength(data.startTime, data.endTime);
+        stats.totalHours = this.time.math().add(stats.totalHours, shiftLength);
+        stats.totalBreaksHours = this.time.math().add(stats.totalBreaksHours, breakLength);
+      }
+    });
+    stats.totalPaidHours = this.time.math().deduct(stats.totalHours, stats.totalBreaksHours)
+    return stats
+  }
+
+
+  shiftsFormat(employeeGroupScheduleData, {toDB = false, fromDB = false} = {}) {
+    if (toDB && Array.isArray(employeeGroupScheduleData) && employeeGroupScheduleData.length > 0) {
+
+      return employeeGroupScheduleData.reduce((resultObj, employeeData) => {
+
+         let shifts = employeeData.shifts.reduce((shiftAcc, [weekday, data]) => {
+          shiftAcc[weekday] = data;
+          return shiftAcc;
+        }, {});
+        resultObj[employeeData.id] = {...employeeData, shifts}
+        return resultObj;
+      }, {})
+    }else if (fromDB && objUtil.typeof(employeeGroupScheduleData) === 'object') {
+      let weekGuide = date.getWeekdays([])
+      Object.keys(employeeGroupScheduleData).reduce((teamArr, employeeId) => {
+        
+        let shifts = Object.keys(employeeGroupScheduleData[employeeId].shifts).reduce((shiftArr, weekday) => {
+         shiftArr.push([weekday, employeeGroupScheduleData[employeeId].shifts[weekday]]);
+         return shiftArr;
+       }, []);
+       shifts = shifts.sort((a, b) => weekGuide.indexOf(a[0]) - weekGuide.indexOf(b[0]));
+       let employeeObject = {...employeeGroupScheduleData[employeeId], shifts}
+       teamArr.push(employeeObject)
+       return teamArr;
+     }, [])
+    }
+    return null;
   }
 
   getCurrentEmployeePositions(employeePositions) {

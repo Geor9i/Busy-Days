@@ -12,6 +12,7 @@ import {
   BUSINESS_KEY,
   EVENTS_KEY,
   ROSTER_KEY,
+  SCHEDULE_KEY,
 } from "../../../config/constants.js";
 import Rota from "../../lib/rota.js";
 import TimeUtil from "../../utils/timeUtil.js";
@@ -25,10 +26,14 @@ export default function Scheduler() {
   const dateUtil = new DateUtil();
   const timeUtil = new TimeUtil();
   const navigate = useNavigate();
+
+  const [scheduleData, setScheduleData] = useState({});
   const [businessData, setBusinessData] = useState({
     [ROSTER_KEY]: {},
     [BUSINESS_KEY]: {},
     [EVENTS_KEY]: {},
+    [SCHEDULE_KEY]: {},
+
   });
   const initialShiftModalStyles = {
     width: "12vw",
@@ -63,11 +68,17 @@ export default function Scheduler() {
   });
 
   useEffect(() => {
+    const unsubscribe = fireService.onSnapShot(SCHEDULE_KEY, rota, setScheduleData);
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     // TODO! Activate after completion
-    fireService
-      .fetchData(userData)
-      .then((response) => setBusinessData(response))
-      .catch((err) => console.log("DB error: ", err));
+    // fireService
+    //   .fetchData(userData)
+    //   .then((response) => setBusinessData(response))
+    //   .catch((err) => console.log("DB error: ", err));
+    //!Deactivate after completion
     setBusinessData(userData);
   }, []);
 
@@ -93,7 +104,6 @@ export default function Scheduler() {
         gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`,
       };
 
-      const newState = 
       setRota(state => ({
         ...state,
         managers,
@@ -103,7 +113,7 @@ export default function Scheduler() {
         weekdayHeaders,
       }));
     }
-  }, [rotaTools, calendarState]);
+  }, [rotaTools, calendarState.dateObj]);
 
   if (objUtil.isEmpty(userData)) {
     return (
@@ -122,6 +132,19 @@ export default function Scheduler() {
         </h1>
       </div>
     );
+  }
+
+  async function saveHandler() {
+    let managersToDBFormat = rotaTools.shiftsFormat(rota.managers, {toDB: true}); 
+    let staffToDbFormat = rotaTools.shiftsFormat(rota.staff, {toDB: true});
+    let scheduleId = dateUtil.op(calendarState.dateObj).format();
+    let resultData = { [scheduleId]: {
+      ...rota,
+      managers: managersToDBFormat,
+      staff: staffToDbFormat
+    }
+  }
+    await fireService.setDoc(SCHEDULE_KEY, resultData, { merge: true });
   }
 
   function calendarHandler(e) {
@@ -237,7 +260,7 @@ export default function Scheduler() {
           <div className={styles["table-container"]}>
             <div className={styles["menu-container"]}>
               <div className={styles["menu-btn-container"]}>
-                <div className={styles["menu-btn"]}>
+                <div onClick={saveHandler} className={styles["menu-btn"]}>
                   <p>Save</p>
                 </div>
               </div>
@@ -321,6 +344,7 @@ export default function Scheduler() {
                       data={employee}
                       shiftHandler={shiftHandler}
                       trStyles={rota.trStyles}
+                      rotaTools={rotaTools}
                     // shifts={}
                     />
                   ))}
@@ -373,6 +397,7 @@ export default function Scheduler() {
                       data={employee}
                       shiftHandler={shiftHandler}
                       trStyles={rota.trStyles}
+                      rotaTools={rotaTools}
                     // shifts={}
                     />
                   ))}

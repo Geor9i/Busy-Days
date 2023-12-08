@@ -249,14 +249,15 @@ export default class TimeUtil {
             return `${lzH}${h}:${lzM}${m}`;
           }
         },
-        breakLength: (shift) => {
-          let minutes = this.shiftLength(shift[0], shift[1]);
+        breakLength: (startTime, endTime) => {
+          let timeSpan = this.time().timeSpanLength(startTime, endTime);
+          let minutes = this.time().toMinutes(timeSpan)
           if (minutes > 360) {
-            return 30;
+            return '00:30';
           } else if (minutes > 240) {
-            return 15;
+            return '00:15';
           } else {
-            return 0;
+            return '00:00';
           }
         },
         toObj: (time) => {
