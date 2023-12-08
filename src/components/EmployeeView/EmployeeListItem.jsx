@@ -15,7 +15,7 @@ export default function EmployeeListItem({
   detailsHandler,
   editModalHandler,
   availabilityHandler,
-  availabilityState
+  availabilityState,
 }) {
   const dateUtil = new DateUtil();
   const empTools = new EmployeeTools();
@@ -156,7 +156,7 @@ export default function EmployeeListItem({
                       {employeeData.availability[HIGH_PRIORITY] &&
                         employeeData.availability[HIGH_PRIORITY].map(
                           ([weekday, timeData]) => {
-                            if (weekday[1] !== "off") {
+                            if (timeData.isWorkday) {
                               return (
                                 <td
                                   key={weekday}
@@ -181,7 +181,7 @@ export default function EmployeeListItem({
                       {employeeData.availability[MID_PRIORITY] &&
                         employeeData.availability[MID_PRIORITY].map(
                           ([weekday, timeData]) => {
-                            if (weekday[1] !== "off") {
+                            if (timeData.isWorkday) {
                               return (
                                 <td
                                   key={weekday}
@@ -206,7 +206,7 @@ export default function EmployeeListItem({
                       {employeeData.availability[LOW_PRIORITY] &&
                         employeeData.availability[LOW_PRIORITY].map(
                           ([weekday, timeData]) => {
-                            if (weekday[1] !== "off") {
+                            if (timeData.isWorkday) {
                               return (
                                 <td
                                   key={weekday}

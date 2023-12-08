@@ -60,6 +60,7 @@ export default function EmployeeView() {
     reverse: false,
   });
 
+
   useEffect(() => {
     fireService.fetchOne(BUSINESS_KEY)
     .then(data => setRoles(data.positionHierarchy.map(pos => pos.title)))

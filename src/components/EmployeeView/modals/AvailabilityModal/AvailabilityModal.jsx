@@ -71,7 +71,7 @@ export default function AvailabilityModal({
   const [lastChange, setLastChange] = useState("");
   useEffect(() => {
     setFormData(setInitialValues());
-  }, [formPriority]);
+  }, [formPriority, employeeData]);
 
   useEffect(() => {
     let fullyAvailableDays = formData.availability.filter(
@@ -96,6 +96,7 @@ export default function AvailabilityModal({
       }));
     }
   }, [formData.availability]);
+
 
   function focus(e) {
     e.target.select();
@@ -132,25 +133,12 @@ export default function AvailabilityModal({
         employeeDataState,
         formPriority
       );
-      // let prioritizedData = Object.keys(synchedData).reduce((data, entry) => {
-      //   data[entry] = {
-      //     [formPriority]: synchedData[entry],
-      //   };
-      //   return data;
-      // }, {});
       synchedData = empTools.deleteEmptyAvailability(synchedData);
       let availabilityDBPack = empTools.availabilityDataPack(
         synchedData.availability
       );
       synchedData.availability = availabilityDBPack;
       console.log(synchedData);
-      // if (isEmptyAvailability) {
-      //   // delete prioritizedData.availability
-      //   // await fireService.deleteInnerField(ROSTER_KEY, employeeId, 'availability', formPriority)
-      // }
-      // if (!isEmptyAvailability) {
-      //   prioritizedData.availability[formPriority] = empTools.availabilityDataPack(synchedData.availability);
-      // }
       let finalData = {
         [employeeId]: synchedData,
       };
@@ -193,6 +181,7 @@ export default function AvailabilityModal({
             ...data,
             startTime: checked ? BUSINESS_DAY_START : "",
             endTime: checked ? BUSINESS_DAY_END : "",
+            isWorkday: checked ? true : data.isWorkday
           },
         ]),
       }));

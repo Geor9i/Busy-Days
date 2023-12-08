@@ -1,7 +1,8 @@
 .business-page-container {
     width: 80%;
     height: 90%;
-    background-color: rgb(209, 209, 209);
+    background-color: rgb(236, 236, 236);
+    border-radius: 26px;
 }
 
 .form {
@@ -87,6 +88,9 @@
     flex-direction: column;
     font-size: 1.5rem;
 }
+.opening-times-container h2 {
+    margin-bottom: 1rem;
+}
 .name-container label {
     margin: 5px;
     font-size: 1.5rem;
@@ -141,6 +145,7 @@
     font-weight: bold;
     color: white;
     cursor: pointer;
+    border-radius: 13px;
 }
 .add-position:hover {
     background-color: rgb(101, 155, 255);
@@ -169,4 +174,5 @@
     margin-top: 2rem;
     width: 40%;
     font-size: 1.5rem;
+    border-radius: 13px;
 }

@@ -61,7 +61,7 @@ export default class EmployeeTools {
       priority
     );
     let calculatedDaysOff =
-      this.getWorkdaysData(adjustedWorkData)?.[priority].daysOff;
+      this.getWorkdaysData(adjustedWorkData)?.[priority].workdays;
     calculatedDaysOff = calculatedDaysOff ? calculatedDaysOff : 0;
     let totalEmployeeHours = Object.keys(businessBasedAvailability).reduce(
       (acc, curr) =>
@@ -85,7 +85,7 @@ export default class EmployeeTools {
       amount =
         calculatedDaysOff < amount
           ? Math.max(calculatedDaysOff, this.legal.daysOff.min)
-          : Math.max(amount, this.legal.daysOff.max);
+          : Math.min(amount, this.legal.daysOff.max);
     }
 
     // if (consecutive) {
