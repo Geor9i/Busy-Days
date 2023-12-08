@@ -100,7 +100,7 @@ export default function Account() {
         .catch((err) => console.log(err))
         .finally(() => setMainLoader(false));
     } else {
-      console.log("Account information is not correct!");
+      // console.log("Account information is not correct!");
     }
   }, [confirmLoginForDelete]);
 

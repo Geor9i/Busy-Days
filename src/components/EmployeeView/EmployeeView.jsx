@@ -39,6 +39,7 @@ export default function EmployeeView() {
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
   const [roles, setRoles] = useState([]);
+  const [availabilityState, setAvailabilityState] = useState({ new: true });
   
   
   const [userProfileModalState, setUserProfileModalState] = useState(false);
@@ -165,7 +166,6 @@ export default function EmployeeView() {
   function validateForm(formData) {
     const { firstName, lastName, phoneNumber, email, contractType, positions } =
       formData;
-    console.log(formData);
     if (!firstName || !lastName) {
       throw new Error("Please enter first and last name!");
     }
@@ -330,6 +330,7 @@ export default function EmployeeView() {
               closeModal={availabilityHandler}
               id={availabilityModalState.id}
               employeeData={availabilityModalState.data}
+              setAvailabilityState={setAvailabilityState}
             />
           }
         />
@@ -346,13 +347,7 @@ export default function EmployeeView() {
           <div className={styles["search-main-container"]}>
             <form onSubmit={onSubmit}>
               <div className={styles["search-container"]}>
-                <button
-                  type="button"
-                  id="filter-btn"
-                  className={styles["filter-search-btn"]}
-                >
-                  filter
-                </button>
+               
                 <input
                   type="text"
                   name="search"
@@ -434,6 +429,7 @@ export default function EmployeeView() {
                     detailsHandler={showDetailsHandler}
                     editModalHandler={editProfileModalAndSubmitHandler}
                     availabilityHandler={availabilityHandler}
+                    availabilityState={availabilityState}
                   />
                 ))}
               </div>

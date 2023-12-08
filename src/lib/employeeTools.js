@@ -100,12 +100,10 @@ export default class EmployeeTools {
     // }
 
     return {
-      ...formData,
-      workHours: { min, max } ,
+      workHours: { min, max },
       availability: adjustedWorkData.availability[priority],
-      daysOff: { amount, consecutive }
-    }
-
+      daysOff: { amount, consecutive },
+    };
   }
 
   weeklyAvailabilityTemplate({ fullAvailability = false } = {}) {
@@ -175,11 +173,15 @@ export default class EmployeeTools {
           if (hasLesser) {
             lesserPriorityWorkHours.min =
               lesserPriorityWorkHours.min !== ""
-                ? Math.max(lesserPriorityWorkHours.min, priorityWorkHours.min)
+                ? this.timeUtil
+                .math()
+                .max(lesserPriorityWorkHours.min, priorityWorkHours.min)
                 : "";
             lesserPriorityWorkHours.max =
               lesserPriorityWorkHours.max !== ""
-                ? Math.min(lesserPriorityWorkHours.max, priorityWorkHours.max)
+                ? this.timeUtil
+                .math()
+                .min(lesserPriorityWorkHours.max, priorityWorkHours.max)
                 : "";
             workHoursData[this.priorityLevels[lesserIndex]] =
               lesserPriorityWorkHours;
@@ -396,16 +398,23 @@ export default class EmployeeTools {
     return types[contractType];
   }
 
-  getAvailabilityArr(availabilityObj) {
-    const weekdayGuide = this.dateUtil.getWeekdays([]);
-    return Object.keys(availabilityObj)
-      .reduce((availabilityArr, weekday, i) => {
-        availabilityArr[i] = [weekday, availabilityObj[weekday]];
-        return availabilityArr;
-      }, [])
-      .sort(
-        ([weekdayA, dataA], [weekdayB, dataB]) =>
-          weekdayGuide.indexOf(weekdayA) - weekdayGuide.indexOf(weekdayB)
-      );
+  availabilityDataPack(availabilityData, { unpack = false } = {}) {
+    if (!unpack) {
+      return availabilityData.reduce((acc, [weekday, data]) => {
+        acc[weekday] = data;
+        return acc;
+      }, {});
+    } else {
+      let weekdayGuide = this.dateUtil.getWeekdays([]);
+      let result = {};
+      for (let priority in availabilityData) {
+        result[priority] =  Object.keys(availabilityData[priority]).reduce((acc, weekday) => {
+          acc.push([weekday, availabilityData[priority][weekday]]);
+          return acc;
+        }, []);
+        result[priority] = result[priority].sort((a, b) => weekdayGuide.indexOf(a[0]) - weekdayGuide.indexOf(b[0]));
+      }
+      return result;
+    }
   }
 }

@@ -3,7 +3,11 @@ import styles from "./employeeListItem.module.css";
 import icon from "../../assets/userIcon_transparent.png";
 import DateUtil from "../../utils/dateUtil.js";
 import EmployeeTools from "../../lib/employeeTools.js";
-import { HIGH_PRIORITY, LOW_PRIORITY, MID_PRIORITY } from "../../../config/constants.js";
+import {
+  HIGH_PRIORITY,
+  LOW_PRIORITY,
+  MID_PRIORITY,
+} from "../../../config/constants.js";
 
 export default function EmployeeListItem({
   data,
@@ -11,6 +15,7 @@ export default function EmployeeListItem({
   detailsHandler,
   editModalHandler,
   availabilityHandler,
+  availabilityState
 }) {
   const dateUtil = new DateUtil();
   const empTools = new EmployeeTools();
@@ -18,23 +23,27 @@ export default function EmployeeListItem({
   const [style, setStyle] = useState({
     backgroundColor: "",
   });
-  const [availability, setAvailability] = useState({
-    [HIGH_PRIORITY]: [],
-    [MID_PRIORITY]: [],
-    [LOW_PRIORITY]: [],
-
+  const [employeeData, setEmployeeData] = useState({
+    ...data,
+    availability: {
+      [HIGH_PRIORITY]: [],
+      [MID_PRIORITY]: [],
+      [LOW_PRIORITY]: [],
+    },
   });
 
   useEffect(() => {
-    
-    const availability = empTools.calcAvailability(data)
-    setAvailability({
-      [HIGH_PRIORITY]: availability?.[HIGH_PRIORITY] ? availability[HIGH_PRIORITY] : null,
-      [MID_PRIORITY]: availability?.[MID_PRIORITY] ? availability[MID_PRIORITY] : null,
-      [LOW_PRIORITY]: availability?.[LOW_PRIORITY] ? availability[LOW_PRIORITY] : null,
-    });
-  }, [data]);
-
+    if (employeeData.availability) {
+      let unpackedAvailability = empTools.availabilityDataPack(
+        data.availability,
+        { unpack: true }
+      );
+      setEmployeeData((state) => ({
+        ...state,
+        availability: { ...unpackedAvailability },
+      }));
+    }
+  }, [availabilityState]);
   const showEmployeeDetails = () => {
     setDisplay((state) => !state);
     detailsHandler(!onDisplay, id);
@@ -44,7 +53,7 @@ export default function EmployeeListItem({
       setStyle({ backgroundColor: "" });
     }
   };
- 
+
   return (
     <>
       <div
@@ -54,7 +63,9 @@ export default function EmployeeListItem({
       >
         <div className={styles["content-cell"]}>{data.firstName}</div>
         <div className={styles["content-cell"]}>{data.lastName}</div>
-        <div className={styles["content-cell"]}>{empTools.contractTypeFormat(data.contractType)}</div>
+        <div className={styles["content-cell"]}>
+          {empTools.contractTypeFormat(data.contractType)}
+        </div>
         <div className={styles["content-cell"]}>
           {data.positions.join(", ")}
         </div>
@@ -121,7 +132,7 @@ export default function EmployeeListItem({
               </div>
               <div className={styles["availability-container"]}>
                 <button
-                  onClick={() => availabilityHandler(id, data)}
+                  onClick={() => availabilityHandler(id, employeeData)}
                   className={styles["edit-availability-btn"]}
                 >
                   Edit
@@ -142,31 +153,79 @@ export default function EmployeeListItem({
 
                   <tbody>
                     <tr>
-                      {availability[HIGH_PRIORITY] && availability[HIGH_PRIORITY].map(([weekday, timeData]) => {
-                       if (weekday[1] !== "off") {
-                          return <td key={weekday} className={styles[HIGH_PRIORITY]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
-                        } else {
-                          return <td key={weekday} className={styles["off-td"]}>Day off</td>;
-                        }
-                      })}
+                      {employeeData.availability[HIGH_PRIORITY] &&
+                        employeeData.availability[HIGH_PRIORITY].map(
+                          ([weekday, timeData]) => {
+                            if (weekday[1] !== "off") {
+                              return (
+                                <td
+                                  key={weekday}
+                                  className={styles[HIGH_PRIORITY]}
+                                >
+                                  {timeData.startTime
+                                    ? `${timeData.startTime} - ${timeData.endTime}`
+                                    : null}
+                                </td>
+                              );
+                            } else {
+                              return (
+                                <td key={weekday} className={styles["off-td"]}>
+                                  Day off
+                                </td>
+                              );
+                            }
+                          }
+                        )}
                     </tr>
                     <tr>
-                      {availability[MID_PRIORITY] && availability[MID_PRIORITY].map(([weekday, timeData]) => {
-                       if (weekday[1] !== "off") {
-                          return <td key={weekday} className={styles[MID_PRIORITY]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
-                        } else {
-                          return <td key={weekday} className={styles["off-td"]}>Day off</td>;
-                        }
-                      })}
+                      {employeeData.availability[MID_PRIORITY] &&
+                        employeeData.availability[MID_PRIORITY].map(
+                          ([weekday, timeData]) => {
+                            if (weekday[1] !== "off") {
+                              return (
+                                <td
+                                  key={weekday}
+                                  className={styles[MID_PRIORITY]}
+                                >
+                                  {timeData.startTime
+                                    ? `${timeData.startTime} - ${timeData.endTime}`
+                                    : null}
+                                </td>
+                              );
+                            } else {
+                              return (
+                                <td key={weekday} className={styles["off-td"]}>
+                                  Day off
+                                </td>
+                              );
+                            }
+                          }
+                        )}
                     </tr>
                     <tr>
-                      {availability[LOW_PRIORITY] && availability[LOW_PRIORITY].map(([weekday, timeData]) => {
-                       if (weekday[1] !== "off") {
-                          return <td key={weekday} className={styles[LOW_PRIORITY]}>{timeData.startTime ? `${timeData.startTime} - ${timeData.endTime}` : null}</td>;
-                        } else {
-                          return <td key={weekday} className={styles["off-td"]}>Day off</td>;
-                        }
-                      })}
+                      {employeeData.availability[LOW_PRIORITY] &&
+                        employeeData.availability[LOW_PRIORITY].map(
+                          ([weekday, timeData]) => {
+                            if (weekday[1] !== "off") {
+                              return (
+                                <td
+                                  key={weekday}
+                                  className={styles[LOW_PRIORITY]}
+                                >
+                                  {timeData.startTime
+                                    ? `${timeData.startTime} - ${timeData.endTime}`
+                                    : null}
+                                </td>
+                              );
+                            } else {
+                              return (
+                                <td key={weekday} className={styles["off-td"]}>
+                                  Day off
+                                </td>
+                              );
+                            }
+                          }
+                        )}
                     </tr>
                   </tbody>
                 </table>

@@ -17,7 +17,12 @@ import {
 import isEqual from "lodash.isequal";
 import { GlobalCtx } from "../../../../contexts/GlobalCtx.js";
 
-export default function AvailabilityModal({ closeModal, id, employeeData }) {
+export default function AvailabilityModal({
+  closeModal,
+  id,
+  employeeData,
+  setAvailabilityState,
+}) {
   const { userData, fireService } = useContext(GlobalCtx);
   const objectUtil = new ObjectUtil();
   const stringUtil = new StringUtil();
@@ -45,7 +50,6 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
   });
   const [formPriority, setFormPriority] = useState(HIGH_PRIORITY);
   const [lastKey, setLastKey] = useState("");
-  // console.log(empTools.calcTotalWorkHours(employeeData));
 
   function setInitialValues() {
     return {
@@ -93,13 +97,6 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
     }
   }, [formData.availability]);
 
-  // useEffect(() => {
-  //   let synchedFormData = empTools.syncPriorities(formData, employeeDataState, formPriority, {
-  //     prioritize: lastChange,
-  //   });
-  //   setFormData(synchedFormData)
-  // }, [lastChange]);
-
   function focus(e) {
     e.target.select();
   }
@@ -122,16 +119,26 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
 
     const goAhead = confirm("Save all changes ?");
     if (goAhead) {
-      let finalData = empTools.syncPriorities(
+      let synchedData = empTools.syncPriorities(
         formData,
         employeeDataState,
         formPriority
       );
-      console.log(finalData);
-      finalData = {
-        [employeeId]: finalData,
+
+      let prioritizedData = Object.keys(synchedData).reduce((data, entry) => {
+        data[entry] = {
+          [formPriority]: synchedData[entry],
+        };
+        return data;
+      }, {});
+      let setDataObject = { ...prioritizedData };
+      prioritizedData.availability[formPriority] =
+        empTools.availabilityDataPack(synchedData.availability);
+      let finalData = {
+        [employeeId]: prioritizedData,
       };
       await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
+      setAvailabilityState((state) => ({ ...state }));
       closeModal();
     }
   }
