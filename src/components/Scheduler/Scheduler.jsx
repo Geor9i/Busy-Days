@@ -32,8 +32,6 @@ export default function Scheduler() {
     [ROSTER_KEY]: {},
     [BUSINESS_KEY]: {},
     [EVENTS_KEY]: {},
-    [SCHEDULE_KEY]: {},
-
   });
   const initialShiftModalStyles = {
     width: "12vw",
@@ -46,11 +44,11 @@ export default function Scheduler() {
   );
   let today = new Date();
   let mondayDate = dateUtil.op(today).getMonday();
-  let calendarDate = dateUtil.op().toCalendarInput(mondayDate)
+  let calendarDate = dateUtil.op().toCalendarInput(mondayDate);
   const [calendarState, setCalendarState] = useState({
     on: false,
     inputDate: calendarDate,
-    dateObj: mondayDate
+    dateObj: mondayDate,
   });
   const [shiftModalState, setShiftModalState] = useState({
     on: false,
@@ -68,7 +66,11 @@ export default function Scheduler() {
   });
 
   useEffect(() => {
-    const unsubscribe = fireService.onSnapShot(SCHEDULE_KEY, rota, setScheduleData);
+    const unsubscribe = fireService.onSnapShot(
+      SCHEDULE_KEY,
+      scheduleData,
+      setScheduleData
+    );
     return () => unsubscribe();
   }, []);
 
@@ -89,29 +91,44 @@ export default function Scheduler() {
   }, [businessData]);
 
   useEffect(() => {
-    if (rotaTools) {
-      let [managers, staff] = rotaTools.getRotaTemplate();
-      console.log({managers, staff});
-      const openDays = rotaTools.getOpenDays();
-      let weekDates = dateUtil
-        .op(calendarState.dateObj)
-        .getWeekSpread({ customWeek: openDays })
-        .map(date => `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`)
-      const weekdayHeaders = openDays.map(
-        (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
-      );
-      const trStyles = {
-        gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`,
-      };
+    const selectedDate = dateUtil.op(calendarState.dateObj).format();
+    if (scheduleData.hasOwnProperty(selectedDate)) {
+      const { managers, staff } = scheduleData[selectedDate];
+      let unpackedManagers = rotaTools.shiftsFormat(managers, { fromDB: true });
+      let unpackedStaff = rotaTools.shiftsFormat(staff, { fromDB: true });
+      setRota({
+        ...scheduleData[selectedDate],
+        managers: unpackedManagers ? unpackedManagers : [],
+        staff: unpackedStaff ? unpackedStaff : [],
+      
+      })
+    } else {
+      if (rotaTools) {
+        let [managers, staff] = rotaTools.getRotaTemplate();
+        const openDays = rotaTools.getOpenDays();
+        let weekDates = dateUtil
+          .op(calendarState.dateObj)
+          .getWeekSpread({ customWeek: openDays })
+          .map(
+            (date) =>
+              `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
+          );
+        const weekdayHeaders = openDays.map(
+          (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
+        );
+        const trStyles = {
+          gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`,
+        };
 
-      setRota(state => ({
-        ...state,
-        managers,
-        staff,
-        openDays,
-        trStyles,
-        weekdayHeaders,
-      }));
+        setRota((state) => ({
+          ...state,
+          managers,
+          staff,
+          openDays,
+          trStyles,
+          weekdayHeaders,
+        }));
+      }
     }
   }, [rotaTools, calendarState.dateObj]);
 
@@ -135,15 +152,18 @@ export default function Scheduler() {
   }
 
   async function saveHandler() {
-    let managersToDBFormat = rotaTools.shiftsFormat(rota.managers, {toDB: true}); 
-    let staffToDbFormat = rotaTools.shiftsFormat(rota.staff, {toDB: true});
+    let managersToDBFormat = rotaTools.shiftsFormat(rota.managers, {
+      toDB: true,
+    });
+    let staffToDbFormat = rotaTools.shiftsFormat(rota.staff, { toDB: true });
     let scheduleId = dateUtil.op(calendarState.dateObj).format();
-    let resultData = { [scheduleId]: {
-      ...rota,
-      managers: managersToDBFormat,
-      staff: staffToDbFormat
-    }
-  }
+    let resultData = {
+      [scheduleId]: {
+        ...rota,
+        managers: managersToDBFormat,
+        staff: staffToDbFormat,
+      },
+    };
     await fireService.setDoc(SCHEDULE_KEY, resultData, { merge: true });
   }
 
@@ -153,13 +173,14 @@ export default function Scheduler() {
       let selectedDate = new Date(`${data.year}/${data.month}/${data.day}`);
       let mondayDate = dateUtil.op(selectedDate).getMonday({ string: true });
       let mondayDateObj = new Date(mondayDate);
-      console.log({ mondayDateObj });
-      setCalendarState(state => ({
+      setCalendarState((state) => ({
         ...state,
         dateObj: mondayDateObj,
         on: false,
-        inputDate: `${data.day}-${dateUtil.getMonth(data.month - 1)}-${data.year} - ${stringUtil.toPascalCase(data.weekday)}`
-      }))
+        inputDate: `${data.day}-${dateUtil.getMonth(data.month - 1)}-${
+          data.year
+        } - ${stringUtil.toPascalCase(data.weekday)}`,
+      }));
     } else if (!["arrow-up", "arrow-down"].includes(e.target.id)) {
       setCalendarState((state) => ({ ...state, on: !state.on }));
     }
@@ -295,8 +316,10 @@ export default function Scheduler() {
             {/* Manager table */}
             <div className={styles["title-header"]}>
               <p>
-                Schedule for {" "}
-                {dateUtil.getMonth(calendarState.dateObj.getMonth(), { full: true })}{" "}
+                Schedule for{" "}
+                {dateUtil.getMonth(calendarState.dateObj.getMonth(), {
+                  full: true,
+                })}{" "}
                 {calendarState.dateObj.getFullYear()}
               </p>
             </div>
@@ -345,7 +368,7 @@ export default function Scheduler() {
                       shiftHandler={shiftHandler}
                       trStyles={rota.trStyles}
                       rotaTools={rotaTools}
-                    // shifts={}
+                      // shifts={}
                     />
                   ))}
                 </div>
@@ -398,7 +421,7 @@ export default function Scheduler() {
                       shiftHandler={shiftHandler}
                       trStyles={rota.trStyles}
                       rotaTools={rotaTools}
-                    // shifts={}
+                      // shifts={}
                     />
                   ))}
                 </div>

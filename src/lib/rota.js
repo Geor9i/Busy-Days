@@ -44,14 +44,17 @@ export default class Rota {
       }
     });
     stats.totalPaidHours = this.time.math().deduct(stats.totalHours, stats.totalBreaksHours)
-    return stats
+    return Object.keys(stats).reduce((acc, curr) => {
+      acc[curr] = stats[curr].replace('-', '')
+      return acc;
+    }, {})
   }
 
 
-  shiftsFormat(employeeGroupScheduleData, {toDB = false, fromDB = false} = {}) {
-    if (toDB && Array.isArray(employeeGroupScheduleData) && employeeGroupScheduleData.length > 0) {
+  shiftsFormat(employeeGroup, {toDB = false, fromDB = false} = {}) {
+    if (toDB && Array.isArray(employeeGroup) && employeeGroup.length > 0) {
 
-      return employeeGroupScheduleData.reduce((resultObj, employeeData) => {
+      return employeeGroup.reduce((resultObj, employeeData) => {
 
          let shifts = employeeData.shifts.reduce((shiftAcc, [weekday, data]) => {
           shiftAcc[weekday] = data;
@@ -60,16 +63,16 @@ export default class Rota {
         resultObj[employeeData.id] = {...employeeData, shifts}
         return resultObj;
       }, {})
-    }else if (fromDB && objUtil.typeof(employeeGroupScheduleData) === 'object') {
-      let weekGuide = date.getWeekdays([])
-      Object.keys(employeeGroupScheduleData).reduce((teamArr, employeeId) => {
+    }else if (fromDB && this.objUtil.typeof(employeeGroup) === 'object') {
+      let weekGuide = this.date.getWeekdays([])
+     return  Object.keys(employeeGroup).reduce((teamArr, employeeId) => {
         
-        let shifts = Object.keys(employeeGroupScheduleData[employeeId].shifts).reduce((shiftArr, weekday) => {
-         shiftArr.push([weekday, employeeGroupScheduleData[employeeId].shifts[weekday]]);
+        let shifts = Object.keys(employeeGroup[employeeId].shifts).reduce((shiftArr, weekday) => {
+         shiftArr.push([weekday, employeeGroup[employeeId].shifts[weekday]]);
          return shiftArr;
        }, []);
        shifts = shifts.sort((a, b) => weekGuide.indexOf(a[0]) - weekGuide.indexOf(b[0]));
-       let employeeObject = {...employeeGroupScheduleData[employeeId], shifts}
+       let employeeObject = {...employeeGroup[employeeId], shifts}
        teamArr.push(employeeObject)
        return teamArr;
      }, [])
