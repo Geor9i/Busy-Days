@@ -456,10 +456,10 @@ const BusinessPage = () => {
                     Responsibility
                   </th>
                   <th className={styles["role-hierarchy-th"]}>
-                    Role is flexible
+                    Role can substitute others
                   </th>
                   <th className={styles["role-hierarchy-th"]}>
-                    Can substitute
+                    Higher substitutions
                   </th>
                   <th>Insert/Delete</th>
                 </tr>

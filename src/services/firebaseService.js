@@ -1,4 +1,3 @@
-
 import {
   doc,
   getDoc,
@@ -206,6 +205,13 @@ export default class FirebaseService {
 
     await updateDoc(ref, {
       [id]: deleteField(),
+    });
+  }
+  async deleteInnerField(collectionName, ...pathSegments) {
+    const ref = doc(this.db, collectionName, this.uid);
+
+    await updateDoc(ref, {
+      [`${pathSegments.join('.')}`]: deleteField(),
     });
   }
   async deletePublicField(publicId) {

@@ -25,7 +25,7 @@ export default class EmployeeTools {
     this.events = userData?.[EVENTS_KEY] ? userData[EVENTS_KEY] : null;
   }
 
-  syncPriorities(formData, employeeData, priority, { prioritize = "" } = {}) {
+  syncPriorities(formData, employeeData, priority) {
     function setData(newData, employeeData, priority) {
       return {
         ...employeeData,
@@ -100,10 +100,35 @@ export default class EmployeeTools {
     // }
 
     return {
-      workHours: { min, max },
-      availability: adjustedWorkData.availability[priority],
-      daysOff: { amount, consecutive },
+      ...adjustedWorkData,
+      workHours: {
+        ...adjustedWorkData.workHours,
+        [priority]: { min, max },
+      },
+      availability: {
+        ...adjustedWorkData.availability,
+        [priority]: adjustedWorkData.availability[priority],
+      },
+      daysOff: {
+        ...adjustedWorkData.daysOff,
+        [priority]: { amount, consecutive },
+      },
     };
+  }
+
+  deleteEmptyAvailability(employeeObject) {
+    if (!employeeObject.availability) return employeeObject;
+
+    for (let priority in employeeObject.availability) {
+      let emptySlots = employeeObject.availability[priority].filter(
+        ([weekday, data]) =>
+          (data.isWorkday && !data.startTime) || !data.endTime
+      );
+      if (emptySlots.length === 7) {
+        delete employeeObject.availability[priority];
+      }
+    }
+    return employeeObject;
   }
 
   weeklyAvailabilityTemplate({ fullAvailability = false } = {}) {
@@ -174,14 +199,14 @@ export default class EmployeeTools {
             lesserPriorityWorkHours.min =
               lesserPriorityWorkHours.min !== ""
                 ? this.timeUtil
-                .math()
-                .max(lesserPriorityWorkHours.min, priorityWorkHours.min)
+                    .math()
+                    .max(lesserPriorityWorkHours.min, priorityWorkHours.min)
                 : "";
             lesserPriorityWorkHours.max =
               lesserPriorityWorkHours.max !== ""
                 ? this.timeUtil
-                .math()
-                .min(lesserPriorityWorkHours.max, priorityWorkHours.max)
+                    .math()
+                    .min(lesserPriorityWorkHours.max, priorityWorkHours.max)
                 : "";
             workHoursData[this.priorityLevels[lesserIndex]] =
               lesserPriorityWorkHours;
@@ -312,9 +337,9 @@ export default class EmployeeTools {
     };
 
     function checkTimeObj(timeObj) {
-      if (!timeObj.startTime || !timeObj.endTime || !timeObj.isWorkday) {
+      if (!timeObj.startTime && !timeObj.endTime) {
         return {
-          ...timeObj,
+          isWorkday: false,
           startTime: "",
           endTime: "",
         };
@@ -333,18 +358,23 @@ export default class EmployeeTools {
           let lesserPriorityAvailability =
             availabilityData[this.priorityLevels[lesserIndex]];
           let hasLesser = !!lesserPriorityAvailability;
-          let priorityTotalDaysOff = 0;
           for (let d = 0; d < priorityAvailability.length; d++) {
             let priorityDay = priorityAvailability[d][1];
             let lesserPriorityDay = hasLesser
               ? lesserPriorityAvailability[d][1]
               : null;
             priorityDay = checkTimeObj(priorityDay);
-            if (priorityDay.isWorkday && hasLesser) {
-              lesserPriorityDay = checkTimeObj(lesserPriorityDay);
+            lesserPriorityDay = hasLesser
+              ? checkTimeObj(lesserPriorityDay)
+              : null;
+            if (
+              priorityDay.isWorkday &&
+              hasLesser &&
+              lesserPriorityDay.isWorkday
+            ) {
               if (
                 priorityDay.startTime !== BUSINESS_DAY_START &&
-                lesserPriorityDay !== BUSINESS_DAY_START
+                lesserPriorityDay.startTime !== BUSINESS_DAY_START
               ) {
                 let startsCorrect = this.timeUtil
                   .relativeTime(priorityDay.startTime)
@@ -352,10 +382,12 @@ export default class EmployeeTools {
                 if (!startsCorrect) {
                   lesserPriorityDay.startTime = priorityDay.startTime;
                 }
+              } else {
+                lesserPriorityDay.startTime = priorityDay.startTime;
               }
               if (
                 priorityDay.endTime !== BUSINESS_DAY_END &&
-                lesserPriorityDay !== BUSINESS_DAY_END
+                lesserPriorityDay.endTime !== BUSINESS_DAY_END
               ) {
                 let endsCorrect = this.timeUtil
                   .relativeTime(priorityDay.endTime)
@@ -363,9 +395,10 @@ export default class EmployeeTools {
                 if (!endsCorrect) {
                   lesserPriorityDay.endTime = priorityDay.endTime;
                 }
+              } else {
+                lesserPriorityDay.endTime = priorityDay.endTime;
               }
             } else {
-              priorityTotalDaysOff++;
               if (hasLesser) {
                 lesserPriorityDay = {
                   ...lesserPriorityDay,
@@ -400,19 +433,29 @@ export default class EmployeeTools {
 
   availabilityDataPack(availabilityData, { unpack = false } = {}) {
     if (!unpack) {
-      return availabilityData.reduce((acc, [weekday, data]) => {
-        acc[weekday] = data;
-        return acc;
-      }, {});
+      let result = {};
+      for (let priority in availabilityData) {
+        result[priority] = availabilityData[priority].reduce((acc, [weekday, data]) => {
+          acc[weekday] = data;
+          return acc;
+        }, {});
+      }
+      return result;
+     
     } else {
       let weekdayGuide = this.dateUtil.getWeekdays([]);
       let result = {};
       for (let priority in availabilityData) {
-        result[priority] =  Object.keys(availabilityData[priority]).reduce((acc, weekday) => {
-          acc.push([weekday, availabilityData[priority][weekday]]);
-          return acc;
-        }, []);
-        result[priority] = result[priority].sort((a, b) => weekdayGuide.indexOf(a[0]) - weekdayGuide.indexOf(b[0]));
+        result[priority] = Object.keys(availabilityData[priority]).reduce(
+          (acc, weekday) => {
+            acc.push([weekday, availabilityData[priority][weekday]]);
+            return acc;
+          },
+          []
+        );
+        result[priority] = result[priority].sort(
+          (a, b) => weekdayGuide.indexOf(a[0]) - weekdayGuide.indexOf(b[0])
+        );
       }
       return result;
     }

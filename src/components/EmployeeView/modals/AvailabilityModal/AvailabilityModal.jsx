@@ -106,7 +106,15 @@ export default function AvailabilityModal({
       ...state,
       availability: state.availability.map(([currentWeekday, data]) =>
         currentWeekday === weekday
-          ? [currentWeekday, { ...data, isWorkday: !data.isWorkday }]
+          ? [
+              currentWeekday,
+              {
+                ...data,
+                isWorkday: !data.isWorkday,
+                startTime: "",
+                endTime: "",
+              },
+            ]
           : [currentWeekday, data]
       ),
     }));
@@ -124,18 +132,27 @@ export default function AvailabilityModal({
         employeeDataState,
         formPriority
       );
-
-      let prioritizedData = Object.keys(synchedData).reduce((data, entry) => {
-        data[entry] = {
-          [formPriority]: synchedData[entry],
-        };
-        return data;
-      }, {});
-      let setDataObject = { ...prioritizedData };
-      prioritizedData.availability[formPriority] =
-        empTools.availabilityDataPack(synchedData.availability);
+      // let prioritizedData = Object.keys(synchedData).reduce((data, entry) => {
+      //   data[entry] = {
+      //     [formPriority]: synchedData[entry],
+      //   };
+      //   return data;
+      // }, {});
+      synchedData = empTools.deleteEmptyAvailability(synchedData);
+      let availabilityDBPack = empTools.availabilityDataPack(
+        synchedData.availability
+      );
+      synchedData.availability = availabilityDBPack;
+      console.log(synchedData);
+      // if (isEmptyAvailability) {
+      //   // delete prioritizedData.availability
+      //   // await fireService.deleteInnerField(ROSTER_KEY, employeeId, 'availability', formPriority)
+      // }
+      // if (!isEmptyAvailability) {
+      //   prioritizedData.availability[formPriority] = empTools.availabilityDataPack(synchedData.availability);
+      // }
       let finalData = {
-        [employeeId]: prioritizedData,
+        [employeeId]: synchedData,
       };
       await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
       setAvailabilityState((state) => ({ ...state }));
