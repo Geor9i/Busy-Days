@@ -6,6 +6,7 @@ import {
   ROSTER_KEY,
   BUSINESS_DAY_START,
   BUSINESS_DAY_END,
+  EVENTS_KEY,
 } from "../../config/constants.js";
 import DateUtil from "../utils/dateUtil.js";
 import ObjectUtil from "../utils/objectUtil.js";
@@ -13,12 +14,15 @@ import TimeUtil from "../utils/timeUtil.js";
 import LegalRequirements from "./legalRequirement.js";
 
 export default class EmployeeTools {
-  constructor() {
+  constructor(userData) {
     this.dateUtil = new DateUtil();
     this.timeUtil = new TimeUtil();
     this.objUtil = new ObjectUtil();
     this.legal = new LegalRequirements();
     this.priorityLevels = [HIGH_PRIORITY, MID_PRIORITY, LOW_PRIORITY];
+    this.business = userData?.[BUSINESS_KEY] ? userData[BUSINESS_KEY] : null;
+    this.roster = userData?.[ROSTER_KEY] ? userData[ROSTER_KEY] : null;
+    this.events = userData?.[EVENTS_KEY] ? userData[EVENTS_KEY] : null;
   }
 
   syncPriorities(formData, employeeData, priority, { prioritize = "" } = {}) {
@@ -27,7 +31,7 @@ export default class EmployeeTools {
         ...employeeData,
         availability: {
           ...employeeData.availability,
-          [priority]: { ...newData.availability },
+          [priority]: [...newData.availability],
         },
         workHours: {
           ...employeeData.workHours,
@@ -37,15 +41,71 @@ export default class EmployeeTools {
           ...employeeData.daysOff,
           [priority]: { ...newData.daysOff },
         },
-      }
+      };
     }
     let workData = setData(formData, employeeData, priority);
     let adjustedAvailability = this.calcAvailability(workData);
     let adjustedDaysOff = this.calcDaysOff(workData);
     let adjustedWorkHours = this.calcTotalWorkHours(workData);
-    let adjustedData = {...formData, availability: adjustedAvailability, daysOff: adjustedDaysOff, workHours: adjustedWorkHours};
-    let adjustedWorkData = setData(adjustedData, employeeData, prioritize)
-    console.log(adjustedWorkData);
+    let adjustedData = {
+      ...formData,
+      availability: adjustedAvailability[priority],
+      daysOff: adjustedDaysOff[priority],
+      workHours: adjustedWorkHours[priority],
+    };
+    let adjustedWorkData = setData(adjustedData, employeeData, priority);
+    let { min, max } = adjustedWorkData.workHours[priority];
+    let { amount, consecutive } = adjustedWorkData.daysOff[priority];
+    let businessBasedAvailability = this.availabilityForBusinessDaily(
+      adjustedWorkData,
+      priority
+    );
+    let calculatedDaysOff =
+      this.getWorkdaysData(adjustedWorkData)?.[priority].daysOff;
+    calculatedDaysOff = calculatedDaysOff ? calculatedDaysOff : 0;
+    let totalEmployeeHours = Object.keys(businessBasedAvailability).reduce(
+      (acc, curr) =>
+        this.timeUtil.math().add(acc, businessBasedAvailability[curr]),
+      "00:00"
+    );
+
+    if (min) {
+      min = this.timeUtil.time(totalEmployeeHours).isBiggerEqThan(min)
+        ? min
+        : this.legal.weeklyHours.min;
+    }
+    if (max) {
+      max = this.timeUtil.time(totalEmployeeHours).isLessThan(max)
+        ? totalEmployeeHours
+        : this.timeUtil
+            .math()
+            .min(this.legal.weeklyHours.max[employeeData.contractType], max);
+    }
+    if (amount) {
+      amount =
+        calculatedDaysOff < amount
+          ? Math.max(calculatedDaysOff, this.legal.daysOff.min)
+          : Math.max(amount, this.legal.daysOff.max);
+    }
+
+    // if (consecutive) {
+    //   let workDaysArr = Object.keys(businessBasedAvailability).reduce(
+    //     (acc, curr) => {
+    //       acc.push(curr);
+    //       return acc;
+    //     },
+    //     []
+    //   );
+    //   console.log(workDaysArr);
+    // }
+
+    return {
+      ...formData,
+      workHours: { min, max } ,
+      availability: adjustedWorkData.availability[priority],
+      daysOff: { amount, consecutive }
+    }
+
   }
 
   weeklyAvailabilityTemplate({ fullAvailability = false } = {}) {
@@ -130,6 +190,30 @@ export default class EmployeeTools {
     return workHoursData;
   }
 
+  availabilityForBusinessDaily(employeeData, priority) {
+    const openTimes = this.business.openTimes;
+    let availability = employeeData?.availability?.[priority];
+    if (!availability) return null;
+    return availability.reduce((acc, [weekday, data]) => {
+      if (openTimes[weekday].isWorkday) {
+        let businessStart = openTimes[weekday].startTime;
+        let businessEnd = openTimes[weekday].endTime;
+        if (data.isWorkday) {
+          let startTime =
+            data.startTime === BUSINESS_DAY_START
+              ? businessStart
+              : data.startTime;
+          let endTime =
+            data.endTime === BUSINESS_DAY_END ? businessEnd : data.endTime;
+          acc[weekday] = this.timeUtil
+            .time()
+            .timeSpanLength(startTime, endTime);
+        }
+      }
+      return acc;
+    }, {});
+  }
+
   calcDaysOff(employeeData) {
     if (!employeeData || typeof employeeData !== "object") return null;
     let daysOffData = employeeData.daysOff || {
@@ -176,6 +260,20 @@ export default class EmployeeTools {
       }
     }
     return daysOffData;
+  }
+
+  businessDayLength() {
+    if (!this.business) return null;
+    let openTimes = { ...this.business.openTimes };
+    return Object.keys(openTimes).reduce((obj, weekday) => {
+      if (openTimes[weekday].isWorkday) {
+        const { startTime, endTime } = openTimes[weekday];
+        obj[weekday] = this.timeUtil.time().timeSpanLength(startTime, endTime);
+      } else {
+        obj[weekday] = null;
+      }
+      return obj;
+    }, {});
   }
 
   getWorkdaysData(employeeData) {

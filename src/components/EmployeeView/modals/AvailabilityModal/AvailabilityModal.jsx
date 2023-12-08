@@ -2,7 +2,7 @@ import styles from "./availabilityModal.module.css";
 import ObjectUtil from "../../../../utils/objectUtil.js";
 import DateUtil from "../../../../utils/dateUtil.js";
 import StringUtil from "../../../../utils/stringUtil.js";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import TimeUtil from "../../../../utils/timeUtil.js";
 import EmployeeTools from "../../../../lib/employeeTools.js";
 import LegalRequirements from "../../../../lib/legalRequirement.js";
@@ -12,15 +12,18 @@ import {
   LOW_PRIORITY,
   BUSINESS_DAY_START,
   BUSINESS_DAY_END,
+  ROSTER_KEY,
 } from "../../../../../config/constants.js";
 import isEqual from "lodash.isequal";
+import { GlobalCtx } from "../../../../contexts/GlobalCtx.js";
 
 export default function AvailabilityModal({ closeModal, id, employeeData }) {
+  const { userData, fireService } = useContext(GlobalCtx);
   const objectUtil = new ObjectUtil();
   const stringUtil = new StringUtil();
   const dateUtil = new DateUtil();
   const timeUtil = new TimeUtil();
-  const empTools = new EmployeeTools();
+  const empTools = new EmployeeTools(userData);
   const legal = new LegalRequirements();
   const availabilityTemplate = empTools.weeklyAvailabilityTemplate({
     fullAvailability: true,
@@ -61,7 +64,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
     };
   }
   const [formData, setFormData] = useState(setInitialValues());
-
+  const [lastChange, setLastChange] = useState("");
   useEffect(() => {
     setFormData(setInitialValues());
   }, [formPriority]);
@@ -90,14 +93,16 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
     }
   }, [formData.availability]);
 
-  useEffect(() => {
-    empTools.syncPriorities(formData, employeeDataState, formPriority);
-  }, [formData]);
+  // useEffect(() => {
+  //   let synchedFormData = empTools.syncPriorities(formData, employeeDataState, formPriority, {
+  //     prioritize: lastChange,
+  //   });
+  //   setFormData(synchedFormData)
+  // }, [lastChange]);
 
   function focus(e) {
     e.target.select();
   }
-
   function toggleWeekday(e) {
     const weekday = e.target.id.split("-")[0];
     setFormData((state) => ({
@@ -108,34 +113,25 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
           : [currentWeekday, data]
       ),
     }));
+    setLastChange("availability");
   }
 
   async function submitHandler(e) {
     e.preventDefault();
     let employeeId = id[0];
-    const targetData = formData;
-    // const isEmpty = isEmptyFormData(formData, { [page]: true });
-    // if (isEmpty) return;
 
     const goAhead = confirm("Save all changes ?");
     if (goAhead) {
-      let finalData;
-      // if (page === "availability") {
-      //   finalData = {
-      //     [employeeId]: { [page]: { [priority]: targetData } },
-      //   };
-      // } else if (page === "daysOff") {
-      //   finalData = {
-      //     [employeeId]: {
-      //       [page]: {
-      //         days: { [priority]: targetData.days },
-      //         consecutive: { [priority]: targetData.consecutive },
-      //         amount: { [priority]: targetData.amount },
-      //       },
-      //     },
-      //   };
-      // }
-      // await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
+      let finalData = empTools.syncPriorities(
+        formData,
+        employeeDataState,
+        formPriority
+      );
+      console.log(finalData);
+      finalData = {
+        [employeeId]: finalData,
+      };
+      await fireService.setDoc(ROSTER_KEY, finalData, { merge: true });
       closeModal();
     }
   }
@@ -176,6 +172,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
           },
         ]),
       }));
+      setLastChange("availability");
     } else if (name.includes("startTime") || name.includes("endTime")) {
       let time = sanitizeTime();
       const [weekday, timeSetting] = name.split("-");
@@ -189,16 +186,19 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
           },
         ]),
       }));
+      setLastChange("availability");
     } else if (name === "consecutive") {
       setFormData((state) => ({
         ...state,
         daysOff: { ...state.daysOff, consecutive: !state.daysOff.consecutive },
       }));
+      setLastChange("daysOff");
     } else if (name === "totalOff") {
       setFormData((state) => ({
         ...state,
         daysOff: { ...state.daysOff, amount: value },
       }));
+      setLastChange("daysOff");
     } else if (["minHours", "maxHours"].includes.name) {
       name = name.replace("Hours", "");
       let time = sanitizeTime({ hours: true });
@@ -209,6 +209,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
           [name]: time,
         },
       }));
+      setLastChange("workHours");
     }
   }
 
@@ -235,6 +236,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
           [name]: time,
         },
       }));
+      setLastChange("workHours");
     } else {
       let time = fillTime();
       const [weekday, timeSetting] = name.split("-");
@@ -246,6 +248,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
             : [currWeekday, data]
         ),
       }));
+      setLastChange("availability");
     }
   }
 
@@ -284,6 +287,7 @@ export default function AvailabilityModal({ closeModal, id, employeeData }) {
       ...state,
       availability: result,
     }));
+    setLastChange("availability");
   }
 
   const highlightedPriorityStyle = {

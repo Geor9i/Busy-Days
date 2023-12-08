@@ -148,21 +148,8 @@ export default class TimeUtil {
             return "time";
           }
         },
-        timeSpanLength: (timeSpan) => {
-          let isTimeSpan = this.validate(timeSpan);
-          if (!isTimeSpan) return timeSpan;
-  
-          let timeObj = this.time().toObj(timeSpan);
-          let biggerTime = this.time(timeObj.startTime).isBiggerThan(
-            timeObj.endTime
-          )
-            ? timeObj.startTime
-            : timeObj.endTime;
-          let smallerTime =
-            timeObj.startTime === biggerTime
-              ? timeObj.endTime
-              : timeObj.startTime;
-          return this.math().deduct(biggerTime, smallerTime);
+        timeSpanLength: (startTime, endTime) => {
+          return this.math().deduct(endTime, startTime);
         },
         toMinutes: (time) => {
           let obj = this.time().toObj(time);
