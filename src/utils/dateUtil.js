@@ -75,7 +75,7 @@ export default class DateUtil {
 
         let dateMatch = this.result.match(datePattern);
         if (!dateMatch) {
-          throw new Error("Wrong date format!");
+          alert("Wrong date format!");
         }
 
         let day, month, year;

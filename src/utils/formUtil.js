@@ -11,24 +11,24 @@ export default class FormUtil {
 
     for (let key in formData) {
       if (formData[key] === "") {
-        throw new Error(`${key} must be filled!`);
+        alert(`${key} must be filled!`);
       }
       if (key === "email") {
         if (!emailPattern.test(formData[key])) {
-          throw new Error("Please enter a valid email");
+          alert("Please enter a valid email");
         }
         emailPattern.lastIndex = 0;
       } else if (
         key === "password" &&
         formData[key].length < Math.max(1, minPasswordLength)
       ) {
-        throw new Error(
+        alert(
           `Password must be at least ${minPasswordLength} characters long!`
         );
       }
     }
     if (rePass && formData[rePass] !== formData.password) {
-      throw new Error("Both passwords must match!");
+      alert("Both passwords must match!");
     }
     return true;
   }

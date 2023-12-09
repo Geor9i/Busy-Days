@@ -31,17 +31,19 @@ export default function EmployeeView() {
   if (objUtil.isEmpty(userData) || !userData[BUSINESS_KEY]) {
     return (
       <div>
-        <h1>Please configure your Business before proceeding! <Link to={'/business'}>here</Link></h1>
+        <h1>
+          Please configure your Business before proceeding!{" "}
+          <Link to={"/business"}>here</Link>
+        </h1>
       </div>
-    )
+    );
   }
   const [roster, setRoster] = useState(
     userData[ROSTER_KEY] ? userData[ROSTER_KEY] : {}
   );
   const [roles, setRoles] = useState([]);
   const [availabilityState, setAvailabilityState] = useState({ new: true });
-  
-  
+
   const [userProfileModalState, setUserProfileModalState] = useState(false);
   const [availabilityModalState, setAvailabilityModalState] = useState({
     data: null,
@@ -60,12 +62,12 @@ export default function EmployeeView() {
     reverse: false,
   });
 
-
   useEffect(() => {
-    fireService.fetchOne(BUSINESS_KEY)
-    .then(data => setRoles(data.positionHierarchy.map(pos => pos.title)))
-    .catch(err => console.log(err))
-  }, [])
+    fireService
+      .fetchOne(BUSINESS_KEY)
+      .then((data) => setRoles(data.positionHierarchy.map((pos) => pos.title)))
+      .catch((err) => console.log(err));
+  }, []);
 
   useEffect(() => {
     const unsubscribe = fireService.onSnapShot(ROSTER_KEY, roster, setRoster);
@@ -91,7 +93,7 @@ export default function EmployeeView() {
     });
     setDisplayEmployees(filtered);
   }, [roster, filterData]);
- 
+
   function rosterToArr(roster) {
     if (!objUtil.isEmpty(roster)) {
       return Object.keys(roster).reduce((arr, id) => {
@@ -101,7 +103,6 @@ export default function EmployeeView() {
     }
     return [];
   }
- 
 
   const editProfileModalAndSubmitHandler = async ({
     e,
@@ -168,18 +169,19 @@ export default function EmployeeView() {
     const { firstName, lastName, phoneNumber, email, contractType, positions } =
       formData;
     if (!firstName || !lastName) {
-      throw new Error("Please enter first and last name!");
+      alert("Please enter first and last name!");
+      return;
     }
     if (firstName.length < 2 || lastName.length < 2) {
-      throw new Error(
-        "First and last names must be at least 2 characters long!"
-      );
+      alert("First and last names must be at least 2 characters long!");
+      return;
     }
     let assignedPositions = Object.keys(positions).filter(
       (name) => positions[name]
     );
     if (assignedPositions.length < 1) {
-      throw new Error("Please select at least one job role!");
+      alert("Please select at least one job role!");
+      return;
     }
     return true;
   }
@@ -188,7 +190,9 @@ export default function EmployeeView() {
       formData;
     firstName = stringUtil.toPascalCase(firstName).trim();
     lastName = stringUtil.toPascalCase(lastName).trim();
-    positions = Object.keys(positions).filter((name) => positions[name]).filter(pos => roles.includes(pos));
+    positions = Object.keys(positions)
+      .filter((name) => positions[name])
+      .filter((pos) => roles.includes(pos));
 
     const result = {
       ...oldData,
@@ -348,7 +352,6 @@ export default function EmployeeView() {
           <div className={styles["search-main-container"]}>
             <form onSubmit={onSubmit}>
               <div className={styles["search-container"]}>
-               
                 <input
                   type="text"
                   name="search"

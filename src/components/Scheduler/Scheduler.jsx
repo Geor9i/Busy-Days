@@ -245,7 +245,8 @@ export default function Scheduler() {
         (formData.startTime && !formData.endTime) ||
         (!formData.startTime && formData.endTime)
       ) {
-        throw new Error("Please provide a start time and an end time!");
+        alert("Please provide a start time and an end time!");
+        return
       }
       const adjustedEndTime =
         formData.endTime === "00:00" ? "24:00" : formData.endTime;
@@ -253,7 +254,8 @@ export default function Scheduler() {
         .time(formData.startTime)
         .isBiggerThan(adjustedEndTime);
       if (startAfterEnd) {
-        throw new Error("Start time must always be before the end time!");
+        alert("Start time must always be before the end time!");
+        return
       }
 
       const timeDifference = timeUtil
@@ -261,7 +263,8 @@ export default function Scheduler() {
         .deduct(adjustedEndTime, formData.startTime);
       let minutes = timeUtil.time().toMinutes(timeDifference);
       if (minutes < 90) {
-        throw new Error("Minimum shift length must be 01:30 hours!");
+        alert("Minimum shift length must be 01:30 hours!");
+        return
       }
 
       const id = empData.id;

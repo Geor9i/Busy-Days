@@ -93,23 +93,28 @@ const BusinessPage = () => {
       const { name, openTimes, positionHierarchy, description, image } =
         formData;
       if (name.length < 2) {
-        throw new Error("Business name must be at least 2 characters long!");
+        alert("Business name must be at least 2 characters long!");
+        return
       }
       if (name.length > 30) {
-        throw new Error("Business name cannot exceed 30 characters!");
+        alert("Business name cannot exceed 30 characters!");
+        return
       }
 
       if (description.length < 10) {
-        throw new Error(
+        alert(
           "Business description must be at least 10 characters long!"
         );
+        return
       }
       if (image.length < 10) {
-        throw new Error("Image link must be at least 10 characters long!");
+       alert("Image link must be at least 10 characters long!");
+       return
       }
       const pattern = /^https?:\/\/\S+$/i;
       if (!pattern.test(image)) {
-        throw new Error("Image link must start with http of https!");
+        alert("Image link must start with http of https!");
+        return
       }
 
       let closedDays = 0;
@@ -120,11 +125,12 @@ const BusinessPage = () => {
             (!weekday.startTime && weekday.endTime)) &&
           weekday.isWorkday
         ) {
-          throw new Error(
+          alert(
             `Please provide the ${
               weekday.startTime ? `opening time` : "closing time"
             } for ${stringUtil.toPascalCase(day)}!`
           );
+          return
         }
         if (!weekday.isWorkday || (!weekday.startTime && !weekday.endTime)) {
           closedDays++;
@@ -134,35 +140,41 @@ const BusinessPage = () => {
           weekday.startTime !== "00:00" &&
           weekday.endTime !== "00:00"
         ) {
-          throw new Error("Open time must always be before closing time!");
+          alert("Open time must always be before closing time!");
+          return
         }
       }
       if (closedDays === 7) {
-        throw new Error("Business must be open at least one day!");
+        alert("Business must be open at least one day!");
+        return
       }
 
       let isStaff = false;
       let i = 0;
       for (let position of positionHierarchy) {
         if (!position.title) {
-          throw new Error("Please specify a title for all job roles!");
+          alert("Please specify a title for all job roles!");
+          return
         }
         if (
           positionHierarchy.filter((pos) => position.title === pos.title)
             .length > 1
         ) {
-          throw new Error("Job Titles cannot have the same name!");
+          alert("Job Titles cannot have the same name!");
+          return
         }
         if (position.responsibility === "staff") {
           isStaff = true;
         }
         if (isStaff && position.responsibility === "management") {
-          throw new Error("Staff roles cannot be above management!");
+          alert("Staff roles cannot be above management!");
+          return
         }
         i++;
       }
       if (positionHierarchy.length < 1) {
-        throw new Error("Business must have at least 1 job role!");
+        alert("Business must have at least 1 job role!");
+        return
       }
       return true;
     }
