@@ -4,10 +4,12 @@ import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GlobalCtx } from "../../contexts/GlobalCtx.js";
 import useForm from "../../hooks/useForm.js";
+import StringUtil from "../../utils/stringUtil.js";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
   const formUtil = new FormUtil();
+  const stringUtil = new StringUtil();
 
   const formKeys = formUtil.formKeys({
     formKeys: ["firstName", "lastName", "email", "password", "repeatPassword"],
@@ -25,15 +27,19 @@ const SignUpPage = () => {
     try {
       formUtil.formValidator(formData, 6, "repeatPassword");
     } catch (err) {
-      console.log("Sign up err :", err);
+      alert("Sign up err :", err.message)
     }
     fireService
       .register(email, password)
       .then(() =>
-        fireService.updateProfile({ displayName: `${firstName} ${lastName}` })
+        fireService.updateProfile({
+          displayName: `${stringUtil.toPascalCase(
+            firstName
+          )} ${stringUtil.toPascalCase(lastName)}`,
+        })
       )
       .then(() => navigate("/"))
-      .catch((err) => console.log("SignUp Error: ", err))
+      .catch((err) => alert("SignUp Error: ", err.message))
       .finally(setMainLoader(false));
   }
 
@@ -87,7 +93,9 @@ const SignUpPage = () => {
         </div>
         <div className={styles["input-div"]}>
           <input className={styles["submit"]} type="submit" value="Register" />
-          <p>Already have an account? Login <Link to={'/login'}>here</Link></p>
+          <p>
+            Already have an account? Login <Link to={"/login"}>here</Link>
+          </p>
         </div>
       </form>
     </>

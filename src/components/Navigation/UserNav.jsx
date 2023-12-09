@@ -60,9 +60,6 @@ const UserNav = ({ user, resetValues }) => {
           <Link className={styles["link"]} to="/employee-view">
             Employee View
           </Link>
-          <Link className={styles["link"]} to="/events-view">
-            Business Events
-          </Link>
         </nav>
       </div>
 

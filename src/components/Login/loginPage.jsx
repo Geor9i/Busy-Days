@@ -15,7 +15,6 @@ const LoginPage = () => {
     submitHandler
   );
   const { fireService, setMainLoader } = useContext(GlobalCtx);
-
   function submitHandler({ formData }) {
     setMainLoader(true);
     let { email, password } = formData;
@@ -28,10 +27,9 @@ const LoginPage = () => {
       .login(email, password)
       .then(() => navigate("/"))
       .catch((error) => {
-        const errorMessage = error.message;
-        alert(errorMessage);
+        alert(error);
       })
-      .finally(() => setMainLoader(false));
+    .finally(() => setMainLoader(false));
   }
 
   return (
@@ -57,7 +55,9 @@ const LoginPage = () => {
         </div>
         <div className={styles["input-div"]}>
           <input className={styles["submit"]} type="submit" value="Login" />
-          <p>Don't have an account yet? Sign up <Link to={'/sign-up'}>here</Link></p>
+          <p>
+            Don't have an account yet? Sign up <Link to={"/sign-up"}>here</Link>
+          </p>
         </div>
       </form>
     </>

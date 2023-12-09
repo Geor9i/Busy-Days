@@ -68,18 +68,16 @@ export default function Scheduler() {
   });
   const [evaluator, setEvaluator] = useState(null);
   const [alerts, setAlerts] = useState([]);
-  const [popAnimation, setPopAnimation] = useState('');
+  const [popAnimation, setPopAnimation] = useState("");
 
   useEffect(() => {
-    setPopAnimation('pop');
+    setPopAnimation("pop");
     const timeoutId = setTimeout(() => {
-      setPopAnimation('');
+      setPopAnimation("");
     }, 2000);
-  
+
     return () => clearTimeout(timeoutId); // Clear the timeout on component unmount or when a new alert is added
   }, [alerts]);
-  
- 
 
   useEffect(() => {
     const unsubscribe = fireService.onSnapShot(
@@ -91,14 +89,13 @@ export default function Scheduler() {
   }, []);
 
   useEffect(() => {
-    // TODO! Activate after completion
-    // fireService
-    //   .fetchData(userData)
-    //   .then((response) => setBusinessData(response))
-    //   .catch((err) => console.log("DB error: ", err));
-    //!Deactivate after completion
-    setBusinessData(userData);
-    setEvaluator(new Evaluator(userData));
+    fireService
+      .fetchData(userData)
+      .then((response) => {
+        setBusinessData(response);
+        setEvaluator(new Evaluator(response));
+      })
+      .catch((err) => console.log("DB error: ", err));
   }, []);
 
   useEffect(() => {
@@ -167,7 +164,7 @@ export default function Scheduler() {
     return (
       <div>
         <h1>
-          Please configure your <Link to={"/employee-view"}>Business</Link> and{" "}
+          Please configure your <Link to={"/business"}>Business</Link> and{" "}
           <Link to={"/employee-view"}>Roster</Link> before proceeding!
         </h1>
       </div>
@@ -184,9 +181,9 @@ export default function Scheduler() {
   }
 
   async function saveHandler() {
-    const hasConfirm = confirm('Save Schedule?')
-    if (!hasConfirm) return
-    
+    const hasConfirm = confirm("Save Schedule?");
+    if (!hasConfirm) return;
+
     let managersToDBFormat = rotaTools.shiftsFormat(rota.managers, {
       toDB: true,
     });
@@ -331,11 +328,6 @@ export default function Scheduler() {
                   <p>Save</p>
                 </div>
               </div>
-              <div className={styles["menu-btn-container"]}>
-                <div className={styles["menu-btn"]}>
-                  <p>Publish</p>
-                </div>
-              </div>
               <div className={styles["menu-date-container"]}>
                 {calendarState.on && <Calendar handler={calendarHandler} />}
                 <input value={calendarState.inputDate} disabled type="text" />
@@ -343,7 +335,7 @@ export default function Scheduler() {
                   onClick={calendarHandler}
                   className={`${styles["menu-btn"]} ${styles["date-btn"]}`}
                 >
-                  <p>Date</p>
+                  <p>Change</p>
                 </div>
               </div>
               <div className={styles["group-menu-btn-container"]}>
@@ -475,7 +467,9 @@ export default function Scheduler() {
             </div>
 
             <div className={styles["message-screen"]}>
-              <p className={styles[popAnimation]}>{alerts.length > 0 && alerts[alerts.length - 1].message}</p>
+              <p className={styles[popAnimation]}>
+                {alerts.length > 0 && alerts[alerts.length - 1].message}
+              </p>
             </div>
             <div className={styles["message-stack"]}>
               <div className={styles["message-header-container"]}>

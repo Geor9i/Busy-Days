@@ -12,6 +12,7 @@ import {
   ROSTER_KEY,
   GUEST_KEY,
   EVENTS_KEY,
+  SCHEDULE_KEY,
 } from "../../../config/constants.js";
 
 export default function Account() {
@@ -76,11 +77,14 @@ export default function Account() {
   }
 
   async function deleteAccount() {
+    const hasConfirm = confirm('You are about to delete your account! Are you sure ?');
+    if (!hasConfirm) return 
     try {
       const publicId = userData?.[BUSINESS_KEY]?.publicId;
       await fireService.deleteDoc(BUSINESS_KEY);
       await fireService.deleteDoc(ROSTER_KEY);
       await fireService.deleteDoc(EVENTS_KEY);
+      await fireService.deleteDoc(SCHEDULE_KEY);
       if (publicId) {
         await fireService.deletePublicField(publicId);
       }

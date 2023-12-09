@@ -1,18 +1,12 @@
 import { useState, useEffect } from "react";
 import useLoader from "./hooks/useLoader.js";
 import { Routes, Route } from "react-router-dom";
-
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../config/firebaseConfig.js";
-
 import styles from "./app.module.css";
 import "./styles.css";
 import { GlobalCtx } from "./contexts/GlobalCtx.js";
-import {
-  BUSINESS_KEY,
-  ROSTER_KEY,
-  EVENTS_KEY,
-} from "../config/constants.js";
+import { BUSINESS_KEY, ROSTER_KEY, EVENTS_KEY } from "../config/constants.js";
 
 import FirebaseService from "./services/firebaseService.js";
 import ObjectUtil from "./utils/objectUtil.js";
@@ -26,10 +20,10 @@ import SignUpPage from "./components/SignUp/SignUpPage.jsx";
 import NotFound from "./components/Errors/NotFound.jsx";
 import BusinessPage from "./components/BusinessPage/BusinessPage.jsx";
 import EmployeeView from "./components/EmployeeView/EmployeeView.jsx";
-import EventsView from "./components/EventsView/EventView.jsx";
 import Clients from "./components/Clients/Clients.jsx";
 import Account from "./components/Account/Account.jsx";
 import Scheduler from "./components/Scheduler/Scheduler.jsx";
+
 
 const app = initializeApp(firebaseConfig);
 const fireService = new FirebaseService(app);
@@ -48,7 +42,6 @@ function App() {
     [ROSTER_KEY]: {},
     [EVENTS_KEY]: {},
   };
-
   const [userData, setUserData] = useState(initialValues);
   //Handle authentication changes
   useEffect(() => {
@@ -63,7 +56,7 @@ function App() {
           .then((response) => setUserData(response))
           .catch((err) => console.log("DB error: ", err))
           .finally(() => setMainLoader(false));
-      }else {
+      } else {
         setMainLoader(false);
       }
     });
@@ -86,10 +79,14 @@ function App() {
         setUserData,
         userData,
         setMainLoader,
-        app
+        app,
       }}
     >
-      {user ? <UserNav user={user} resetValues={initialValues} /> : <GuestNav />}
+      {user ? (
+        <UserNav user={user} resetValues={initialValues} />
+      ) : (
+        <GuestNav />
+      )}
 
       <main className={styles["main"]}>
         <Routes>
@@ -101,7 +98,6 @@ function App() {
           <Route path="/scheduler" element={<Scheduler />} />
           <Route path="/business" element={<BusinessPage />} />
           <Route path="/employee-view" element={<EmployeeView />} />
-          <Route path="/events-view" element={<EventsView />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
