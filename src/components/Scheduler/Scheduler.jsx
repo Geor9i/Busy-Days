@@ -90,8 +90,33 @@ export default function Scheduler() {
     }
   }, [businessData]);
 
+  function generateNewRota() {
+    let [managers, staff] = rotaTools.getRotaTemplate();
+    const openDays = rotaTools.getOpenDays();
+    let weekDates = dateUtil
+      .op(calendarState.dateObj)
+      .getWeekSpread({ customWeek: openDays })
+      .map(
+        (date) =>
+          `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
+      );
+    const weekdayHeaders = openDays.map(
+      (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
+    );
+    const trStyles = {
+      gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`,
+    };
+    return {
+      managers,
+      staff,
+      openDays,
+      trStyles,
+      weekdayHeaders,
+    }
+  }
+
   useEffect(() => {
-    const selectedDate = dateUtil.op(calendarState.dateObj).format();
+    const selectedDate = dateUtil.op(calendarState.dateObj).format({delimiter: '-'});
     if (scheduleData.hasOwnProperty(selectedDate)) {
       const { managers, staff } = scheduleData[selectedDate];
       let unpackedManagers = rotaTools.shiftsFormat(managers, { fromDB: true });
@@ -100,33 +125,12 @@ export default function Scheduler() {
         ...scheduleData[selectedDate],
         managers: unpackedManagers ? unpackedManagers : [],
         staff: unpackedStaff ? unpackedStaff : [],
-      
-      })
+      });
     } else {
       if (rotaTools) {
-        let [managers, staff] = rotaTools.getRotaTemplate();
-        const openDays = rotaTools.getOpenDays();
-        let weekDates = dateUtil
-          .op(calendarState.dateObj)
-          .getWeekSpread({ customWeek: openDays })
-          .map(
-            (date) =>
-              `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
-          );
-        const weekdayHeaders = openDays.map(
-          (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
-        );
-        const trStyles = {
-          gridTemplateColumns: `15% repeat(${openDays.length}, 1fr)  repeat(3, 5%)`,
-        };
-
         setRota((state) => ({
           ...state,
-          managers,
-          staff,
-          openDays,
-          trStyles,
-          weekdayHeaders,
+          ...generateNewRota()
         }));
       }
     }
@@ -156,7 +160,7 @@ export default function Scheduler() {
       toDB: true,
     });
     let staffToDbFormat = rotaTools.shiftsFormat(rota.staff, { toDB: true });
-    let scheduleId = dateUtil.op(calendarState.dateObj).format();
+    let scheduleId = dateUtil.op(calendarState.dateObj).format({delimiter: '-'});
     let resultData = {
       [scheduleId]: {
         ...rota,
@@ -165,6 +169,16 @@ export default function Scheduler() {
       },
     };
     await fireService.setDoc(SCHEDULE_KEY, resultData, { merge: true });
+  }
+
+  async function deleteRota() {
+    const id = dateUtil.op(calendarState.dateObj).format({delimiter: '-'});
+    console.log(id);
+    const hasConfirm = confirm("Are you sure?");
+    if (hasConfirm) {
+      await fireService.deleteField(SCHEDULE_KEY, id);
+      setRota(state => ({...state, ...generateNewRota()}))
+    }
   }
 
   function calendarHandler(e) {
@@ -307,8 +321,8 @@ export default function Scheduler() {
                   </div>
                 </div>
                 <div className={styles["menu-btn-container"]}>
-                  <div className={styles["menu-btn"]}>
-                    <p>Reset</p>
+                  <div onClick={deleteRota} className={styles["menu-btn"]}>
+                    <p>Delete</p>
                   </div>
                 </div>
               </div>
