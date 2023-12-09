@@ -1,19 +1,20 @@
+import StringUtil from "../../../utils/stringUtil.js";
 import styles from "./messageListitem.module.css";
 
-export default function MessageListItem() {
+export default function MessageListItem({name, id, weekday, message}) {
+  const stringUtil = new StringUtil()
   return (
     <>
      
-
       <div className={styles["list-item-container"]}>
         <div className={styles["message-td"]}>
-          <p>Thursday</p>
+          <p>{stringUtil.toPascalCase(weekday)}</p>
         </div>
         <div className={styles["message-td"]}>
-          <p>Sean</p>
+          <p>{name}</p>
         </div>
         <div className={styles["message-td"]}>
-          <p>Can't work more than 12 hours!</p>
+          <p>{message}</p>
         </div>
       </div>
     </>

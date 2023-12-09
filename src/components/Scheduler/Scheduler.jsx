@@ -18,6 +18,8 @@ import Rota from "../../lib/rota.js";
 import TimeUtil from "../../utils/timeUtil.js";
 import { Link, useNavigate } from "react-router-dom";
 import Calendar from "../Calendar/Calendar.jsx";
+import Evaluator from "../../lib/evaluator.js";
+import isEqual from "lodash.isequal";
 
 export default function Scheduler() {
   const { userData, fireService } = useContext(GlobalCtx);
@@ -33,6 +35,7 @@ export default function Scheduler() {
     [BUSINESS_KEY]: {},
     [EVENTS_KEY]: {},
   });
+  const [popAnimation, setPopAnimation] = useState('')
   const initialShiftModalStyles = {
     width: "12vw",
     height: "16vh",
@@ -64,6 +67,15 @@ export default function Scheduler() {
     weekdayHeaders: [],
     trStyles: {},
   });
+  const [evaluator, setEvaluator] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+
+  useEffect(() => {
+    setPopAnimation('pop')
+    setTimeout(() => {
+      setPopAnimation('')
+    }, 2000)
+  }, [alerts])
 
   useEffect(() => {
     const unsubscribe = fireService.onSnapShot(
@@ -82,6 +94,7 @@ export default function Scheduler() {
     //   .catch((err) => console.log("DB error: ", err));
     //!Deactivate after completion
     setBusinessData(userData);
+    setEvaluator(new Evaluator(userData));
   }, []);
 
   useEffect(() => {
@@ -97,8 +110,7 @@ export default function Scheduler() {
       .op(calendarState.dateObj)
       .getWeekSpread({ customWeek: openDays })
       .map(
-        (date) =>
-          `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
+        (date) => `${date.getDate()}${dateUtil.getDateOrdinal(date.getDate())}`
       );
     const weekdayHeaders = openDays.map(
       (day, i) => `${stringUtil.toPascalCase(day)} ${weekDates[i]}`
@@ -112,11 +124,13 @@ export default function Scheduler() {
       openDays,
       trStyles,
       weekdayHeaders,
-    }
+    };
   }
 
   useEffect(() => {
-    const selectedDate = dateUtil.op(calendarState.dateObj).format({delimiter: '-'});
+    const selectedDate = dateUtil
+      .op(calendarState.dateObj)
+      .format({ delimiter: "-" });
     if (scheduleData.hasOwnProperty(selectedDate)) {
       const { managers, staff } = scheduleData[selectedDate];
       let unpackedManagers = rotaTools.shiftsFormat(managers, { fromDB: true });
@@ -130,17 +144,27 @@ export default function Scheduler() {
       if (rotaTools) {
         setRota((state) => ({
           ...state,
-          ...generateNewRota()
+          ...generateNewRota(),
         }));
       }
     }
   }, [rotaTools, calendarState.dateObj]);
 
+  useEffect(() => {
+    if (evaluator) {
+      let newAlerts = evaluator.validateShiftHours(rota);
+      if (!isEqual(newAlerts, alerts)) {
+        setAlerts(newAlerts);
+      }
+    }
+  }, [rota]);
+
   if (objUtil.isEmpty(userData)) {
     return (
       <div>
         <h1>
-          Please configure your Business, Roster and events before proceeding!
+          Please configure your <Link to={"/employee-view"}>Business</Link> and{" "}
+          <Link to={"/employee-view"}>Roster</Link> before proceeding!
         </h1>
       </div>
     );
@@ -148,8 +172,8 @@ export default function Scheduler() {
     return (
       <div>
         <h1>
-          Please configure your Roster before proceeding!{" "}
-          <Link to={"/employee-view"}>here</Link>
+          Please configure your <Link to={"/employee-view"}>Roster</Link> before
+          proceeding!{" "}
         </h1>
       </div>
     );
@@ -160,7 +184,9 @@ export default function Scheduler() {
       toDB: true,
     });
     let staffToDbFormat = rotaTools.shiftsFormat(rota.staff, { toDB: true });
-    let scheduleId = dateUtil.op(calendarState.dateObj).format({delimiter: '-'});
+    let scheduleId = dateUtil
+      .op(calendarState.dateObj)
+      .format({ delimiter: "-" });
     let resultData = {
       [scheduleId]: {
         ...rota,
@@ -172,12 +198,12 @@ export default function Scheduler() {
   }
 
   async function deleteRota() {
-    const id = dateUtil.op(calendarState.dateObj).format({delimiter: '-'});
+    const id = dateUtil.op(calendarState.dateObj).format({ delimiter: "-" });
     console.log(id);
     const hasConfirm = confirm("Are you sure?");
     if (hasConfirm) {
       await fireService.deleteField(SCHEDULE_KEY, id);
-      setRota(state => ({...state, ...generateNewRota()}))
+      setRota((state) => ({ ...state, ...generateNewRota() }));
     }
   }
 
@@ -217,16 +243,15 @@ export default function Scheduler() {
       ) {
         throw new Error("Please provide a start time and an end time!");
       }
-
+      const adjustedEndTime =
+        formData.endTime === "00:00" ? "24:00" : formData.endTime;
       const startAfterEnd = timeUtil
-        .relativeTime(formData.startTime)
-        .isBiggerThan(formData.endTime);
+        .time(formData.startTime)
+        .isBiggerThan(adjustedEndTime);
       if (startAfterEnd) {
         throw new Error("Start time must always be before the end time!");
       }
 
-      const adjustedEndTime =
-        formData.endTime === "00:00" ? "24:00" : formData.endTime;
       const timeDifference = timeUtil
         .math()
         .deduct(adjustedEndTime, formData.startTime);
@@ -315,11 +340,6 @@ export default function Scheduler() {
                 </div>
               </div>
               <div className={styles["group-menu-btn-container"]}>
-                <div className={styles["menu-btn-container"]}>
-                  <div className={styles["menu-btn"]}>
-                    <p>Generate</p>
-                  </div>
-                </div>
                 <div className={styles["menu-btn-container"]}>
                   <div onClick={deleteRota} className={styles["menu-btn"]}>
                     <p>Delete</p>
@@ -448,8 +468,7 @@ export default function Scheduler() {
             </div>
 
             <div className={styles["message-screen"]}>
-              <strong>Alert: </strong>
-              <p>Sean Cant work more than 12 hours!</p>
+              <p className={styles[popAnimation]}>{alerts.length > 0 && alerts[alerts.length - 1].message}</p>
             </div>
             <div className={styles["message-stack"]}>
               <div className={styles["message-header-container"]}>
@@ -463,8 +482,14 @@ export default function Scheduler() {
                   <p>Message</p>
                 </div>
               </div>
+
               <div className={styles["message-content-container"]}>
-                <MessageListItem />
+                {alerts.map((alert) => (
+                  <MessageListItem
+                    key={`${alert.id} ${alert.weekday} ${alert.message}`}
+                    {...alert}
+                  />
+                ))}
               </div>
             </div>
           </div>

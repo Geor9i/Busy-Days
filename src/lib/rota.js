@@ -9,7 +9,6 @@ import {
 import DateUtil from "../utils/dateUtil.js";
 import ObjectUtil from "../utils/objectUtil.js";
 import TimeUtil from "../utils/timeUtil.js";
-import Evaluator from "./evaluator.js";
 import LegalRequirements from "./legalRequirement.js";
 
 export default class Rota {
@@ -17,7 +16,6 @@ export default class Rota {
     this.objUtil = new ObjectUtil();
     this.time = new TimeUtil();
     this.date = new DateUtil();
-    this.evaluator = new Evaluator();
     this.legal = new LegalRequirements();
     this.positions = userData[BUSINESS_KEY].positionHierarchy;
     this.staff = userData[ROSTER_KEY];
@@ -173,7 +171,6 @@ export default class Rota {
     // date = this.date.op(date).getMonday();
     // this.openTimes = this.util.iterate(this.openTimes, this.clock.time().toObj);
     // const [rota, staffAvailability] = this.init();
-    // this.evaluator.init(this.staff);
     // console.log({rota, staffAvailability});
   }
 

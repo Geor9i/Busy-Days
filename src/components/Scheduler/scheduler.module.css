@@ -152,6 +152,24 @@
   text-align: center;
 }
 
+.pop {
+  color: red;
+  animation: textPop 2s ease-in-out;
+}
+
+@keyframes textPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
 .message-screen strong {
   color: red;
   font-size: 1.5rem;
