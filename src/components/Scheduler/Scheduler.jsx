@@ -35,7 +35,6 @@ export default function Scheduler() {
     [BUSINESS_KEY]: {},
     [EVENTS_KEY]: {},
   });
-  const [popAnimation, setPopAnimation] = useState('')
   const initialShiftModalStyles = {
     width: "12vw",
     height: "16vh",
@@ -69,13 +68,18 @@ export default function Scheduler() {
   });
   const [evaluator, setEvaluator] = useState(null);
   const [alerts, setAlerts] = useState([]);
+  const [popAnimation, setPopAnimation] = useState('');
 
   useEffect(() => {
-    setPopAnimation('pop')
-    setTimeout(() => {
-      setPopAnimation('')
-    }, 2000)
-  }, [alerts])
+    setPopAnimation('pop');
+    const timeoutId = setTimeout(() => {
+      setPopAnimation('');
+    }, 2000);
+  
+    return () => clearTimeout(timeoutId); // Clear the timeout on component unmount or when a new alert is added
+  }, [alerts]);
+  
+ 
 
   useEffect(() => {
     const unsubscribe = fireService.onSnapShot(
@@ -180,6 +184,9 @@ export default function Scheduler() {
   }
 
   async function saveHandler() {
+    const hasConfirm = confirm('Save Schedule?')
+    if (!hasConfirm) return
+    
     let managersToDBFormat = rotaTools.shiftsFormat(rota.managers, {
       toDB: true,
     });
