@@ -9,7 +9,7 @@ Busy-Days is a web application designed for creating and managing custom busines
 - **User Registration:** Register an account to access the service and start creating schedules.
 - **Customizable Schedules:** Configure all relevant information for your business, including open times, job role hierarchy, and employee roster details.
 - **Employee Management:** Maintain employee rosters with essential data such as availability and days off.
-- **Flexible Schedule Creation:** Easily create weekly schedules by adding shifts. The scheduler will provide alerts for errors in staff availability or business requirements and give a general score of the schedule.
+- **Flexible Schedule Creation:** Easily create weekly schedules by adding shifts. The scheduler will provide alerts for errors in staff availability or business requirements.
 - **Future Potential:** Automatic scheduling functionality is planned for future implementation.
 
 ## Technology Stack
@@ -25,12 +25,10 @@ The Busy-Days web application is hosted on Firebase. You can access it using the
 
 ## Screenshots
 
-[Insert screenshots here]
-
-## API Documentation
-
-[Include any relevant API documentation here]
-
+![Screenshot 1](screenshots/1) - Home Page
+![Screenshot 2](screenshots/2) - Business Setup
+![Screenshot 3](screenshots/3) - Employee manager
+![Screenshot 4](screenshots/4) - Scheduler 
 
 ## Project Status
 
